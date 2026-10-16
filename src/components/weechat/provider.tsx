@@ -1,0 +1,16 @@
+import { createContext, useContext, useState, type ReactNode } from 'react';
+import { copy, type Locale, type CopyKey } from '@/lib/weechat/i18n';
+import { initialBalance, demoTransactions, type Transaction } from '@/lib/weechat/demo-data';
+type DemoState = { locale: Locale; setLocale: (v: Locale) => void; t: (key: CopyKey) => string; balance: number; transactions: Transaction[]; purchase: (amount: number, name: string) => void };
+const DemoContext = createContext<DemoState | null>(null);
+export function DemoProvider({ children }: { children: ReactNode }) {
+  const [locale, setLocale] = useState<Locale>('fr');
+  const [balance, setBalance] = useState(initialBalance);
+  const [transactions, setTransactions] = useState(demoTransactions);
+  const purchase = (amount: number, name: string) => {
+    setBalance(v => v + amount);
+    setTransactions(v => [{ id: crypto.randomUUID(), date: 'Aujourd’hui', title: `Pack ${name} · simulation`, type: 'purchase', amount }, ...v]);
+  };
+  return <DemoContext.Provider value={{ locale, setLocale, t: key => copy[locale][key], balance, transactions, purchase }}>{children}</DemoContext.Provider>;
+}
+export function useDemo() { const state = useContext(DemoContext); if (!state) throw new Error('DemoProvider required'); return state; }
