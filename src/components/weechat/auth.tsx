@@ -91,7 +91,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
       <Button className="w-full" size="lg" type="submit" disabled={busy}>{busy ? 'Patientez…' : cta}<ArrowRight /></Button>
     </form>
     {notice && <Notice>{notice}</Notice>}
-    {mode === 'login' && <div className="auth-resend"><Button type="button" variant="outline" size="sm" disabled={resendBusy} onClick={resendConfirmation}><Mail size={14} />{resendBusy ? t('resendSending') : t('resendConfirm')}</Button>{resendNotice && <small data-ok={resendOk ? 'true' : 'false'}>{resendNotice}</small>}</div>}
+    {mode === 'login' && <div className="auth-resend"><div className="auth-resend-side"><Button type="button" variant="outline" size="sm" disabled={resendBusy || cooldown > 0} onClick={resendConfirmation}><Mail size={14} />{resendBusy ? t('resendSending') : cooldown > 0 ? t('resendWait').replace('{s}', String(cooldown)) : t('resendConfirm')}</Button>{cooldown > 0 && <span className="auth-resend-timer" aria-hidden="true"><i style={{ width: `${(cooldown / RESEND_COOLDOWN_SECONDS) * 100}%` }} /></span>}</div>{resendNotice && <small data-ok={resendOk ? 'true' : 'false'}>{resendNotice}</small>}</div>}
     <div className="auth-divider"><span>WEECHAT</span></div>
     <p className="auth-foot">{mode === 'reset' || mode === 'update' ? <Link to="/connexion"><ArrowLeft size={14} />{t('backLogin')}</Link> : mode === 'login' ? <>{t('noAccount')} <Link to="/inscription">{t('register')}</Link></> : <>{t('hasAccount')} <Link to="/connexion">{t('login')}</Link></>}</p>
     <p className="auth-privacy"><ShieldCheck size={14} />Vos données de connexion sont protégées.</p></div></div></section>;
