@@ -15,4 +15,4 @@
 - Use semantic CSS tokens and existing UI Button/Input components across Weechat screens; this keeps the visual identity consistent.
 - Keep UI locale separate from simulated vocal-language selection; the concepts must not share state.
 - Use the public NASA Earth photograph through a Lovable asset pointer; no paid generated assets are necessary for this prototype.
-- Backend target is an external user-owned Supabase project reached via VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY through src/lib/supabase/client.ts; never enable Lovable Cloud and never place secret keys in frontend code.
+- Backend target is an external user-owned Supabase project reached via VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY through the single generated client in src/integrations/supabase (one client avoids duplicate sessions); never enable Lovable Cloud and never place secret keys in frontend code.
