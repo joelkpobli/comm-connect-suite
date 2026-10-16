@@ -13,6 +13,7 @@ function authError(message: string) {
   const m = message.toLowerCase();
   if (m.includes('email not confirmed')) return 'Confirmez d’abord votre e-mail via le lien reçu.';
   if (m.includes('invalid login')) return 'E-mail ou mot de passe incorrect.';
+  if (m.includes('invalid') && m.includes('email')) return 'Adresse e-mail refusée. Vérifiez-la.';
   if (m.includes('already registered')) return 'Un compte existe déjà avec cet e-mail.';
   if (m.includes('rate limit')) return 'Trop de tentatives. Réessayez dans quelques minutes.';
   if (m.includes('password')) return 'Mot de passe refusé : choisissez-en un plus robuste (8 caractères minimum).';
