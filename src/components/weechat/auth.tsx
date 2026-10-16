@@ -3,11 +3,75 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, UserRound, ArrowLeft, ShieldCheck, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Brand, DemoBadge, Notice } from './shared';
+import { supabase } from '@/integrations/supabase/client';
+import { Brand, Notice } from './shared';
 import { useDemo } from './provider';
-export function AuthPage({ mode }: { mode: 'login' | 'signup' | 'reset' }) {
-  const { t } = useDemo(); const navigate = useNavigate(); const [visible, setVisible] = useState(false); const [notice, setNotice] = useState('');
-  function submit(e: FormEvent<HTMLFormElement>) { e.preventDefault(); const data = new FormData(e.currentTarget); if (mode === 'signup' && data.get('password') !== data.get('confirm')) { setNotice('Les mots de passe ne correspondent pas.'); return; } if (mode === 'reset') { setNotice('Simulation terminée. Aucun e-mail n’a été envoyé.'); return; } if (mode === 'signup') { setNotice('Inscription simulée. Aucun compte n’a été créé. Vous pouvez explorer la démo.'); return; } navigate({ to: '/tableau-de-bord' }); }
-  return <section className="auth-page"><div className="auth-story"><Brand /><span className="eyebrow">CHAQUE CONVERSATION EST UN DÉPART.</span><h2>Moins de barrières.<br /><span>Plus de connexions.</span></h2><p>Votre monde ne s’arrête pas à votre langue.</p><div className="auth-globe"><Globe2 strokeWidth={.5} /><span>FR</span><span>EN</span><span>ES</span></div><DemoBadge /></div><div className="auth-form-wrap"><div className="auth-form"><span className="auth-symbol">{mode === 'reset' ? <LockKeyhole /> : <AudioIcon />}</span><h1>{t(mode === 'login' ? 'welcome' : mode === 'signup' ? 'signupTitle' : 'resetTitle')}</h1><p className="auth-subtitle">{t(mode === 'login' ? 'loginSub' : mode === 'signup' ? 'signupSub' : 'resetSub')}</p><form onSubmit={submit}>{mode === 'signup' && <label className="field"><span>{t('name')}</span><div className="input-icon"><UserRound /><Input name="name" placeholder="Jean Dupont" required autoComplete="name" /></div></label>}<label className="field"><span>{t('email')}</span><div className="input-icon"><Mail /><Input name="email" type="email" placeholder="vous@exemple.com" required autoComplete="email" /></div></label>{mode !== 'reset' && <><label className="field"><span>{t('password')}</span><div className="input-icon"><LockKeyhole /><Input name="password" type={visible ? 'text' : 'password'} placeholder="Votre mot de passe" required minLength={mode === 'signup' ? 8 : 1} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} /><Button type="button" variant="ghost" size="icon" aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} onClick={() => setVisible(v => !v)}>{visible ? <EyeOff /> : <Eye />}</Button></div></label>{mode === 'signup' && <label className="field"><span>{t('confirm')}</span><div className="input-icon"><LockKeyhole /><Input name="confirm" type={visible ? 'text' : 'password'} placeholder="Confirmez votre mot de passe" required minLength={8} autoComplete="new-password" /></div></label>}</>}{mode === 'login' && <div className="auth-options"><label><input type="checkbox" />{t('remember')}</label><Link to="/recuperation">{t('forgot')}</Link></div>}{mode === 'signup' && <label className="auth-consent"><input type="checkbox" required />Je comprends qu’il s’agit d’une démonstration sans création de compte.</label>}<Button className="w-full" size="lg" type="submit">{t(mode === 'login' ? 'login' : mode === 'signup' ? 'create' : 'send')}<ArrowRight /></Button></form>{notice && <Notice>{notice}</Notice>}{mode === 'signup' && notice.startsWith('Inscription') && <Button asChild variant="outline" className="mt-3 w-full"><Link to="/tableau-de-bord">{t('explore')}<ArrowRight /></Link></Button>}<div className="auth-divider"><span>ESPACE DE DÉMONSTRATION</span></div><p className="auth-foot">{mode === 'reset' ? <Link to="/connexion"><ArrowLeft size={14} />{t('backLogin')}</Link> : mode === 'login' ? <>{t('noAccount')} <Link to="/inscription">{t('register')}</Link></> : <>{t('hasAccount')} <Link to="/connexion">{t('login')}</Link></>}</p><p className="auth-privacy"><ShieldCheck size={14} />{t('note')}</p></div></div></section>;
+
+type Mode = 'login' | 'signup' | 'reset' | 'update';
+
+function authError(message: string) {
+  const m = message.toLowerCase();
+  if (m.includes('email not confirmed')) return 'Confirmez d’abord votre e-mail via le lien reçu.';
+  if (m.includes('invalid login')) return 'E-mail ou mot de passe incorrect.';
+  if (m.includes('invalid') && m.includes('email')) return 'Adresse e-mail refusée. Vérifiez-la.';
+  if (m.includes('already registered')) return 'Un compte existe déjà avec cet e-mail.';
+  if (m.includes('rate limit')) return 'Trop de tentatives. Réessayez dans quelques minutes.';
+  if (m.includes('password')) return 'Mot de passe refusé : choisissez-en un plus robuste (8 caractères minimum).';
+  return 'Une erreur est survenue. Réessayez.';
+}
+
+export function AuthPage({ mode }: { mode: Mode }) {
+  const { t } = useDemo(); const navigate = useNavigate();
+  const [visible, setVisible] = useState(false); const [notice, setNotice] = useState(''); const [busy, setBusy] = useState(false);
+  const withPassword = mode !== 'reset'; const withEmail = mode !== 'update';
+
+  async function submit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault(); setNotice('');
+    const form = e.currentTarget; const data = new FormData(form);
+    const email = String(data.get('email') ?? '').trim(); const password = String(data.get('password') ?? '');
+    if ((mode === 'signup' || mode === 'update') && password !== data.get('confirm')) { setNotice('Les mots de passe ne correspondent pas.'); return; }
+    setBusy(true);
+    try {
+      if (mode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { setNotice(authError(error.message)); return; }
+        navigate({ to: '/tableau-de-bord' });
+      } else if (mode === 'signup') {
+        const name = String(data.get('name') ?? '').trim().slice(0, 80);
+        const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/connexion`, data: { display_name: name } } });
+        if (error) { setNotice(authError(error.message)); return; }
+        form.reset();
+        setNotice('Compte créé. Ouvrez le lien envoyé par e-mail pour confirmer votre adresse, puis connectez-vous.');
+      } else if (mode === 'reset') {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reinitialisation` });
+        if (error) { setNotice(authError(error.message)); return; }
+        setNotice('Si un compte existe pour cet e-mail, un lien de réinitialisation vient d’être envoyé.');
+      } else {
+        const { data: s } = await supabase.auth.getSession();
+        if (!s.session) { setNotice('Lien expiré ou invalide. Demandez un nouveau lien.'); return; }
+        const { error } = await supabase.auth.updateUser({ password });
+        if (error) { setNotice(authError(error.message)); return; }
+        navigate({ to: '/tableau-de-bord' });
+      }
+    } finally { setBusy(false); }
+  }
+
+  const title = mode === 'login' ? t('welcome') : mode === 'signup' ? t('signupTitle') : mode === 'reset' ? t('resetTitle') : 'Nouveau mot de passe';
+  const sub = mode === 'login' ? t('loginSub') : mode === 'signup' ? t('signupSub') : mode === 'reset' ? t('resetSub') : 'Choisissez un nouveau mot de passe.';
+  const cta = mode === 'login' ? t('login') : mode === 'signup' ? t('create') : mode === 'reset' ? t('send') : 'Enregistrer';
+
+  return <section className="auth-page"><div className="auth-story"><Brand /><span className="eyebrow">CHAQUE CONVERSATION EST UN DÉPART.</span><h2>Moins de barrières.<br /><span>Plus de connexions.</span></h2><p>Votre monde ne s’arrête pas à votre langue.</p><div className="auth-globe"><Globe2 strokeWidth={.5} /><span>FR</span><span>EN</span><span>ES</span></div></div><div className="auth-form-wrap"><div className="auth-form"><span className="auth-symbol">{mode === 'reset' || mode === 'update' ? <LockKeyhole /> : <AudioIcon />}</span><h1>{title}</h1><p className="auth-subtitle">{sub}</p>
+    <form onSubmit={submit}>
+      {mode === 'signup' && <label className="field"><span>{t('name')}</span><div className="input-icon"><UserRound /><Input name="name" placeholder="Jean Dupont" required maxLength={80} autoComplete="name" /></div></label>}
+      {withEmail && <label className="field"><span>{t('email')}</span><div className="input-icon"><Mail /><Input name="email" type="email" placeholder="vous@exemple.com" required maxLength={255} autoComplete="email" /></div></label>}
+      {withPassword && <><label className="field"><span>{t('password')}</span><div className="input-icon"><LockKeyhole /><Input name="password" type={visible ? 'text' : 'password'} placeholder="Votre mot de passe" required minLength={mode === 'login' ? 1 : 8} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} /><Button type="button" variant="ghost" size="icon" aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} onClick={() => setVisible(v => !v)}>{visible ? <EyeOff /> : <Eye />}</Button></div></label>
+        {(mode === 'signup' || mode === 'update') && <label className="field"><span>{t('confirm')}</span><div className="input-icon"><LockKeyhole /><Input name="confirm" type={visible ? 'text' : 'password'} placeholder="Confirmez votre mot de passe" required minLength={8} autoComplete="new-password" /></div></label>}</>}
+      {mode === 'login' && <div className="auth-options"><span /><Link to="/recuperation">{t('forgot')}</Link></div>}
+      <Button className="w-full" size="lg" type="submit" disabled={busy}>{busy ? 'Patientez…' : cta}<ArrowRight /></Button>
+    </form>
+    {notice && <Notice>{notice}</Notice>}
+    <div className="auth-divider"><span>WEECHAT</span></div>
+    <p className="auth-foot">{mode === 'reset' || mode === 'update' ? <Link to="/connexion"><ArrowLeft size={14} />{t('backLogin')}</Link> : mode === 'login' ? <>{t('noAccount')} <Link to="/inscription">{t('register')}</Link></> : <>{t('hasAccount')} <Link to="/connexion">{t('login')}</Link></>}</p>
+    <p className="auth-privacy"><ShieldCheck size={14} />Vos données de connexion sont protégées.</p></div></div></section>;
 }
 function AudioIcon() { return <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 9v6m4-10v14m4-16v18m4-14v10m4-8v6" strokeLinecap="round" /></svg>; }
