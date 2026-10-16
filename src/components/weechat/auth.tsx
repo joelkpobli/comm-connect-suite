@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, UserRound, ArrowLeft, ShieldCheck, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,8 @@ function authError(message: string) {
 export function AuthPage({ mode }: { mode: Mode }) {
   const { t } = useDemo(); const navigate = useNavigate();
   const [visible, setVisible] = useState(false); const [notice, setNotice] = useState(''); const [busy, setBusy] = useState(false);
+  const [resendNotice, setResendNotice] = useState(''); const [resendOk, setResendOk] = useState(false); const [resendBusy, setResendBusy] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
   const withPassword = mode !== 'reset'; const withEmail = mode !== 'update';
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -56,12 +58,24 @@ export function AuthPage({ mode }: { mode: Mode }) {
     } finally { setBusy(false); }
   }
 
+  async function resendConfirmation() {
+    const input = formRef.current?.elements.namedItem('email');
+    const email = input instanceof HTMLInputElement ? input.value.trim() : '';
+    if (!email) { setResendOk(false); setResendNotice(t('resendNeedEmail')); return; }
+    setResendBusy(true); setResendOk(false); setResendNotice('');
+    try {
+      const { error } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${window.location.origin}/connexion` } });
+      if (error) { setResendOk(false); setResendNotice(authError(error.message)); return; }
+      setResendOk(true); setResendNotice(t('resendSent'));
+    } finally { setResendBusy(false); }
+  }
+
   const title = mode === 'login' ? t('welcome') : mode === 'signup' ? t('signupTitle') : mode === 'reset' ? t('resetTitle') : 'Nouveau mot de passe';
   const sub = mode === 'login' ? t('loginSub') : mode === 'signup' ? t('signupSub') : mode === 'reset' ? t('resetSub') : 'Choisissez un nouveau mot de passe.';
   const cta = mode === 'login' ? t('login') : mode === 'signup' ? t('create') : mode === 'reset' ? t('send') : 'Enregistrer';
 
   return <section className="auth-page"><div className="auth-story"><Brand /><span className="eyebrow">CHAQUE CONVERSATION EST UN DÉPART.</span><h2>Moins de barrières.<br /><span>Plus de connexions.</span></h2><p>Votre monde ne s’arrête pas à votre langue.</p><div className="auth-globe"><Globe2 strokeWidth={.5} /><span>FR</span><span>EN</span><span>ES</span></div></div><div className="auth-form-wrap"><div className="auth-form"><span className="auth-symbol">{mode === 'reset' || mode === 'update' ? <LockKeyhole /> : <AudioIcon />}</span><h1>{title}</h1><p className="auth-subtitle">{sub}</p>
-    <form onSubmit={submit}>
+    <form ref={formRef} onSubmit={submit}>
       {mode === 'signup' && <label className="field"><span>{t('name')}</span><div className="input-icon"><UserRound /><Input name="name" placeholder="Jean Dupont" required maxLength={80} autoComplete="name" /></div></label>}
       {withEmail && <label className="field"><span>{t('email')}</span><div className="input-icon"><Mail /><Input name="email" type="email" placeholder="vous@exemple.com" required maxLength={255} autoComplete="email" /></div></label>}
       {withPassword && <><label className="field"><span>{t('password')}</span><div className="input-icon"><LockKeyhole /><Input name="password" type={visible ? 'text' : 'password'} placeholder="Votre mot de passe" required minLength={mode === 'login' ? 1 : 8} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} /><Button type="button" variant="ghost" size="icon" aria-label={visible ? 'Masquer le mot de passe' : 'Afficher le mot de passe'} onClick={() => setVisible(v => !v)}>{visible ? <EyeOff /> : <Eye />}</Button></div></label>
@@ -70,6 +84,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
       <Button className="w-full" size="lg" type="submit" disabled={busy}>{busy ? 'Patientez…' : cta}<ArrowRight /></Button>
     </form>
     {notice && <Notice>{notice}</Notice>}
+    {mode === 'login' && <div className="auth-resend"><Button type="button" variant="outline" size="sm" disabled={resendBusy} onClick={resendConfirmation}><Mail size={14} />{resendBusy ? t('resendSending') : t('resendConfirm')}</Button>{resendNotice && <small data-ok={resendOk ? 'true' : 'false'}>{resendNotice}</small>}</div>}
     <div className="auth-divider"><span>WEECHAT</span></div>
     <p className="auth-foot">{mode === 'reset' || mode === 'update' ? <Link to="/connexion"><ArrowLeft size={14} />{t('backLogin')}</Link> : mode === 'login' ? <>{t('noAccount')} <Link to="/inscription">{t('register')}</Link></> : <>{t('hasAccount')} <Link to="/connexion">{t('login')}</Link></>}</p>
     <p className="auth-privacy"><ShieldCheck size={14} />Vos données de connexion sont protégées.</p></div></div></section>;
