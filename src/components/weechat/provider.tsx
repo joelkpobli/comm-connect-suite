@@ -1,8 +1,11 @@
+import type * as React from 'react';
 import { createContext, useContext, useState, type ReactNode } from 'react';
 import { copy, type Locale, type CopyKey } from '@/lib/weechat/i18n';
 import { initialBalance, demoTransactions, type Transaction } from '@/lib/weechat/demo-data';
 type DemoState = { locale: Locale; setLocale: (v: Locale) => void; t: (key: CopyKey) => string; balance: number; transactions: Transaction[]; purchase: (amount: number, name: string) => void };
-const DemoContext = createContext<DemoState | null>(null);
+// Keep one context instance across hot reloads so provider and consumers always match.
+const g = globalThis as { __weechatDemoContext?: React.Context<DemoState | null> };
+const DemoContext = (g.__weechatDemoContext ??= createContext<DemoState | null>(null));
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>('fr');
   const [balance, setBalance] = useState(initialBalance);
