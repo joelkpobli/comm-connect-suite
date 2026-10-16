@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail, UserRound, ArrowLeft, ShieldCheck, Globe2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,12 +19,19 @@ function authError(message: string) {
   if (m.includes('password')) return 'Mot de passe refusé : choisissez-en un plus robuste (8 caractères minimum).';
   return 'Une erreur est survenue. Réessayez.';
 }
+const RESEND_COOLDOWN_SECONDS = 30;
 
 export function AuthPage({ mode }: { mode: Mode }) {
   const { t } = useDemo(); const navigate = useNavigate();
   const [visible, setVisible] = useState(false); const [notice, setNotice] = useState(''); const [busy, setBusy] = useState(false);
   const [resendNotice, setResendNotice] = useState(''); const [resendOk, setResendOk] = useState(false); const [resendBusy, setResendBusy] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const id = setTimeout(() => setCooldown(s => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [cooldown]);
   const withPassword = mode !== 'reset'; const withEmail = mode !== 'update';
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -66,7 +73,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
     try {
       const { error } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${window.location.origin}/connexion` } });
       if (error) { setResendOk(false); setResendNotice(authError(error.message)); return; }
-      setResendOk(true); setResendNotice(t('resendSent'));
+      setResendOk(true); setResendNotice(t('resendSent')); setCooldown(RESEND_COOLDOWN_SECONDS);
     } finally { setResendBusy(false); }
   }
 
