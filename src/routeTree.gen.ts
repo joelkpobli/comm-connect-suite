@@ -10,33 +10,128 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ConnexionRouteImport } from './routes/connexion'
+import { Route as CreditsRouteImport } from './routes/credits'
+import { Route as HistoriqueRouteImport } from './routes/historique'
+import { Route as InscriptionRouteImport } from './routes/inscription'
+import { Route as ParametresRouteImport } from './routes/parametres'
+import { Route as RecuperationRouteImport } from './routes/recuperation'
+import { Route as TableauDeBordRouteImport } from './routes/tableau-de-bord'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConnexionRoute = ConnexionRouteImport.update({
+  id: '/connexion',
+  path: '/connexion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreditsRoute = CreditsRouteImport.update({
+  id: '/credits',
+  path: '/credits',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoriqueRoute = HistoriqueRouteImport.update({
+  id: '/historique',
+  path: '/historique',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InscriptionRoute = InscriptionRouteImport.update({
+  id: '/inscription',
+  path: '/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParametresRoute = ParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecuperationRoute = RecuperationRouteImport.update({
+  id: '/recuperation',
+  path: '/recuperation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TableauDeBordRoute = TableauDeBordRouteImport.update({
+  id: '/tableau-de-bord',
+  path: '/tableau-de-bord',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/connexion': typeof ConnexionRoute
+  '/credits': typeof CreditsRoute
+  '/historique': typeof HistoriqueRoute
+  '/inscription': typeof InscriptionRoute
+  '/parametres': typeof ParametresRoute
+  '/recuperation': typeof RecuperationRoute
+  '/tableau-de-bord': typeof TableauDeBordRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/connexion': typeof ConnexionRoute
+  '/credits': typeof CreditsRoute
+  '/historique': typeof HistoriqueRoute
+  '/inscription': typeof InscriptionRoute
+  '/parametres': typeof ParametresRoute
+  '/recuperation': typeof RecuperationRoute
+  '/tableau-de-bord': typeof TableauDeBordRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/connexion': typeof ConnexionRoute
+  '/credits': typeof CreditsRoute
+  '/historique': typeof HistoriqueRoute
+  '/inscription': typeof InscriptionRoute
+  '/parametres': typeof ParametresRoute
+  '/recuperation': typeof RecuperationRoute
+  '/tableau-de-bord': typeof TableauDeBordRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/connexion'
+    | '/credits'
+    | '/historique'
+    | '/inscription'
+    | '/parametres'
+    | '/recuperation'
+    | '/tableau-de-bord'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/connexion'
+    | '/credits'
+    | '/historique'
+    | '/inscription'
+    | '/parametres'
+    | '/recuperation'
+    | '/tableau-de-bord'
+  id:
+    | '__root__'
+    | '/'
+    | '/connexion'
+    | '/credits'
+    | '/historique'
+    | '/inscription'
+    | '/parametres'
+    | '/recuperation'
+    | '/tableau-de-bord'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ConnexionRoute: typeof ConnexionRoute
+  CreditsRoute: typeof CreditsRoute
+  HistoriqueRoute: typeof HistoriqueRoute
+  InscriptionRoute: typeof InscriptionRoute
+  ParametresRoute: typeof ParametresRoute
+  RecuperationRoute: typeof RecuperationRoute
+  TableauDeBordRoute: typeof TableauDeBordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +143,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/connexion': {
+      id: '/connexion'
+      path: '/connexion'
+      fullPath: '/connexion'
+      preLoaderRoute: typeof ConnexionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/credits': {
+      id: '/credits'
+      path: '/credits'
+      fullPath: '/credits'
+      preLoaderRoute: typeof CreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historique': {
+      id: '/historique'
+      path: '/historique'
+      fullPath: '/historique'
+      preLoaderRoute: typeof HistoriqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inscription': {
+      id: '/inscription'
+      path: '/inscription'
+      fullPath: '/inscription'
+      preLoaderRoute: typeof InscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parametres': {
+      id: '/parametres'
+      path: '/parametres'
+      fullPath: '/parametres'
+      preLoaderRoute: typeof ParametresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recuperation': {
+      id: '/recuperation'
+      path: '/recuperation'
+      fullPath: '/recuperation'
+      preLoaderRoute: typeof RecuperationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tableau-de-bord': {
+      id: '/tableau-de-bord'
+      path: '/tableau-de-bord'
+      fullPath: '/tableau-de-bord'
+      preLoaderRoute: typeof TableauDeBordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ConnexionRoute: ConnexionRoute,
+  CreditsRoute: CreditsRoute,
+  HistoriqueRoute: HistoriqueRoute,
+  InscriptionRoute: InscriptionRoute,
+  ParametresRoute: ParametresRoute,
+  RecuperationRoute: RecuperationRoute,
+  TableauDeBordRoute: TableauDeBordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
