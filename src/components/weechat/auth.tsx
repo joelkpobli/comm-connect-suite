@@ -26,7 +26,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); setNotice('');
-    const data = new FormData(e.currentTarget);
+    const form = e.currentTarget; const data = new FormData(form);
     const email = String(data.get('email') ?? '').trim(); const password = String(data.get('password') ?? '');
     if ((mode === 'signup' || mode === 'update') && password !== data.get('confirm')) { setNotice('Les mots de passe ne correspondent pas.'); return; }
     setBusy(true);
@@ -39,7 +39,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
         const name = String(data.get('name') ?? '').trim().slice(0, 80);
         const { error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: `${window.location.origin}/connexion`, data: { display_name: name } } });
         if (error) { setNotice(authError(error.message)); return; }
-        e.currentTarget?.reset?.();
+        form.reset();
         setNotice('Compte créé. Ouvrez le lien envoyé par e-mail pour confirmer votre adresse, puis connectez-vous.');
       } else if (mode === 'reset') {
         const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reinitialisation` });

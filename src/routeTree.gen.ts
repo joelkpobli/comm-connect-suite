@@ -10,9 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as RecuperationRouteImport } from './routes/recuperation'
+import { Route as ReinitialisationRouteImport } from './routes/reinitialisation'
 import { Route as AuthenticatedCreditsRouteImport } from './routes/_authenticated/credits'
 import { Route as AuthenticatedHistoriqueRouteImport } from './routes/_authenticated/historique'
 import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
@@ -21,6 +23,10 @@ import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authen
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConnexionRoute = ConnexionRouteImport.update({
@@ -38,26 +44,31 @@ const RecuperationRoute = RecuperationRouteImport.update({
   path: '/recuperation',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedCreditsRoute = AuthenticatedCreditsRouteImport.update({
-  id: '/_authenticated/credits',
-  path: '/credits',
+const ReinitialisationRoute = ReinitialisationRouteImport.update({
+  id: '/reinitialisation',
+  path: '/reinitialisation',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedCreditsRoute = AuthenticatedCreditsRouteImport.update({
+  id: '/credits',
+  path: '/credits',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHistoriqueRoute = AuthenticatedHistoriqueRouteImport.update({
-  id: '/_authenticated/historique',
+  id: '/historique',
   path: '/historique',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedParametresRoute = AuthenticatedParametresRouteImport.update({
-  id: '/_authenticated/parametres',
+  id: '/parametres',
   path: '/parametres',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedTableauDeBordRoute =
   AuthenticatedTableauDeBordRouteImport.update({
-    id: '/_authenticated/tableau-de-bord',
+    id: '/tableau-de-bord',
     path: '/tableau-de-bord',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -65,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
   '/recuperation': typeof RecuperationRoute
+  '/reinitialisation': typeof ReinitialisationRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/parametres': typeof AuthenticatedParametresRoute
@@ -75,6 +87,7 @@ export interface FileRoutesByTo {
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
   '/recuperation': typeof RecuperationRoute
+  '/reinitialisation': typeof ReinitialisationRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/parametres': typeof AuthenticatedParametresRoute
@@ -83,9 +96,11 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
   '/recuperation': typeof RecuperationRoute
+  '/reinitialisation': typeof ReinitialisationRoute
   '/_authenticated/credits': typeof AuthenticatedCreditsRoute
   '/_authenticated/historique': typeof AuthenticatedHistoriqueRoute
   '/_authenticated/parametres': typeof AuthenticatedParametresRoute
@@ -98,6 +113,7 @@ export interface FileRouteTypes {
     | '/connexion'
     | '/inscription'
     | '/recuperation'
+    | '/reinitialisation'
     | '/credits'
     | '/historique'
     | '/parametres'
@@ -108,6 +124,7 @@ export interface FileRouteTypes {
     | '/connexion'
     | '/inscription'
     | '/recuperation'
+    | '/reinitialisation'
     | '/credits'
     | '/historique'
     | '/parametres'
@@ -115,9 +132,11 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/connexion'
     | '/inscription'
     | '/recuperation'
+    | '/reinitialisation'
     | '/_authenticated/credits'
     | '/_authenticated/historique'
     | '/_authenticated/parametres'
@@ -126,13 +145,11 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ConnexionRoute: typeof ConnexionRoute
   InscriptionRoute: typeof InscriptionRoute
   RecuperationRoute: typeof RecuperationRoute
-  AuthenticatedCreditsRoute: typeof AuthenticatedCreditsRoute
-  AuthenticatedHistoriqueRoute: typeof AuthenticatedHistoriqueRoute
-  AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
-  AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
+  ReinitialisationRoute: typeof ReinitialisationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -142,6 +159,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/connexion': {
@@ -165,46 +189,68 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecuperationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reinitialisation': {
+      id: '/reinitialisation'
+      path: '/reinitialisation'
+      fullPath: '/reinitialisation'
+      preLoaderRoute: typeof ReinitialisationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/credits': {
       id: '/_authenticated/credits'
       path: '/credits'
       fullPath: '/credits'
       preLoaderRoute: typeof AuthenticatedCreditsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/historique': {
       id: '/_authenticated/historique'
       path: '/historique'
       fullPath: '/historique'
       preLoaderRoute: typeof AuthenticatedHistoriqueRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/parametres': {
       id: '/_authenticated/parametres'
       path: '/parametres'
       fullPath: '/parametres'
       preLoaderRoute: typeof AuthenticatedParametresRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/tableau-de-bord': {
       id: '/_authenticated/tableau-de-bord'
       path: '/tableau-de-bord'
       fullPath: '/tableau-de-bord'
       preLoaderRoute: typeof AuthenticatedTableauDeBordRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  ConnexionRoute: ConnexionRoute,
-  InscriptionRoute: InscriptionRoute,
-  RecuperationRoute: RecuperationRoute,
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedCreditsRoute: typeof AuthenticatedCreditsRoute
+  AuthenticatedHistoriqueRoute: typeof AuthenticatedHistoriqueRoute
+  AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
+  AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCreditsRoute: AuthenticatedCreditsRoute,
   AuthenticatedHistoriqueRoute: AuthenticatedHistoriqueRoute,
   AuthenticatedParametresRoute: AuthenticatedParametresRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ConnexionRoute: ConnexionRoute,
+  InscriptionRoute: InscriptionRoute,
+  RecuperationRoute: RecuperationRoute,
+  ReinitialisationRoute: ReinitialisationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
