@@ -11,12 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ConnexionRouteImport } from './routes/connexion'
-import { Route as CreditsRouteImport } from './routes/credits'
-import { Route as HistoriqueRouteImport } from './routes/historique'
 import { Route as InscriptionRouteImport } from './routes/inscription'
-import { Route as ParametresRouteImport } from './routes/parametres'
 import { Route as RecuperationRouteImport } from './routes/recuperation'
-import { Route as TableauDeBordRouteImport } from './routes/tableau-de-bord'
+import { Route as AuthenticatedCreditsRouteImport } from './routes/_authenticated/credits'
+import { Route as AuthenticatedHistoriqueRouteImport } from './routes/_authenticated/historique'
+import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
+import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,24 +28,9 @@ const ConnexionRoute = ConnexionRouteImport.update({
   path: '/connexion',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CreditsRoute = CreditsRouteImport.update({
-  id: '/credits',
-  path: '/credits',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoriqueRoute = HistoriqueRouteImport.update({
-  id: '/historique',
-  path: '/historique',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const InscriptionRoute = InscriptionRouteImport.update({
   id: '/inscription',
   path: '/inscription',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ParametresRoute = ParametresRouteImport.update({
-  id: '/parametres',
-  path: '/parametres',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecuperationRoute = RecuperationRouteImport.update({
@@ -53,85 +38,101 @@ const RecuperationRoute = RecuperationRouteImport.update({
   path: '/recuperation',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TableauDeBordRoute = TableauDeBordRouteImport.update({
-  id: '/tableau-de-bord',
-  path: '/tableau-de-bord',
+const AuthenticatedCreditsRoute = AuthenticatedCreditsRouteImport.update({
+  id: '/_authenticated/credits',
+  path: '/credits',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedHistoriqueRoute = AuthenticatedHistoriqueRouteImport.update({
+  id: '/_authenticated/historique',
+  path: '/historique',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedParametresRoute = AuthenticatedParametresRouteImport.update({
+  id: '/_authenticated/parametres',
+  path: '/parametres',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTableauDeBordRoute =
+  AuthenticatedTableauDeBordRouteImport.update({
+    id: '/_authenticated/tableau-de-bord',
+    path: '/tableau-de-bord',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/connexion': typeof ConnexionRoute
-  '/credits': typeof CreditsRoute
-  '/historique': typeof HistoriqueRoute
   '/inscription': typeof InscriptionRoute
-  '/parametres': typeof ParametresRoute
   '/recuperation': typeof RecuperationRoute
-  '/tableau-de-bord': typeof TableauDeBordRoute
+  '/credits': typeof AuthenticatedCreditsRoute
+  '/historique': typeof AuthenticatedHistoriqueRoute
+  '/parametres': typeof AuthenticatedParametresRoute
+  '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/connexion': typeof ConnexionRoute
-  '/credits': typeof CreditsRoute
-  '/historique': typeof HistoriqueRoute
   '/inscription': typeof InscriptionRoute
-  '/parametres': typeof ParametresRoute
   '/recuperation': typeof RecuperationRoute
-  '/tableau-de-bord': typeof TableauDeBordRoute
+  '/credits': typeof AuthenticatedCreditsRoute
+  '/historique': typeof AuthenticatedHistoriqueRoute
+  '/parametres': typeof AuthenticatedParametresRoute
+  '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/connexion': typeof ConnexionRoute
-  '/credits': typeof CreditsRoute
-  '/historique': typeof HistoriqueRoute
   '/inscription': typeof InscriptionRoute
-  '/parametres': typeof ParametresRoute
   '/recuperation': typeof RecuperationRoute
-  '/tableau-de-bord': typeof TableauDeBordRoute
+  '/_authenticated/credits': typeof AuthenticatedCreditsRoute
+  '/_authenticated/historique': typeof AuthenticatedHistoriqueRoute
+  '/_authenticated/parametres': typeof AuthenticatedParametresRoute
+  '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/connexion'
+    | '/inscription'
+    | '/recuperation'
     | '/credits'
     | '/historique'
-    | '/inscription'
     | '/parametres'
-    | '/recuperation'
     | '/tableau-de-bord'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/connexion'
+    | '/inscription'
+    | '/recuperation'
     | '/credits'
     | '/historique'
-    | '/inscription'
     | '/parametres'
-    | '/recuperation'
     | '/tableau-de-bord'
   id:
     | '__root__'
     | '/'
     | '/connexion'
-    | '/credits'
-    | '/historique'
     | '/inscription'
-    | '/parametres'
     | '/recuperation'
-    | '/tableau-de-bord'
+    | '/_authenticated/credits'
+    | '/_authenticated/historique'
+    | '/_authenticated/parametres'
+    | '/_authenticated/tableau-de-bord'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConnexionRoute: typeof ConnexionRoute
-  CreditsRoute: typeof CreditsRoute
-  HistoriqueRoute: typeof HistoriqueRoute
   InscriptionRoute: typeof InscriptionRoute
-  ParametresRoute: typeof ParametresRoute
   RecuperationRoute: typeof RecuperationRoute
-  TableauDeBordRoute: typeof TableauDeBordRoute
+  AuthenticatedCreditsRoute: typeof AuthenticatedCreditsRoute
+  AuthenticatedHistoriqueRoute: typeof AuthenticatedHistoriqueRoute
+  AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
+  AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -150,32 +151,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConnexionRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/credits': {
-      id: '/credits'
-      path: '/credits'
-      fullPath: '/credits'
-      preLoaderRoute: typeof CreditsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historique': {
-      id: '/historique'
-      path: '/historique'
-      fullPath: '/historique'
-      preLoaderRoute: typeof HistoriqueRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/inscription': {
       id: '/inscription'
       path: '/inscription'
       fullPath: '/inscription'
       preLoaderRoute: typeof InscriptionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/parametres': {
-      id: '/parametres'
-      path: '/parametres'
-      fullPath: '/parametres'
-      preLoaderRoute: typeof ParametresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recuperation': {
@@ -185,11 +165,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecuperationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tableau-de-bord': {
-      id: '/tableau-de-bord'
+    '/_authenticated/credits': {
+      id: '/_authenticated/credits'
+      path: '/credits'
+      fullPath: '/credits'
+      preLoaderRoute: typeof AuthenticatedCreditsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/historique': {
+      id: '/_authenticated/historique'
+      path: '/historique'
+      fullPath: '/historique'
+      preLoaderRoute: typeof AuthenticatedHistoriqueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/parametres': {
+      id: '/_authenticated/parametres'
+      path: '/parametres'
+      fullPath: '/parametres'
+      preLoaderRoute: typeof AuthenticatedParametresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/tableau-de-bord': {
+      id: '/_authenticated/tableau-de-bord'
       path: '/tableau-de-bord'
       fullPath: '/tableau-de-bord'
-      preLoaderRoute: typeof TableauDeBordRouteImport
+      preLoaderRoute: typeof AuthenticatedTableauDeBordRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -198,12 +199,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConnexionRoute: ConnexionRoute,
-  CreditsRoute: CreditsRoute,
-  HistoriqueRoute: HistoriqueRoute,
   InscriptionRoute: InscriptionRoute,
-  ParametresRoute: ParametresRoute,
   RecuperationRoute: RecuperationRoute,
-  TableauDeBordRoute: TableauDeBordRoute,
+  AuthenticatedCreditsRoute: AuthenticatedCreditsRoute,
+  AuthenticatedHistoriqueRoute: AuthenticatedHistoriqueRoute,
+  AuthenticatedParametresRoute: AuthenticatedParametresRoute,
+  AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
