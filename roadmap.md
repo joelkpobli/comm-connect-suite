@@ -17,8 +17,9 @@
 - [ ] Audio translation integration — blocked by authorized provider credentials/budget; device tests required.
 - [ ] Avatar and virtual camera — external desktop bridge and physical application tests required.
 - [ ] Production readiness — mail delivery, deployment authorization and external integration checks required.
-- [ ] Browser microphone/camera consent, denial/errors, device selection and stop/revocation.
-- [ ] Local representation: initials, authorized photo and static avatar; no impersonation or retention.
-- [ ] Local audio level/processing and video composition; test cleanup, races and regressions.
-- [ ] Provider-neutral fail-closed payment contracts, without products, activation or expenditure.
-- [ ] Document multimedia evidence, limitations and external actions.
+- [x] Browser microphone/camera consent, denial/errors, device selection and stop/revocation — mocked/synthetic tests pass; physical capture blocked by sandbox.
+- [x] Local representation: initials, authorized photo and static avatar; consent/no retention tested (not automated identity verification).
+- [x] Local audio level/processing and video composition; cleanup/races/regressions tested with synthetic streams.
+- [x] Provider-neutral fail-closed payment contracts, without products, activation or expenditure.
+- [x] Document multimedia evidence, limitations and external actions.
+- [ ] Physical capture/permission/quality and multi-device validation — needs user's target computer; sandbox getUserMedia unsupported.

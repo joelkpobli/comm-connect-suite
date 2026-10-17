@@ -30,3 +30,15 @@ Le test mobile a initialement montré le menu recouvrant la page. Ancrage gauche
 Les tests n'ont pas validé une boîte e-mail réelle, un paiement, une coupure réseau matérielle pendant commit, une caméra externe ou une traduction générale. La reprise après erreur SQL et les requêtes identiques concurrentes sont testées; cela ne remplace pas une panne réseau de bout en bout.
 
 Commande de régression: `bunx vitest run`. Variables de test serveur: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY; ne jamais publier leurs valeurs.
+
+## Lot communication locale
+60/60 tests ont passé avant l'ajout de trois tests du panneau; ces trois tests passent séparément. Le passage global final est consigné dans REPORT.md.
+- 19 tests contrôle média: consentement séparé, contraintes de capture, arrêt/retrait, réponses tardives et sortie, doublons, refus, déconnexion, erreurs/absence d'API, photo bornée, RMS, gain/mute/nettoyage sans sortie haut-parleur.
+- 3 tests panneau: bouton bloqué sans consentement, arrêt à la sortie, photo autorisée et blob révoqué, aucune sauvegarde média/consentement.
+- 4 tests paiement: initiation interdite, désactivation inconditionnelle, prérequis manquants, devise incompatible.
+
+Premier passage: quatre tests média ont trouvé que les DOMException n'étaient pas correctement reconnues par `instanceof Error`. Lecture défensive de `name` corrigée. Le contrôle automatique a également trouvé un accès de tableau potentiellement absent dans le test: garde ajoutée. NotSupportedError est désormais classé Indisponible plutôt qu'erreur inconnue.
+
+Navigateur connecté, compte temporaire créé puis supprimé: consentement, capture indisponible, photo, avatar statique, retrait, arrêt après changement d'onglet Paramètres, anglais et mobile 390×844. Graphe Web Audio actif et flux canvas vidéo décodable avec signaux synthétiques injectés uniquement dans le script de test. Zéro pageerror. Captures desktop/mobile/anglais revues; aucun débordement, menu mobile fermé hors écran après fin de sa transition.
+
+**Limite essentielle:** le getUserMedia natif de Chromium dans le sandbox a répondu NotSupportedError malgré les périphériques de test. Les flux synthétiques ne prouvent pas une permission physique ou la qualité d'un micro/caméra. Refus et reprise sont injectés pour le parcours UI. Sélection de périphérique et déconnexion sont testées via doubles, pas avec plusieurs appareils physiques. Tester le vrai micro/caméra et les refus via navigateur sur l'ordinateur cible reste indispensable.
