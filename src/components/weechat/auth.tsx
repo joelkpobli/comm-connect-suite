@@ -82,7 +82,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
         sessionStorage.removeItem(RECOVERY_FLAG);
         navigate({ to: '/tableau-de-bord' });
       }
-    } finally { setBusy(false); }
+    } catch { setNotice(authError('', locale)); } finally { setBusy(false); }
   }
 
   async function resendConfirmation() {
@@ -94,7 +94,7 @@ export function AuthPage({ mode }: { mode: Mode }) {
       const { error } = await supabase.auth.resend({ type: 'signup', email, options: { emailRedirectTo: `${window.location.origin}/connexion` } });
       if (error) { setResendOk(false); setResendNotice(authError(error.message, locale)); return; }
       setResendOk(true); setResendNotice(t('resendSent')); setCooldown(RESEND_COOLDOWN_SECONDS);
-    } finally { setResendBusy(false); }
+    } catch { setResendOk(false); setResendNotice(authError('', locale)); } finally { setResendBusy(false); }
   }
 
   const title = mode === 'login' ? t('welcome') : mode === 'signup' ? t('signupTitle') : mode === 'reset' ? t('resetTitle') : tr('Nouveau mot de passe');
