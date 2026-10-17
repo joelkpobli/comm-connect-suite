@@ -105,6 +105,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_credit_snapshot: { Args: never; Returns: Json }
       get_credit_totals: {
         Args: never
         Returns: {

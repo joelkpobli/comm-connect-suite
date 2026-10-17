@@ -1,9 +1,9 @@
 import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
+import { z } from 'zod';
+const snapshotSchema = z.object({ totals: z.object({ balance: z.number().int().safe(), received: z.number().int().safe(), consumed: z.number().int().safe() }), entries: z.array(z.object({ id: z.string(), amount: z.number().int().safe(), kind: z.string(), reason: z.string(), reference: z.string(), created_at: z.string() })) });
 export const getCredits = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
-  const { data: totals, error } = await context.supabase.rpc('get_credit_totals');
+  const { data, error } = await context.supabase.rpc('get_credit_snapshot');
   if (error) throw new Error('Credits unavailable');
-  const { data: entries, error: historyError } = await context.supabase.from('credit_transactions').select('id, amount, kind, reason, reference, created_at').eq('user_id', context.userId).order('created_at', { ascending: false }).order('id').limit(100);
-  if (historyError) throw new Error('History unavailable');
-  return { totals: totals[0] ?? { balance: 0, received: 0, consumed: 0 }, entries: entries ?? [] };
+  return snapshotSchema.parse(data);
 });

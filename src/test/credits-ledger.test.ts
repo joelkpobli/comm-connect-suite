@@ -58,4 +58,11 @@ describe.skipIf(!url || !key || !pub)('Real credit ledger', () => {
   expect(tx).toBeTruthy();
   expect((await admin.from('credit_transactions').update({amount:999}).eq('id',tx)).error).not.toBeNull();
  });
+ it('returns coherent totals and movements in one snapshot',async()=>{
+  const {data,error}=await user.rpc('get_credit_snapshot');
+  expect(error).toBeNull();
+  expect(data.totals.balance).toBe(25);
+  expect(data.entries.reduce((sum:number,row:{amount:number})=>sum+row.amount,0)).toBe(25);
+  expect((await visitor.rpc('get_credit_snapshot')).error).not.toBeNull();
+ });
 });
