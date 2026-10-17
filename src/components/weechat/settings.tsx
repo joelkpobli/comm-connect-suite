@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useServerFn } from '@tanstack/react-start';
 import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
@@ -10,20 +10,16 @@ import { useDemo } from './provider';
 import { profileQuery } from '@/lib/weechat/profile-query';
 import { saveProfile } from '@/lib/weechat/profile.functions';
 import { profileSchema } from '@/lib/weechat/profile-schema';
+import { settingsLabels } from '@/lib/weechat/settings-copy';
 
-const labels = {
-  fr: { title: 'Un espace à votre image.', sub: 'Votre profil et vos préférences.', profile: 'Profil', security: 'Sécurité', language: 'Langues', personal: 'Informations personnelles', name: 'Nom complet', email: 'Adresse e-mail', voice: 'Langue vocale souhaitée', ui: 'Langue de l’interface', save: 'Enregistrer', saving: 'Enregistrement…', saved: 'Profil enregistré.', failed: 'Enregistrement impossible. Réessayez.', invalid: 'Vérifiez le nom et les langues sélectionnées.', password: 'Mot de passe', reset: 'Réinitialiser le mot de passe', secure: 'Recevez un lien personnel par e-mail.', voiceNote: 'Traduction vocale non disponible.', categories: 'Catégories des paramètres' },
-  en: { title: 'Make this space yours.', sub: 'Your profile and preferences.', profile: 'Profile', security: 'Security', language: 'Languages', personal: 'Personal information', name: 'Full name', email: 'Email address', voice: 'Preferred spoken language', ui: 'Interface language', save: 'Save', saving: 'Saving…', saved: 'Profile saved.', failed: 'Unable to save. Try again.', invalid: 'Check your name and selected languages.', password: 'Password', reset: 'Reset password', secure: 'Receive a personal link by email.', voiceNote: 'Voice translation unavailable.', categories: 'Settings categories' },
-};
 export function SettingsPage() {
   const { data } = useSuspenseQuery(profileQuery);
   const client = useQueryClient(); const save = useServerFn(saveProfile);
-  const { locale, setLocale } = useDemo(); const c = labels[locale];
+  const { locale, setLocale } = useDemo(); const c = settingsLabels[locale];
   const [tab, setTab] = useState('profile');
   const [name, setName] = useState(data.display_name ?? '');
   const [voice, setVoice] = useState(data.voice_language);
   const [busy, setBusy] = useState(false); const [notice, setNotice] = useState('');
-  useEffect(() => { setLocale(data.ui_locale === 'en' ? 'en' : 'fr'); }, [data.ui_locale]);
   async function submit(e: FormEvent) {
     e.preventDefault(); setNotice('');
     const parsed = profileSchema.safeParse({ display_name: name, ui_locale: locale, voice_language: voice });

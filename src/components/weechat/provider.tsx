@@ -9,6 +9,7 @@ const DemoContext = (g.__weechatDemoContext ??= createContext<DemoState | null>(
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>('fr');
   useEffect(() => { const stored = localStorage.getItem('weechat-ui-locale'); if (stored === 'en' || stored === 'fr') setLocale(stored); }, []);
+  useEffect(() => { document.documentElement.lang = locale; }, [locale]);
   const updateLocale = (value: Locale) => { setLocale(value); localStorage.setItem('weechat-ui-locale', value); document.documentElement.lang = value; };
   const [balance, setBalance] = useState(initialBalance);
   const [transactions, setTransactions] = useState(demoTransactions);
