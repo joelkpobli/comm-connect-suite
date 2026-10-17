@@ -20,3 +20,4 @@
 - Persisted profile reads and updates use authenticated TanStack server functions with schema validation and owner-scoped RLS; route loaders hydrate TanStack Query so data and error states are coherent.
 - Register the client bearer attachment in src/start.ts alongside existing CSRF middleware; authenticated functions must work without exposing server credentials.
 - docs/MASTER_SPEC.md holds the supplied execution directive; living documentation distinguishes validated operation, simulation and external blockers.
+- Credit reads use authenticated server functions and the owner-only immutable ledger; privileged writes use post_credit_operation with a per-owner lock and unique reference, never a browser-controlled amount.
