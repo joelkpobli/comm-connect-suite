@@ -57,7 +57,7 @@ export class LocalMediaSession {
     } catch (error) {
       if (this.disposed || generation !== this.generations[kind]) return;
       const issue = classifyMediaError(error);
-      this.update({ issues: { ...this.snapshot.issues, [kind]: issue }, status: { ...this.snapshot.status, [kind]: issue === 'denied' ? 'denied' : issue === 'missing' ? 'unavailable' : 'error' } });
+      this.update({ issues: { ...this.snapshot.issues, [kind]: issue }, status: { ...this.snapshot.status, [kind]: issue === 'denied' ? 'denied' : issue === 'missing' || issue === 'unsupported' ? 'unavailable' : 'error' } });
     }
   }
   stop(kind: DeviceKind) {
