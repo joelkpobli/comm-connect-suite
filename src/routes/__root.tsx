@@ -8,7 +8,9 @@ import {
   Scripts,
   type ErrorComponentProps,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Button } from '@/components/ui/button';
+import { errorLabels } from '@/lib/weechat/error-copy';
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -17,20 +19,21 @@ import { AppShell } from "@/components/weechat/shell";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
+  const labels = useErrorLabels();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{labels.missing}</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          {labels.missingSub}
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            {labels.home}
           </Link>
         </div>
       </div>
@@ -39,6 +42,7 @@ function NotFoundComponent() {
 }
 
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
+  const labels = useErrorLabels();
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -49,31 +53,37 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {labels.failed}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {labels.failedSub}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <button
+          <Button
             onClick={() => {
               router.invalidate();
               reset();
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
-          </button>
+            {labels.retry}
+          </Button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            {labels.home}
           </a>
         </div>
       </div>
     </div>
   );
+}
+
+function useErrorLabels() {
+  const [locale, setLocale] = useState<'fr' | 'en'>('fr');
+  useEffect(() => { setLocale(localStorage.getItem('weechat-ui-locale') === 'en' ? 'en' : 'fr'); }, []);
+  return errorLabels[locale];
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -82,10 +92,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Weechat UI Prototype" },
-      { name: "description", content: "Prototype visuel Weechat — communication multilingue et crédits fictifs." },
+      { name: "description", content: "Weechat — espace personnel et couche de communication multilingue en développement." },
       { name: "author", content: "Weechat" },
       { property: "og:title", content: "Weechat UI Prototype" },
-      { property: "og:description", content: "Votre voix, un monde de possibilités. Démonstration visuelle uniquement." },
+      { property: "og:description", content: "Votre voix, un monde de possibilités. Communication multilingue en développement." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
