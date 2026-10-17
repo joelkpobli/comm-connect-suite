@@ -1,6 +1,6 @@
 export type DeviceKind = 'microphone' | 'camera';
 export type ConsentKind = DeviceKind | 'photo' | 'avatar';
-export type DeviceStatus = 'idle' | 'requesting' | 'active' | 'stopped' | 'denied' | 'unavailable' | 'error';
+export type DeviceStatus = 'idle' | 'requesting' | 'active' | 'interrupted' | 'stopped' | 'denied' | 'unavailable' | 'error';
 export type MediaIssue = 'denied' | 'missing' | 'busy' | 'unsupported' | 'constraints' | 'unknown';
 export type MediaSnapshot = {
   consent: Record<ConsentKind, boolean>;
@@ -37,7 +37,21 @@ export class LocalMediaSession {
   }
   async refreshDevices() {
     if (!this.media || this.disposed) return;
-    try { const devices = await this.media.enumerateDevices(); if (!this.disposed) this.update({ devices }); } catch { /* Capture remains usable if enumeration is blocked. */ }
+    try {
+      const devices = await this.media.enumerateDevices();
+      if (this.disposed) return;
+      for (const kind of ['microphone', 'camera'] as const) {
+        const track = this.snapshot.streams[kind]?.getTracks()[0];
+        const id = track?.getSettings?.().deviceId;
+        // Only trust removal of a device previously observed; labels may be hidden before permission.
+        if (id && this.snapshot.devices.some(d => d.deviceId === id) && !devices.some(d => d.deviceId === id)) this.fail(kind, 'missing');
+      }
+      this.update({ devices });
+    } catch { /* Capture remains usable if enumeration is blocked. */ }
+  }
+  private fail(kind: DeviceKind, issue: MediaIssue) {
+    this.stop(kind);
+    this.update({ issues: { ...this.snapshot.issues, [kind]: issue }, status: { ...this.snapshot.status, [kind]: issue === 'missing' ? 'unavailable' : 'error' } });
   }
   async start(kind: DeviceKind, deviceId = '', processing = true) {
     if (this.disposed || !this.snapshot.consent[kind] || this.snapshot.status[kind] === 'requesting') return;
@@ -49,10 +63,21 @@ export class LocalMediaSession {
       const device = deviceId ? { deviceId: { exact: deviceId } } : {};
       const stream = await this.media.getUserMedia(kind === 'microphone' ? { audio: { ...device, echoCancellation: processing, noiseSuppression: processing, autoGainControl: false }, video: false } : { video: { ...device, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
       if (this.disposed || generation !== this.generations[kind] || !this.snapshot.consent[kind]) { stream.getTracks().forEach(t => t.stop()); return; }
-      this.update({ streams: { ...this.snapshot.streams, [kind]: stream }, status: { ...this.snapshot.status, [kind]: 'active' } });
+      if (!stream.getTracks().length || stream.getTracks().some(track => track.readyState === 'ended')) {
+        stream.getTracks().forEach(track => track.stop()); this.fail(kind, 'missing'); return;
+      }
+      this.update({ streams: { ...this.snapshot.streams, [kind]: stream }, status: { ...this.snapshot.status, [kind]: stream.getTracks().some(track => track.muted) ? 'interrupted' : 'active' } });
       stream.getTracks().forEach(track => track.addEventListener('ended', () => {
-        if (generation === this.generations[kind]) this.stop(kind);
+        if (generation === this.generations[kind]) this.fail(kind, 'busy');
       }, { once: true }));
+      stream.getTracks().forEach(track => {
+        track.addEventListener('mute', () => {
+          if (generation === this.generations[kind]) this.update({ status: { ...this.snapshot.status, [kind]: 'interrupted' } });
+        });
+        track.addEventListener('unmute', () => {
+          if (generation === this.generations[kind]) this.update({ status: { ...this.snapshot.status, [kind]: 'active' } });
+        });
+      });
       await this.refreshDevices();
     } catch (error) {
       if (this.disposed || generation !== this.generations[kind]) return;
@@ -78,6 +103,7 @@ export class LocalAudioGraph {
   readonly gain: GainNode;
   readonly output: MediaStreamAudioDestinationNode;
   private source: MediaStreamAudioSourceNode;
+  private closed = false;
   constructor(readonly context: AudioContext, stream: MediaStream) {
     this.source = context.createMediaStreamSource(stream);
     this.gain = context.createGain();
@@ -86,8 +112,10 @@ export class LocalAudioGraph {
     this.source.connect(this.gain); this.gain.connect(this.analyser); this.analyser.connect(this.output);
     // Deliberately never connected to context.destination (no feedback/speaker monitoring).
   }
-  setGain(value: number, muted: boolean) { this.gain.gain.value = muted ? 0 : Math.min(2, Math.max(0, value)); }
+  setGain(value: number, muted: boolean) { this.gain.gain.value = muted ? 0 : Math.min(2, Math.max(0, Number.isFinite(value) ? value : 1)); }
   close() {
+    if (this.closed) return;
+    this.closed = true;
     this.source.disconnect(); this.gain.disconnect(); this.analyser.disconnect();
     this.output.stream.getTracks().forEach(track => track.stop());
     void this.context.close().catch(() => {});
