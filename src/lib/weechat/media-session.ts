@@ -10,7 +10,7 @@ export type MediaSnapshot = {
   devices: MediaDeviceInfo[];
 };
 export function classifyMediaError(error: unknown): MediaIssue {
-  const name = error instanceof Error ? error.name : '';
+  const name = typeof error === 'object' && error !== null && 'name' in error && typeof error.name === 'string' ? error.name : '';
   if (name === 'NotAllowedError' || name === 'SecurityError') return 'denied';
   if (name === 'NotFoundError') return 'missing';
   if (name === 'NotReadableError' || name === 'AbortError') return 'busy';
