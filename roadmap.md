@@ -5,3 +5,7 @@
 - [x] Record test outcomes and prototype limits.
 - [x] Lock the resend button for 30 s with a visible countdown after a successful send.
 - [x] Keep the show/hide password control working on the login screen.
+- [x] Audit and harden auth: revoke rls_auto_enable, least-privilege grants, profile column+language checks, recovery-link requirement, post-confirmation redirect.
+- [x] Prove account isolation with 11 negative tests on two real throwaway accounts (25/25 tests green).
+- [ ] Credits system (packs, balance, history) — next step, server-side writes only.
+- [ ] User-side Supabase settings: Site URL, redirect URLs (/connexion, /reinitialisation), SMTP.

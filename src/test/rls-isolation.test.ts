@@ -4,8 +4,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-const URL = process.env.SUPABASE_URL;
-const SERVICE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const URL = process.env['SUPABASE_URL'];
+const SERVICE = process.env['SUPABASE_SERVICE_ROLE_KEY'];
 const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzYWlydXdkZW14bndka2hwenN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIxMTE3NzQsImV4cCI6MjEwNzY4Nzc3NH0.uHihAQ6uLE_dkQDamLA4VI3ZbTk5XqjAjhVeXeoCMMQ';
 const opts = { auth: { persistSession: false, autoRefreshToken: false } };
 
