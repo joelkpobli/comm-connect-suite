@@ -15,6 +15,7 @@ export function classifyMediaError(error: unknown): MediaIssue {
   if (name === 'NotFoundError') return 'missing';
   if (name === 'NotReadableError' || name === 'AbortError') return 'busy';
   if (name === 'OverconstrainedError') return 'constraints';
+  if (name === 'NotSupportedError' || name === 'TypeError') return 'unsupported';
   return 'unknown';
 }
 export function validateLocalPhoto(file: Pick<File, 'type' | 'size'>): boolean {
