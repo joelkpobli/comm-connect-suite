@@ -36,7 +36,7 @@ describe('Media panel privacy behavior', () => {
  it('never saves media or consent to browser storage', async () => {
   open(); const local=vi.spyOn(Storage.prototype,'setItem');
   fireEvent.click(screen.getByRole('checkbox',{name:'J’utilise un avatar statique sans imiter une autre personne.'}));
-  fireEvent.click(screen.getByRole('button',{name:'Avatar statique',exact:true}));
+  fireEvent.click(screen.getByRole('button',{name:/^Avatar statique$/}));
   fireEvent.click(screen.getByRole('button',{name:'Retirer tous les consentements'}));
   expect(local).not.toHaveBeenCalled(); expect(getUserMedia).not.toHaveBeenCalled();
  });

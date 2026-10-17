@@ -43,6 +43,7 @@ L'état ci-dessous remplace les mentions « non construits » du précédent lot
 - Contrats de paiement désactivés et architecture de vérification future; aucun tarif ou fournisseur activé.
 
 ### Preuves et corrections
+Passage final global: **63/63 tests réussis dans neuf fichiers** (37 existants + 26 nouveaux). Tests serveur d'isolation et registre réellement exécutés, non ignorés.
 Tests de régression et négatifs sur Supabase externe repassés, comptes d'essai supprimés. DOMException mal classée corrigée, API non supportée clairement affichée et garde de test ajoutée. Graphe audio, sortie vidéo, photo/effacement, avatar, consentements/retrait et arrêt de caméra à la sortie vérifiés en navigateur connecté **avec flux synthétiques**. FR/EN et mobile revus sur captures, aucun pageerror ni débordement. Dernier contrôle automatique avant finalisation: build OK.
 
 **Capture physique non certifiée:** Chromium du sandbox renvoie NotSupportedError en getUserMedia natif. Les injections de test ne sont pas dans l'application et ne remplacent pas un vrai micro/caméra. Ni atténuation réelle du bruit, ni multi-périphériques, ni navigateur Windows ou permissions de l'aperçu intégré certifiés. Tests de permission/coupure physique requis sur le HP EliteBook Windows 11.

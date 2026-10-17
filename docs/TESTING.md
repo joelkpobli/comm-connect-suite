@@ -32,7 +32,7 @@ Les tests n'ont pas validé une boîte e-mail réelle, un paiement, une coupure 
 Commande de régression: `bunx vitest run`. Variables de test serveur: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, SUPABASE_PUBLISHABLE_KEY; ne jamais publier leurs valeurs.
 
 ## Lot communication locale
-60/60 tests ont passé avant l'ajout de trois tests du panneau; ces trois tests passent séparément. Le passage global final est consigné dans REPORT.md.
+Passage global final: **63/63 tests passent, neuf fichiers**, dont les 37 régressions existantes et 26 nouveaux tests.
 - 19 tests contrôle média: consentement séparé, contraintes de capture, arrêt/retrait, réponses tardives et sortie, doublons, refus, déconnexion, erreurs/absence d'API, photo bornée, RMS, gain/mute/nettoyage sans sortie haut-parleur.
 - 3 tests panneau: bouton bloqué sans consentement, arrêt à la sortie, photo autorisée et blob révoqué, aucune sauvegarde média/consentement.
 - 4 tests paiement: initiation interdite, désactivation inconditionnelle, prérequis manquants, devise incompatible.
