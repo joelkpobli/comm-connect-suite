@@ -18,5 +18,5 @@ export function displayName(user: User | null) {
 }
 
 export function initials(user: User | null) {
-  return displayName(user).split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(p => p[0]!.toUpperCase()).join('') || 'W';
+  return displayName(user).split(/[\s@.]+/).filter(Boolean).slice(0, 2).map(p => p[0]?.toUpperCase() ?? '').join('') || 'W';
 }
