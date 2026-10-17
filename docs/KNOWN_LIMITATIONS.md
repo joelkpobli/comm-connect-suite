@@ -11,10 +11,10 @@
 - Consentement, licences commerciales et décisions DOC/DEC originales restent à vérifier; ne pas inventer leur contenu.
 
 ## Travaux encore exécutables, non terminés dans ce lot
-- Traduction intégrale accueil, tableau de bord, packs, shell, erreurs générales; consolidation des libellés Paramètres/Historique.
-- Synchronisation de la langue du profil sur toutes les surfaces et du nom du profil dans la barre latérale (elle utilise encore les métadonnées d'inscription).
+- Les écrans existants, menus et messages d'authentification ont désormais des libellés français/anglais; parcours clés anglais testés. Une revue linguistique exhaustive de chaque variante et erreur native de navigateur reste recommandée.
+- Langue et nom du profil sont synchronisés dans l'espace privé; le choix du menu est local tant que les préférences ne sont pas enregistrées dans Paramètres.
 - Catalogue configurable désactivé sans tarifs inventés, pagination historique, états de chargement/erreur dédiés, tests des parcours complémentaires.
 - Choix/consentement avatar/photo, permissions microphone et périphériques: peuvent être préparés sans prétendre à une traduction ou caméra externe.
 - Paiement signé/remboursement/réconciliation: à implémenter une fois les exigences commerciales et identifiants fournis.
 
-La session s'arrête après ce lot profil/registre vérifié; aucun travail ne continue en arrière-plan. **Prochaine action: finir et tester l'internationalisation complète avant toute nouvelle intégration.**
+La session s'arrête après ce lot profil/registre/internationalisation; aucun travail ne continue en arrière-plan. **Prochaine action: préparer les permissions et la représentation locale avec consentement, puis obtenir les informations commerciales et les accès externes indispensables.**

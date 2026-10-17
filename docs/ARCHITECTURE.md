@@ -8,4 +8,4 @@ Les pages privées sont sous `_authenticated`, sans rendu serveur. Les chargemen
 
 `DemoProvider` conserve séparément les achats et échanges fictifs. Une simulation ne crédite jamais le registre réel. Langue UI et préférence vocale restent indépendantes. La langue UI est conservée localement et le formulaire Paramètres enregistre les préférences dans le profil.
 
-Les traductions existantes sont dans `src/lib/weechat/i18n.ts`, les messages d'authentification dans `auth-copy.ts`. Paramètres et historique ont des libellés français/anglais; leur consolidation et la traduction intégrale des autres écrans restent à poursuivre.
+Les traductions sont dans `src/lib/weechat/i18n.ts`, `ui-copy.ts`, `auth-copy.ts`, `settings-copy.ts` et `error-copy.ts`. Historique possède encore son petit ensemble de libellés local; à consolider sans changer le comportement. Le shell affiche le nom du profil et hydrate sa langue sauvegardée. Les messages généraux d'erreur/404 disposent d'un repli local sans dépendre du provider normal.
