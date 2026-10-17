@@ -19,3 +19,11 @@ Supabase signale encore une fonction SECURITY DEFINER accessible aux connectés 
 
 ## Non certifié
 Livraison réelle des e-mails, configuration hébergée de redirection/SMTP, protections commerciales de paiement, audit complet du bundle publié et tests Windows externes non certifiés. Le simple indicateur build OK ne prouve pas la préparation production.
+
+## Consentement et médias locaux — 17 octobre 2026
+- Aucun appel getUserMedia sans consentement distinct et clic Activer; une permission accordée au navigateur ne vaut pas consentement à l'envoi/conservation.
+- Arrêt explicite, retrait du consentement, sortie du panneau, onglet masqué ou page quittée: tracks arrêtés. Résultats tardifs invalidés et arrêtés.
+- Photos JPEG/PNG/WebP jusqu'à 5 Mo: décodage local, rejet SVG, URL blob révoquée au remplacement/retrait/démontage. Aucun upload ni conservation des consentements.
+- Déclaration d'autorisation et refus d'usurpation pour photos/avatars. Cela n'est pas une preuve automatique d'identité ni un consentement juridique distant auditable.
+- Pas de transcription distante, reconnaissance vocale du navigateur potentiellement hébergée, cloning vocal ou synthèse externe introduits sous une promesse « local uniquement ».
+- Paiements fail-closed; un événement client ne peut pas attribuer de crédits. Aucune modification SQL dans ce lot.

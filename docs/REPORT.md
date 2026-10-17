@@ -29,3 +29,30 @@ Une alerte préexistante SECURITY DEFINER accessible aux connectés reste signal
 
 ## Verdict et déploiement
 Produit **non prêt pour une commercialisation complète**. Profil et registre vérifiés; paiements et communication non opérationnels. Aucune publication, dépense ou nouvelle base. Procédure détaillée dans DEPLOYMENT.md; publication uniquement sur demande explicite après validation des points ouverts. Aucune tâche ne continue après cette session.
+
+## Suite — consentement, représentation, audio/vidéo locaux
+L'état ci-dessous remplace les mentions « non construits » du précédent lot pour les fonctionnalités locales seulement.
+
+### Réellement implémenté
+- Paramètres → Communication locale, français/anglais; huit écrans conservés.
+- Consentements séparés micro/caméra/photo/avatar. Demandes getUserMedia réelles après clic, états attente/actif/refus/indisponible/erreur; sélection du périphérique et reprise.
+- Désactivation, tout arrêter, retrait, arrêt à la sortie/arrière-plan, refus des réponses tardives après annulation.
+- Initiales, photo autorisée effaçable et avatar statique original W/étoile/disque; aucun avatar animé.
+- Graphe audio local: gain 0–2, mute, niveau RMS, demande de réduction bruit/écho native; pas de haut-parleur ni enregistrement.
+- Composition vidéo locale 640×360, 15 fps si captureStream supporté: caméra/photo/avatar/initiales, miroir et cadrage entier/remplir. Pas de caméra système ni partage avec des applications d'appel.
+- Contrats de paiement désactivés et architecture de vérification future; aucun tarif ou fournisseur activé.
+
+### Preuves et corrections
+Passage final global: **63/63 tests réussis dans neuf fichiers** (37 existants + 26 nouveaux). Tests serveur d'isolation et registre réellement exécutés, non ignorés.
+Tests de régression et négatifs sur Supabase externe repassés, comptes d'essai supprimés. DOMException mal classée corrigée, API non supportée clairement affichée et garde de test ajoutée. Graphe audio, sortie vidéo, photo/effacement, avatar, consentements/retrait et arrêt de caméra à la sortie vérifiés en navigateur connecté **avec flux synthétiques**. FR/EN et mobile revus sur captures, aucun pageerror ni débordement. Dernier contrôle automatique avant finalisation: build OK.
+
+**Capture physique non certifiée:** Chromium du sandbox renvoie NotSupportedError en getUserMedia natif. Les injections de test ne sont pas dans l'application et ne remplacent pas un vrai micro/caméra. Ni atténuation réelle du bruit, ni multi-périphériques, ni navigateur Windows ou permissions de l'aperçu intégré certifiés. Tests de permission/coupure physique requis sur le HP EliteBook Windows 11.
+
+### Actions humaines indispensables
+1. Ouvrir Weechat dans un onglet HTTPS sur l'ordinateur cible, tester autoriser/refuser/reprendre micro et caméra, changement/débranchement, qualité audio et vidéo. Pas besoin de transmettre de mot de passe.
+2. Fournir pays marchand, devise et packs/prix approuvés, règles commerciales; confirmer un parcours compatible sans dépense avant activation future.
+3. Fournir décisions/licences originales et autoriser une solution traduction/animation compatible avec budget zéro; aucun service distant supposé gratuit ni aucune voix envoyée implicitement.
+4. Pont caméra/audio système et essais physiques Windows/applications cibles avant revendication de compatibilité externe.
+5. Confirmer Site URL, URLs de retour et SMTP dans Supabase, puis livraison avec vraie boîte e-mail.
+
+Toutes les tâches indépendantes de ce lot ont été poursuivies avant la réponse; la suite matérielle/commerciale/externe est bloquée. Aucune tâche en arrière-plan, aucune publication, aucune nouvelle base/Cloud, aucun secret frontend ou paiement activé.

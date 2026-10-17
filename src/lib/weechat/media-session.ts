@@ -10,11 +10,12 @@ export type MediaSnapshot = {
   devices: MediaDeviceInfo[];
 };
 export function classifyMediaError(error: unknown): MediaIssue {
-  const name = error instanceof Error ? error.name : '';
+  const name = typeof error === 'object' && error !== null && 'name' in error && typeof error.name === 'string' ? error.name : '';
   if (name === 'NotAllowedError' || name === 'SecurityError') return 'denied';
   if (name === 'NotFoundError') return 'missing';
   if (name === 'NotReadableError' || name === 'AbortError') return 'busy';
   if (name === 'OverconstrainedError') return 'constraints';
+  if (name === 'NotSupportedError' || name === 'TypeError') return 'unsupported';
   return 'unknown';
 }
 export function validateLocalPhoto(file: Pick<File, 'type' | 'size'>): boolean {
@@ -56,7 +57,7 @@ export class LocalMediaSession {
     } catch (error) {
       if (this.disposed || generation !== this.generations[kind]) return;
       const issue = classifyMediaError(error);
-      this.update({ issues: { ...this.snapshot.issues, [kind]: issue }, status: { ...this.snapshot.status, [kind]: issue === 'denied' ? 'denied' : issue === 'missing' ? 'unavailable' : 'error' } });
+      this.update({ issues: { ...this.snapshot.issues, [kind]: issue }, status: { ...this.snapshot.status, [kind]: issue === 'denied' ? 'denied' : issue === 'missing' || issue === 'unsupported' ? 'unavailable' : 'error' } });
     }
   }
   stop(kind: DeviceKind) {
