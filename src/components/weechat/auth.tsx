@@ -25,7 +25,7 @@ const RECOVERY_FLAG = 'weechat-recovery';
 // Only a session opened from the e-mailed recovery link may set a new password.
 if (typeof window !== 'undefined') {
   if (/type=recovery/.test(window.location.hash)) sessionStorage.setItem(RECOVERY_FLAG, '1');
-  supabase.auth.onAuthStateChange((event) => { if (event === 'PASSWORD_RECOVERY') sessionStorage.setItem(RECOVERY_FLAG, '1'); });
+  supabase.auth.onAuthStateChange?.((event) => { if (event === 'PASSWORD_RECOVERY') sessionStorage.setItem(RECOVERY_FLAG, '1'); });
 }
 export function hasRecoveryGrant() { return typeof window !== 'undefined' && sessionStorage.getItem(RECOVERY_FLAG) === '1'; }
 
