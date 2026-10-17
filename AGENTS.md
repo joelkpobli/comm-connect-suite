@@ -22,3 +22,6 @@
 - docs/MASTER_SPEC.md holds the supplied execution directive; living documentation distinguishes validated operation, simulation and external blockers.
 - Credit reads use authenticated server functions and the owner-only immutable ledger; privileged writes use post_credit_operation with a per-owner lock and unique reference, never a browser-controlled amount.
 - Keep UI translations in src/lib/weechat; shared shell reads the profile query for saved identity and locale, while error boundaries use a hydration-safe local locale fallback because the normal provider may be unavailable.
+- Keep live media in an ephemeral LocalMediaSession owned by the communication settings panel; stop tracks on withdrawal, screen exit, backgrounding and stale permission results to prevent unintended capture.
+- Keep audio processing and canvas video composition browser-local without recording, storage, network sinks or speaker monitoring; this enforces zero retention and avoids feedback.
+- Keep future payment contracts provider-neutral and fail-closed with no executable adapter; fulfillment requires a verified server event, durable order matching and unique ledger reference before any enablement.
