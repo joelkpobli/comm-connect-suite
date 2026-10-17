@@ -20,6 +20,14 @@ function authError(message: string) {
   return 'Une erreur est survenue. Réessayez.';
 }
 const RESEND_COOLDOWN_SECONDS = 30;
+const RECOVERY_FLAG = 'weechat-recovery';
+
+// Only a session opened from the e-mailed recovery link may set a new password.
+if (typeof window !== 'undefined') {
+  if (/type=recovery/.test(window.location.hash)) sessionStorage.setItem(RECOVERY_FLAG, '1');
+  supabase.auth.onAuthStateChange((event) => { if (event === 'PASSWORD_RECOVERY') sessionStorage.setItem(RECOVERY_FLAG, '1'); });
+}
+export function hasRecoveryGrant() { return typeof window !== 'undefined' && sessionStorage.getItem(RECOVERY_FLAG) === '1'; }
 
 export function AuthPage({ mode }: { mode: Mode }) {
   const { t } = useDemo(); const navigate = useNavigate();
@@ -32,6 +40,16 @@ export function AuthPage({ mode }: { mode: Mode }) {
     const id = setTimeout(() => setCooldown(s => s - 1), 1000);
     return () => clearTimeout(id);
   }, [cooldown]);
+  // After the e-mail confirmation link, the session is opened on /connexion: go straight to the dashboard.
+  useEffect(() => {
+    if (mode !== 'login') return;
+    const fromLink = /access_token=|type=signup/.test(window.location.hash) || new URLSearchParams(window.location.search).has('code');
+    if (!fromLink) return;
+    const go = () => navigate({ to: '/tableau-de-bord', replace: true });
+    supabase.auth.getSession().then(({ data }) => { if (data.session) go(); });
+    const { data } = supabase.auth.onAuthStateChange((event, s) => { if (event === 'SIGNED_IN' && s) go(); });
+    return () => data.subscription.unsubscribe();
+  }, [mode, navigate]);
   const withPassword = mode !== 'reset'; const withEmail = mode !== 'update';
 
   async function submit(e: FormEvent<HTMLFormElement>) {
@@ -57,9 +75,10 @@ export function AuthPage({ mode }: { mode: Mode }) {
         setNotice('Si un compte existe pour cet e-mail, un lien de réinitialisation vient d’être envoyé.');
       } else {
         const { data: s } = await supabase.auth.getSession();
-        if (!s.session) { setNotice('Lien expiré ou invalide. Demandez un nouveau lien.'); return; }
+        if (!s.session || !hasRecoveryGrant()) { setNotice('Lien expiré ou invalide. Demandez un nouveau lien.'); return; }
         const { error } = await supabase.auth.updateUser({ password });
         if (error) { setNotice(authError(error.message)); return; }
+        sessionStorage.removeItem(RECOVERY_FLAG);
         navigate({ to: '/tableau-de-bord' });
       }
     } finally { setBusy(false); }

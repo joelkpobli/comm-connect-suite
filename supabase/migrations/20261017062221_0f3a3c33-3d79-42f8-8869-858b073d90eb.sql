@@ -1,0 +1,10 @@
+REVOKE EXECUTE ON FUNCTION public.rls_auto_enable() FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON public.profiles FROM anon, authenticated;
+REVOKE ALL ON public.user_roles FROM anon, authenticated;
+GRANT SELECT ON public.profiles TO authenticated;
+GRANT UPDATE (display_name, ui_locale, voice_language) ON public.profiles TO authenticated;
+GRANT SELECT ON public.user_roles TO authenticated;
+GRANT ALL ON public.profiles, public.user_roles TO service_role;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_ui_locale_check CHECK (ui_locale IN ('fr','en'));
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_voice_language_check CHECK (voice_language IN ('fr','en','es','de','pt'));
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_display_name_len CHECK (display_name IS NULL OR char_length(display_name) <= 80);
