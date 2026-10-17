@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
 import { mediaCopy } from '@/lib/weechat/media-copy';
 import { LocalMediaSession, LocalAudioGraph, rmsLevel, validateLocalPhoto, type ConsentKind, type DeviceKind } from '@/lib/weechat/media-session';
+import { LocalVideoOutput, framePlacement } from '@/lib/weechat/video-pipeline';
 
 export function LocalMediaPanel({ name }: { name: string }) {
   const { locale } = useDemo(); const c = mediaCopy[locale];
@@ -13,6 +14,7 @@ export function LocalMediaPanel({ name }: { name: string }) {
   useEffect(() => {
     const controller = new LocalMediaSession(window.isSecureContext ? navigator.mediaDevices : undefined);
     setSession(controller);
+    void controller.refreshDevices();
     const changed = () => { void controller.refreshDevices(); };
     navigator.mediaDevices?.addEventListener('devicechange', changed);
     const hidden = () => { if (document.hidden) controller.stopAll(); };
@@ -34,6 +36,7 @@ function MediaControls({ session, name }: { session: LocalMediaSession; name: st
   const [processing, setProcessing] = useState(true); const [muted, setMuted] = useState(false); const [gain, setGain] = useState(1);
   const [level, setLevel] = useState(0); const [audioReady, setAudioReady] = useState(false);
   const [videoReady, setVideoReady] = useState(false);
+  const [playbackFailed, setPlaybackFailed] = useState(false);
   const [avatar, setAvatar] = useState<'W' | '★' | '●'>('W');
   const videoRef = useRef<HTMLVideoElement>(null); const canvasRef = useRef<HTMLCanvasElement>(null); const outputRef = useRef<HTMLVideoElement>(null);
   const graphRef = useRef<LocalAudioGraph | null>(null); const fileRef = useRef<HTMLInputElement>(null);
@@ -58,26 +61,32 @@ function MediaControls({ session, name }: { session: LocalMediaSession; name: st
   }
   useEffect(() => {
     const video = videoRef.current; if (!video) return;
+    let disposed = false; setPlaybackFailed(false);
     video.srcObject = state.streams.camera ?? null;
-    if (state.streams.camera) void video.play().catch(() => {});
-    return () => { video.srcObject = null; };
+    if (state.streams.camera) void video.play().catch(() => { if (!disposed) setPlaybackFailed(true); });
+    return () => { disposed = true; video.srcObject = null; };
   }, [state.streams.camera]);
   useEffect(() => {
     const stream = state.streams.microphone; if (!stream) { setLevel(0); setAudioReady(false); return; }
-    let graph: LocalAudioGraph;
-    try { graph = new LocalAudioGraph(new AudioContext(), stream); graphRef.current = graph; void graph.context.resume().catch(() => setAudioReady(false)); setAudioReady(true); }
-    catch { setAudioReady(false); return; }
+    let graph: LocalAudioGraph; let context: AudioContext | undefined;
+    try { context = new AudioContext(); graph = new LocalAudioGraph(context, stream); graphRef.current = graph; }
+    catch { void context?.close().catch(() => {}); setAudioReady(false); return; }
+    let disposed = false;
+    const sync = () => { if (!disposed) setAudioReady(graph.context.state === 'running'); };
+    graph.context.addEventListener('statechange', sync); sync();
+    void graph.context.resume().then(sync).catch(() => { if (!disposed) setAudioReady(false); });
     const samples = new Uint8Array(graph.analyser.fftSize);
     const timer = window.setInterval(() => { graph.analyser.getByteTimeDomainData(samples); setLevel(rmsLevel(samples)); }, 100);
-    return () => { window.clearInterval(timer); graph.close(); graphRef.current = null; setAudioReady(false); setLevel(0); };
+    return () => { disposed = true; window.clearInterval(timer); graph.context.removeEventListener('statechange', sync); graph.close(); graphRef.current = null; setAudioReady(false); setLevel(0); };
   }, [state.streams.microphone]);
   useEffect(() => { graphRef.current?.setGain(gain, muted); }, [gain, muted, state.streams.microphone]);
   useEffect(() => {
     const canvas = canvasRef.current; const output = outputRef.current; const ctx = canvas?.getContext('2d');
+    setVideoReady(false);
     if (!canvas || !output || !ctx) return;
     const style = getComputedStyle(canvas); const bg = style.getPropertyValue('--surface-deep'); const fg = style.getPropertyValue('--primary');
     const image = new Image(); if (photo) image.src = photo;
-    let frame = 0; let stream: MediaStream | undefined;
+    let frame = 0; let pipeline: LocalVideoOutput | undefined; let disposed = false;
     const paint = () => {
       ctx.fillStyle = bg; ctx.fillRect(0, 0, canvas.width, canvas.height);
       const video = videoRef.current;
@@ -85,17 +94,24 @@ function MediaControls({ session, name }: { session: LocalMediaSession; name: st
       if (source) {
         const sw = source instanceof HTMLVideoElement ? source.videoWidth : source.naturalWidth; const sh = source instanceof HTMLVideoElement ? source.videoHeight : source.naturalHeight;
         if (sw && sh) {
-          const scale = fit === 'cover' ? Math.max(canvas.width / sw, canvas.height / sh) : Math.min(canvas.width / sw, canvas.height / sh);
-          const w = sw * scale; const h = sh * scale; ctx.save();
+          const placement = framePlacement(sw, sh, canvas.width, canvas.height, fit);
+          if (!placement) return;
+          ctx.save();
           if (mirror && representation === 'camera') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
-          ctx.drawImage(source, (canvas.width - w) / 2, (canvas.height - h) / 2, w, h); ctx.restore();
+          ctx.drawImage(source, placement.x, placement.y, placement.width, placement.height); ctx.restore();
         }
       } else { ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '72px sans-serif'; ctx.fillText(representation === 'avatar' && state.consent.avatar ? avatar : name.slice(0, 2).toUpperCase() || 'W', canvas.width / 2, canvas.height / 2); }
       frame = requestAnimationFrame(paint);
     };
     paint();
-    try { if (canvas.captureStream) { stream = canvas.captureStream(15); output.srcObject = stream; void output.play().catch(() => {}); setVideoReady(true); } else setVideoReady(false); } catch { setVideoReady(false); }
-    return () => { cancelAnimationFrame(frame); stream?.getTracks().forEach(track => track.stop()); output.srcObject = null; };
+    try {
+      if (canvas.captureStream) {
+        pipeline = new LocalVideoOutput(canvas); output.srcObject = pipeline.stream;
+        pipeline.stream.getVideoTracks().forEach(track => track.addEventListener('ended', () => { if (!disposed) setVideoReady(false); }, { once: true }));
+        void output.play().then(() => { if (!disposed) setVideoReady(true); }).catch(() => { pipeline?.close(); if (!disposed) setVideoReady(false); });
+      }
+    } catch { pipeline?.close(); setVideoReady(false); }
+    return () => { disposed = true; cancelAnimationFrame(frame); pipeline?.close(); output.srcObject = null; };
   }, [representation, photo, mirror, fit, avatar, name, state.streams.camera, state.consent.camera, state.consent.photo, state.consent.avatar]);
   const issues = { denied: c.deniedError, missing: c.missingError, busy: c.busyError, unsupported: c.unsupportedError, constraints: c.constraintsError, unknown: c.unknownError };
   return <section className="local-media" aria-label={c.tab}>
