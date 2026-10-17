@@ -1,4 +1,4 @@
-# Weechat UI prototype
+# Weechat execution roadmap
 - [x] Create eight visual screens and coherent local demo navigation.
 - [x] Separate demo data, reusable presentation, and UI language state.
 - [x] Verify routes, fictional purchase, forms and mobile layout.
@@ -9,3 +9,10 @@
 - [x] Prove account isolation with 11 negative tests on two real throwaway accounts (25/25 tests green).
 - [ ] Credits system (packs, balance, history) — next step, server-side writes only.
 - [ ] User-side Supabase settings: Site URL, redirect URLs (/connexion, /reinitialisation), SMTP.
+- [ ] Persist directive v2 and document actual implementation and blockers.
+- [ ] Real profile settings and persisted independent UI/voice languages, verified through the UI.
+- [ ] Complete French/English interface and validate both languages.
+- [ ] Payment integration — blocked by merchant country, currency, approved prices and provider credentials.
+- [ ] Audio translation integration — blocked by authorized provider credentials/budget; device tests required.
+- [ ] Avatar and virtual camera — external desktop bridge and physical application tests required.
+- [ ] Production readiness — mail delivery, deployment authorization and external integration checks required.
