@@ -1,7 +1,46 @@
-import { useState, type FormEvent } from 'react';
-import { UserRound, ShieldCheck, Languages, Bell, Save, Check } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Link } from '@tanstack/react-router';
+import { useServerFn } from '@tanstack/react-start';
+import { useQueryClient, useSuspenseQuery } from '@tanstack/react-query';
+import { UserRound, ShieldCheck, Languages, Save, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PageTitle, Notice } from './shared';
 import { useDemo } from './provider';
-export function SettingsPage() { const { locale, setLocale } = useDemo(); const [tab, setTab] = useState('profile'); const [saved, setSaved] = useState(false); const [name, setName] = useState('Jean Dupont'); const [email, setEmail] = useState('jean.dupont@exemple.com'); const [notifications, setNotifications] = useState(true); const [tips, setTips] = useState(false); function save(e: FormEvent) { e.preventDefault(); setSaved(true); } return <><PageTitle title="Un espace à votre image." subtitle="Vos préférences, vos langues, votre Weechat. Modifications locales uniquement." /><div className="settings-layout"><nav className="settings-nav" aria-label="Catégories des paramètres">{[{ id: 'profile', label: 'Profil', icon: UserRound }, { id: 'security', label: 'Sécurité', icon: ShieldCheck }, { id: 'language', label: 'Langue', icon: Languages }, { id: 'notifications', label: 'Notifications', icon: Bell }].map(n => <Button variant="ghost" aria-pressed={tab === n.id} key={n.id} onClick={() => { setTab(n.id); setSaved(false); }}><n.icon />{n.label}</Button>)}</nav><form className="settings-form" onSubmit={save}>{tab === 'profile' && <><h2>Informations personnelles</h2><p>Les détails de votre compte de démonstration.</p><div className="settings-avatar"><span className="user-avatar">JD</span><div><strong>{name}</strong><small>Profil de démonstration</small></div></div><label className="field"><span>Nom complet</span><Input required value={name} onChange={e => setName(e.target.value)} /></label><label className="field"><span>Adresse e-mail</span><Input required type="email" value={email} onChange={e => setEmail(e.target.value)} /></label></>}{tab === 'security' && <><h2>Sécurité du compte</h2><p>Aucune authentification réelle n’est configurée.</p><label className="field"><span>Nouveau mot de passe fictif</span><Input type="password" minLength={8} required placeholder="Au moins 8 caractères" autoComplete="new-password" /></label><div className="security-note"><ShieldCheck size={20} /><p>Ce formulaire simule une modification. Aucun mot de passe n’est enregistré.</p></div></>}{tab === 'language' && <><h2>Langue de l’interface</h2><p>La langue de l’interface est indépendante des langues vocales.</p><div className="language-options">{[{ id: 'fr', label: 'Français', sub: 'French' }, { id: 'en', label: 'English', sub: 'Anglais' }].map(l => <Button key={l.id} variant="outline" aria-pressed={locale === l.id} onClick={() => setLocale(l.id === 'en' ? 'en' : 'fr')}><span>{l.label}<small>{l.sub}</small></span>{locale === l.id && <Check />}</Button>)}</div><p className="table-note">Version anglaise partielle préparée. Langues vocales cibles : FR / EN / ES / DE / PT.</p></>}{tab === 'notifications' && <><h2>Notifications</h2><p>Préférences visuelles. Aucun message ne sera envoyé.</p>{[{ title: 'Activité des crédits', text: 'Ajouts et mouvements de votre solde', value: notifications, set: setNotifications }, { title: 'Actualités Weechat', text: 'Les nouvelles perspectives du projet', value: tips, set: setTips }].map(n => <div className="notification-setting" key={n.title}><div><strong>{n.title}</strong><p>{n.text}</p></div><Button type="button" role="switch" aria-checked={n.value} aria-label={n.title} variant="ghost" className={`switch-control ${n.value ? 'on' : ''}`} onClick={() => n.set(!n.value)}><span /></Button></div>)}</>}<div className="settings-save"><Button type="submit"><Save />Enregistrer les modifications</Button><small>Pour cette démo uniquement</small></div>{saved && <Notice>Préférences mises à jour localement. Aucun compte réel modifié.</Notice>}</form></div></>; }
+import { profileQuery } from '@/lib/weechat/profile-query';
+import { saveProfile } from '@/lib/weechat/profile.functions';
+import { profileSchema } from '@/lib/weechat/profile-schema';
+
+const labels = {
+  fr: { title: 'Un espace à votre image.', sub: 'Votre profil et vos préférences.', profile: 'Profil', security: 'Sécurité', language: 'Langues', personal: 'Informations personnelles', name: 'Nom complet', email: 'Adresse e-mail', voice: 'Langue vocale souhaitée', ui: 'Langue de l’interface', save: 'Enregistrer', saving: 'Enregistrement…', saved: 'Profil enregistré.', failed: 'Enregistrement impossible. Réessayez.', invalid: 'Vérifiez le nom et les langues sélectionnées.', password: 'Mot de passe', reset: 'Réinitialiser le mot de passe', secure: 'Recevez un lien personnel par e-mail.', voiceNote: 'Traduction vocale non disponible.', categories: 'Catégories des paramètres' },
+  en: { title: 'Make this space yours.', sub: 'Your profile and preferences.', profile: 'Profile', security: 'Security', language: 'Languages', personal: 'Personal information', name: 'Full name', email: 'Email address', voice: 'Preferred spoken language', ui: 'Interface language', save: 'Save', saving: 'Saving…', saved: 'Profile saved.', failed: 'Unable to save. Try again.', invalid: 'Check your name and selected languages.', password: 'Password', reset: 'Reset password', secure: 'Receive a personal link by email.', voiceNote: 'Voice translation unavailable.', categories: 'Settings categories' },
+};
+export function SettingsPage() {
+  const { data } = useSuspenseQuery(profileQuery);
+  const client = useQueryClient(); const save = useServerFn(saveProfile);
+  const { locale, setLocale } = useDemo(); const c = labels[locale];
+  const [tab, setTab] = useState('profile');
+  const [name, setName] = useState(data.display_name ?? '');
+  const [voice, setVoice] = useState(data.voice_language);
+  const [busy, setBusy] = useState(false); const [notice, setNotice] = useState('');
+  useEffect(() => { setLocale(data.ui_locale === 'en' ? 'en' : 'fr'); }, [data.ui_locale]);
+  async function submit(e: FormEvent) {
+    e.preventDefault(); setNotice('');
+    const parsed = profileSchema.safeParse({ display_name: name, ui_locale: locale, voice_language: voice });
+    if (!parsed.success) { setNotice(c.invalid); return; }
+    setBusy(true);
+    try {
+      const saved = await save({ data: parsed.data });
+      client.setQueryData(profileQuery.queryKey, { ...saved, email: data.email });
+      setNotice(c.saved);
+    } catch { setNotice(c.failed); } finally { setBusy(false); }
+  }
+  return <><PageTitle title={c.title} subtitle={c.sub} /><div className="settings-layout"><nav className="settings-nav" aria-label={c.categories}>
+    {[{ id: 'profile', label: c.profile, icon: UserRound }, { id: 'security', label: c.security, icon: ShieldCheck }, { id: 'language', label: c.language, icon: Languages }].map(n => <Button variant="ghost" aria-pressed={tab === n.id} key={n.id} onClick={() => { setTab(n.id); setNotice(''); }}><n.icon />{n.label}</Button>)}
+    </nav><form className="settings-form" onSubmit={submit}>
+    {tab === 'profile' && <><h2>{c.personal}</h2><div className="settings-avatar"><span className="user-avatar">{name.slice(0, 2).toUpperCase() || 'W'}</span><strong>{name}</strong></div><label className="field"><span>{c.name}</span><Input value={name} maxLength={80} autoComplete="name" onChange={e => setName(e.target.value)} /></label><label className="field"><span>{c.email}</span><Input type="email" value={data.email} readOnly autoComplete="email" /></label></>}
+    {tab === 'security' && <><h2>{c.password}</h2><p>{c.secure}</p><Button asChild variant="outline"><Link to="/recuperation"><ShieldCheck />{c.reset}</Link></Button></>}
+    {tab === 'language' && <><h2>{c.ui}</h2><div className="language-options">{(['fr', 'en'] as const).map(l => <Button type="button" key={l} variant="outline" aria-pressed={locale === l} onClick={() => setLocale(l)}><span>{l === 'fr' ? 'Français' : 'English'}</span>{locale === l && <Check />}</Button>)}</div><label className="field"><span>{c.voice}</span><select className="w-full rounded-md border border-input bg-background p-3 text-foreground" value={voice} onChange={e => setVoice(e.target.value)}>{[{ id: 'fr', name: 'Français' }, { id: 'en', name: 'English' }, { id: 'es', name: 'Español' }, { id: 'de', name: 'Deutsch' }, { id: 'pt', name: 'Português' }].map(l => <option key={l.id} value={l.id}>{l.name}</option>)}</select></label><p>{c.voiceNote}</p></>}
+    {tab !== 'security' && <div className="settings-save"><Button type="submit" disabled={busy}><Save />{busy ? c.saving : c.save}</Button></div>}{notice && <Notice>{notice}</Notice>}
+    </form></div></>;
+}
