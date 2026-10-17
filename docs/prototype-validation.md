@@ -1,5 +1,7 @@
 # Weechat UI Prototype — validation
 
+> Archive de la validation initiale uniquement. Le périmètre prototype a été remplacé par la directive v2; pour l'état courant consulter MASTER_SPEC.md, TESTING.md, SECURITY.md et KNOWN_LIMITATIONS.md. Les affirmations ci-dessous ne décrivent pas l'application actuelle.
+
 ## Scope
 Eight frontend content routes, reusable presentation components, separate fictional data and French/partial-English dictionary. New code written for this prototype; external GitHub repository not accessed or modified. No Cloud, database, backend, payment service, API keys, real authentication or publication.
 

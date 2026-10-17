@@ -18,7 +18,7 @@ Base externe existante uniquement. Profils et rôles préexistants conservés. A
 ## Migrations de ce lot
 1. `20261017075139`: registre, validation, opération atomique et totaux.
 2. `20261017075845`: révocation des droits hérités, écriture directe interdite même au service.
-3. Migration suivante: instantané cohérent solde/historique.
+3. `20261017082210`: instantané cohérent solde/historique.
 
 Aucun catalogue commercial ou prix définitif créé. Les packs visibles restent les anciens exemples, explicitement simulés. Paiements désactivés. Aucun endpoint public permettant une attribution arbitraire de crédits.
 

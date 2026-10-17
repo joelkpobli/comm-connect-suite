@@ -1,7 +1,7 @@
 # Tests et preuves du lot
 
 ## Automatisation réellement exécutée
-Avant l'instantané SQL: **36 tests passent**, six fichiers.
+Résultat final exécuté: **37 tests passent**, six fichiers.
 - Routage: 9 tests.
 - Simulation locale et langue UI: 3 tests.
 - Renvoi e-mail et compte à rebours: 2 tests.
@@ -9,7 +9,7 @@ Avant l'instantané SQL: **36 tests passent**, six fichiers.
 - Validation profil: 3 tests.
 - Registre réel: 8 tests (zéro initial; +100/-30; doublons concurrents; conflit de référence; insuffisance; opération invalide puis reprise; débits concurrents; isolation et écriture refusée; historique non modifiable).
 
-Un test additionnel vérifie l'instantané solde/historique et le refus aux visiteurs. Voir le résultat final du lot avant de compter ce test comme validé.
+Le neuvième test du registre vérifie l'instantané solde/historique et le refus aux visiteurs; il passe également.
 
 Premier passage registre: 7/8; lecture anonyme non refusée. Droits hérités révoqués, nouveau passage 8/8. Les clients Supabase multiples avertissent dans les tests car chaque compte d'essai a son client isolé; l'application conserve un client navigateur unique.
 
@@ -21,6 +21,9 @@ Compte d'essai confirmé créé uniquement pour tester puis supprimé:
 - UI English et langue vocale Português enregistrées puis relues après rechargement.
 - Écran 390×844: menu fermé hors écran, formulaire accessible, aucun débordement horizontal.
 - Aucun événement pageerror dans ce parcours. Captures revues.
+- Nouveau parcours anglais: nom sauvegardé visible dans la barre latérale, aperçu de conversation clairement fictif, achat simulé sans modification du solde réel (70), historique 70/100/30 et filtre Utilisations (un mouvement).
+- Quatre pages privées testées à 390×844 sans débordement; ouverture/fermeture menu vérifiée. Déconnexion, cinq pages publiques et refus d'un mauvais mot de passe en anglais vérifiés.
+- Aucun événement pageerror pendant ce dernier parcours. Les nouvelles captures ont été produites mais n'étaient plus disponibles lors de leur relecture; leur validation visuelle finale n'est donc pas revendiquée.
 
 Le test mobile a initialement montré le menu recouvrant la page. Ancrage gauche/haut de la barre fixe corrigé; vérification visuelle et géométrique repassée.
 

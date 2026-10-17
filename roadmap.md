@@ -7,11 +7,12 @@
 - [x] Keep the show/hide password control working on the login screen.
 - [x] Audit and harden auth: revoke rls_auto_enable, least-privilege grants, profile column+language checks, recovery-link requirement, post-confirmation redirect.
 - [x] Prove account isolation with 11 negative tests on two real throwaway accounts (25/25 tests green).
-- [ ] Credits system (packs, balance, history) — next step, server-side writes only.
+- [x] Real credit ledger, balance and latest history — atomic service-only writes and isolation verified.
+- [ ] Commercial packs and purchases — blocked by approved prices and merchant/provider information.
 - [ ] User-side Supabase settings: Site URL, redirect URLs (/connexion, /reinitialisation), SMTP.
-- [ ] Persist directive v2 and document actual implementation and blockers.
-- [ ] Real profile settings and persisted independent UI/voice languages, verified through the UI.
-- [ ] Complete French/English interface and validate both languages.
+- [x] Persist directive v2 and document actual implementation and blockers.
+- [x] Real profile settings and persisted independent UI/voice languages, verified through the UI.
+- [x] Translate existing screens and validate key French/English flows; saved profile identity shown throughout workspace.
 - [ ] Payment integration — blocked by merchant country, currency, approved prices and provider credentials.
 - [ ] Audio translation integration — blocked by authorized provider credentials/budget; device tests required.
 - [ ] Avatar and virtual camera — external desktop bridge and physical application tests required.
