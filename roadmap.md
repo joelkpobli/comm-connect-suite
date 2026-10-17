@@ -17,3 +17,8 @@
 - [ ] Audio translation integration — blocked by authorized provider credentials/budget; device tests required.
 - [ ] Avatar and virtual camera — external desktop bridge and physical application tests required.
 - [ ] Production readiness — mail delivery, deployment authorization and external integration checks required.
+- [ ] Browser microphone/camera consent, denial/errors, device selection and stop/revocation.
+- [ ] Local representation: initials, authorized photo and static avatar; no impersonation or retention.
+- [ ] Local audio level/processing and video composition; test cleanup, races and regressions.
+- [ ] Provider-neutral fail-closed payment contracts, without products, activation or expenditure.
+- [ ] Document multimedia evidence, limitations and external actions.
