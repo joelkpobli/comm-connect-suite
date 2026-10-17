@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          reason: string
+          reference: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          kind: string
+          reason: string
+          reference: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          reason?: string
+          reference?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -67,12 +105,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_credit_totals: {
+        Args: never
+        Returns: {
+          balance: number
+          consumed: number
+          received: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      post_credit_operation: {
+        Args: {
+          p_amount: number
+          p_kind: string
+          p_reason: string
+          p_reference: string
+          p_user_id: string
+        }
+        Returns: string
       }
     }
     Enums: {
