@@ -1,4 +1,7 @@
 # Weechat execution roadmap
+- [ ] Harden capture interruptions/device removal and audio/video pipeline cleanup; test regressions and document current evidence.
+- [ ] Prepare disabled recognition/translation/synthesis/avatar integration boundaries without external services.
+- [ ] Recheck account isolation and production configuration evidence; document inaccessible hosted settings.
 - [x] Create eight visual screens and coherent local demo navigation.
 - [x] Separate demo data, reusable presentation, and UI language state.
 - [x] Verify routes, fictional purchase, forms and mobile layout.
