@@ -15,5 +15,9 @@ L'onglet Communication locale dans Paramètres possède son propre `LocalMediaSe
 
 Le graphe Web Audio relie source → gain → analyseur → destination MediaStream, jamais aux haut-parleurs. Niveau RMS, gain 0–2 et mute sont locaux; réduction du bruit/écho demande les capacités natives du navigateur (efficacité matérielle non certifiée). Le canvas compose initiales, photo, avatar statique ou caméra en 640×360 et fournit un flux local 15 fps lorsqu'il est pris en charge. Aucun enregistreur, stockage ou transport réseau.
 
+La sortie canvas possède maintenant un propriétaire `LocalVideoOutput` dans `video-pipeline.ts`, arrêt idempotent et validation du track vidéo. Le cadrage est une fonction pure testée. Les interruptions mute/unmute ne sont pas assimilées à une permission refusée; ended et retrait d'un périphérique précédemment identifié arrêtent le flux et signalent la cause. Les callbacks anciens ne modifient pas une nouvelle capture. Le contexte audio suit son état réel et possède une reprise explicite après suspension ou refus de démarrage.
+
+`communication-contracts.ts` décrit reconnaissance → texte → traduction → synthèse et animation à partir d'une image autorisée. Les interfaces seules ne constituent pas une intégration: chaque étape reste indisponible et toute initiation est refusée. Aucun moteur, téléchargement de modèle, API, licence ou service n'est supposé disponible. La reconnaissance vocale native potentiellement distante n'est pas activée sous une promesse locale.
+
 ## Paiements préparés, non activés
 `payment-contracts.ts` définit seulement les exigences et interfaces futures. Aucun fournisseur choisi, compte ouvert, tarif commercial, point de paiement ou webhook créé. `initiatePayment` refuse toujours. Voir PAYMENT_ARCHITECTURE.md pour les frontières serveur et les conditions de déblocage.

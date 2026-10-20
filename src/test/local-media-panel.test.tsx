@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
 import { LocalMediaPanel } from '@/components/weechat/local-media';
 import { DemoProvider } from '@/components/weechat/provider';
@@ -50,6 +50,7 @@ describe('Media panel privacy behavior', () => {
  });
  it('never saves media or consent to browser storage', async () => {
   open(); const local=vi.spyOn(Storage.prototype,'setItem');
+  await act(async () => {});
   fireEvent.click(screen.getByRole('checkbox',{name:'J’utilise un avatar statique sans imiter une autre personne.'}));
   fireEvent.click(screen.getByRole('button',{name:/^Avatar statique$/}));
   fireEvent.click(screen.getByRole('button',{name:'Retirer tous les consentements'}));

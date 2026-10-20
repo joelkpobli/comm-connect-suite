@@ -100,7 +100,7 @@ function MediaControls({ session, name }: { session: LocalMediaSession; name: st
           if (mirror && representation === 'camera') { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
           ctx.drawImage(source, placement.x, placement.y, placement.width, placement.height); ctx.restore();
         }
-      } else { ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '72px sans-serif'; ctx.fillText(representation === 'camera' ? c.noCamera : representation === 'avatar' && state.consent.avatar ? avatar : name.slice(0, 2).toUpperCase() || 'W', canvas.width / 2, canvas.height / 2); }
+      } else { ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = representation === 'camera' ? '24px sans-serif' : '72px sans-serif'; ctx.fillText(representation === 'camera' ? c.noCamera : representation === 'avatar' && state.consent.avatar ? avatar : name.slice(0, 2).toUpperCase() || 'W', canvas.width / 2, canvas.height / 2, canvas.width - 32); }
       frame = requestAnimationFrame(paint);
     };
     paint();

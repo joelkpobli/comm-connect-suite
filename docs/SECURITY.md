@@ -27,3 +27,9 @@ Livraison réelle des e-mails, configuration hébergée de redirection/SMTP, pro
 - Déclaration d'autorisation et refus d'usurpation pour photos/avatars. Cela n'est pas une preuve automatique d'identité ni un consentement juridique distant auditable.
 - Pas de transcription distante, reconnaissance vocale du navigateur potentiellement hébergée, cloning vocal ou synthèse externe introduits sous une promesse « local uniquement ».
 - Paiements fail-closed; un événement client ne peut pas attribuer de crédits. Aucune modification SQL dans ce lot.
+
+## Recontrôle de poursuite autonome
+- Les 11 tests d'isolation et les 9 tests du registre externe repassent; comptes temporaires nettoyés par les tests. Pas de modification de politique ou de migration.
+- Lecture publique des réglages Auth réussie: inscriptions e-mail actives, fournisseur e-mail actif, confirmation obligatoire (auto-confirm désactivé), fournisseurs tiers listés désactivés. Le service Auth répond correctement.
+- Site URL, liste des redirections et SMTP ne sont pas exposés par cette lecture. Sans accès de gestion disponible, aucun audit exhaustif des alertes/fonctions hébergées ni certification SMTP n'est revendiqué. L'alerte has_role reste celle de l'audit antérieur, pas une constatation fraîche du linter.
+- API média native testée sans injection: aucun microphone/webcam disponible dans le sandbox (NotFoundError); aucune simulation de secours dans l'application. Les tests de cycle de vie restent des doubles explicites.

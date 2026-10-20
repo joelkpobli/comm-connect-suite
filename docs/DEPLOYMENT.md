@@ -2,6 +2,8 @@
 
 **Ne pas publier ce lot comme produit complet.** Aucun déploiement n'a été effectué.
 
+Recontrôle: l'endpoint public de réglages Auth confirme l'inscription e-mail activée et l'auto-confirmation désactivée; fournisseurs tiers listés désactivés. Il ne renvoie ni Site URL, ni allow-list de redirections, ni configuration SMTP. Les points 1–4 ci-dessous restent donc des actions propriétaire, et non des paramètres déclarés manquants après lecture du dashboard.
+
 1. Dans Supabase weechat-production, Authentication → URL Configuration, vérifier Site URL `https://comm-connect-suite.lovable.app`.
 2. Ajouter les retours exacts:
    - `https://comm-connect-suite.lovable.app/connexion`
