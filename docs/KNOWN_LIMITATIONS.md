@@ -15,6 +15,8 @@
 - Langue et nom du profil sont synchronisés dans l'espace privé; le choix du menu est local tant que les préférences ne sont pas enregistrées dans Paramètres.
 - Contrats de paiement désactivés livrés; catalogue commercial attend pays, devise et prix validés. Pagination historique reste hors de ce lot.
 - Choix/consentement avatar statique/photo et permissions microphone/caméra livrés. Capture matérielle et permissions dans l'aperçu intégré restent à tester sur l'ordinateur cible; ouvrir l'app dans un onglet HTTPS si la politique de l'aperçu bloque la capture.
+- Recontrôle natif de ce lot: navigateur sécurisé, audio et vidéo retournent NotFoundError (aucun appareil), sans injection ni remplacement. Le panneau isolé affiche « Indisponible » et la cause réelle. Ce test n'est pas un parcours connecté complet: Supabase externe ne fournit pas de session gérée pour ce lot; les tests d'isolation en base restent réellement exécutés.
+- Reconnaissance, traduction, synthèse et animation: interfaces désactivées préparées, pas de moteur installé. Choix de modèle/fournisseur, licences, budget zéro et matériel cible nécessaires avant activation; aucun faux résultat présenté.
 - Paiement signé/remboursement/réconciliation: à implémenter une fois les exigences commerciales et identifiants fournis.
 
 Ce lot poursuit jusqu'au graphe audio et flux vidéo locaux et aux contrats de paiement. Aucun travail ne continue en arrière-plan après la réponse. **Blocages actuels: appareils physiques/Windows, décisions/licences et fournisseur de traduction autorisé compatible avec le budget zéro, informations commerciales pour sélectionner le paiement, réglages e-mail Supabase.**

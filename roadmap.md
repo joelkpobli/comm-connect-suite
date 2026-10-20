@@ -1,7 +1,7 @@
 # Weechat execution roadmap
-- [ ] Harden capture interruptions/device removal and audio/video pipeline cleanup; test regressions and document current evidence.
-- [ ] Prepare disabled recognition/translation/synthesis/avatar integration boundaries without external services.
-- [ ] Recheck account isolation and production configuration evidence; document inaccessible hosted settings.
+- [x] Harden capture interruptions/device removal and audio/video pipeline cleanup; test regressions and document current evidence.
+- [x] Prepare disabled recognition/translation/synthesis/avatar integration boundaries without external services.
+- [x] Recheck account isolation and production configuration evidence; document inaccessible hosted settings.
 - [x] Create eight visual screens and coherent local demo navigation.
 - [x] Separate demo data, reusable presentation, and UI language state.
 - [x] Verify routes, fictional purchase, forms and mobile layout.
@@ -25,4 +25,4 @@
 - [x] Local audio level/processing and video composition; cleanup/races/regressions tested with synthetic streams.
 - [x] Provider-neutral fail-closed payment contracts, without products, activation or expenditure.
 - [x] Document multimedia evidence, limitations and external actions.
-- [ ] Physical capture/permission/quality and multi-device validation — needs user's target computer; sandbox getUserMedia unsupported.
+- [ ] Physical capture/permission/quality and multi-device validation — needs user's target computer; native sandbox capture returns NotFoundError (no devices).

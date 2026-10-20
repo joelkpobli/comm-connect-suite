@@ -56,3 +56,24 @@ Tests de régression et négatifs sur Supabase externe repassés, comptes d'essa
 5. Confirmer Site URL, URLs de retour et SMTP dans Supabase, puis livraison avec vraie boîte e-mail.
 
 Toutes les tâches indépendantes de ce lot ont été poursuivies avant la réponse; la suite matérielle/commerciale/externe est bloquée. Aucune tâche en arrière-plan, aucune publication, aucune nouvelle base/Cloud, aucun secret frontend ou paiement activé.
+
+## Poursuite autonome — interruptions et pipelines
+Directive complémentaire conservée dans `docs/CONTINUATION_SPEC.md`.
+
+### Changements opérationnels locaux
+Capture interrompue temporairement distinguée de capture arrêtée; reprise unmute, débranchement détecté sans ended lorsque l'identifiant était connu, erreur explicite à la déconnexion, flux vide rejeté et callbacks obsolètes ignorés. Aucun basculement silencieux vers des initiales lorsque Caméra est choisie sans capture. Échec de lecture caméra affiché.
+
+Audio: état du contexte suivi sans annoncer « actif » avant fonctionnement; bouton de reprise, mute/unmute gardant le gain choisi, fermeture idempotente. Vidéo: propriétaire modulaire du flux canvas, track vérifié, nettoyage répétable, état prêt seulement après lecture et cadrage testé. Aucun envoi, écoute haut-parleur ou enregistrement ajouté.
+
+Reconnaissance, traduction, synthèse et animation ont des interfaces séparées **désactivées**; ce n'est pas une traduction opérationnelle. Aucun paiement/service activé.
+
+### Fichiers modifiés
+`src/components/weechat/local-media.tsx`, `src/lib/weechat/media-session.ts`, `media-copy.ts`; nouveaux `video-pipeline.ts`, `communication-contracts.ts`; tests `local-media.test.ts`, `local-media-panel.test.tsx`, nouveau `communication-pipeline.test.ts`; `AGENTS.md`, `roadmap.md` et documentation Architecture/Security/Deployment/Testing/Known limitations/Report.
+
+### Preuves et limites
+**75 tests passent dans dix fichiers**, dont 20 tests réellement exécutés sur la base externe. Réglages Auth publics lus: inscription e-mail active et confirmation obligatoire; fournisseurs tiers listés désactivés. Site URL/redirections/SMTP et linter complet non vérifiables avec l'accès de gestion disponible: ne pas déclarer l'alerte historique has_role nouvellement auditée.
+
+Capture native tentée sans simulation: **NotFoundError** pour microphone et webcam (aucun appareil du sandbox). Banc UI isolé confirme cause visible et absence de substitution, zéro pageerror; il ne remplace ni une vraie webcam ni un parcours connecté. La redirection privée est vérifiée; aucun nouveau parcours connecté complet revendiqué. Build automatique à nouveau sain après correction du contrôle captureStream.
+
+### Actions humaines encore nécessaires
+Essais physiques sur HP EliteBook Windows 11 (permissions, choix/débranchement, bruit, caméra); accès propriétaire aux réglages Site URL/redirections/SMTP puis vrai parcours e-mail; moteur de traduction/synthèse et licences autorisés compatibles budget zéro; pont système et essais dans applications cibles; décisions commerciales déjà listées avant paiement. Sans ces prérequis, production et communication multilingue complète restent non certifiées. Aucun travail ne continue après la réponse.
