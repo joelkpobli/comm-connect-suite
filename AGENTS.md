@@ -24,4 +24,5 @@
 - Keep UI translations in src/lib/weechat; shared shell reads the profile query for saved identity and locale, while error boundaries use a hydration-safe local locale fallback because the normal provider may be unavailable.
 - Keep live media in an ephemeral LocalMediaSession owned by the communication settings panel; stop tracks on withdrawal, screen exit, backgrounding and stale permission results to prevent unintended capture.
 - Keep audio processing and canvas video composition browser-local without recording, storage, network sinks or speaker monitoring; this enforces zero retention and avoids feedback.
+- Keep video output lifecycle in video-pipeline and future communication stages in disabled communication-contracts interfaces; modular boundaries prevent claiming unavailable integrations or leaking captured media.
 - Keep future payment contracts provider-neutral and fail-closed with no executable adapter; fulfillment requires a verified server event, durable order matching and unique ledger reference before any enablement.

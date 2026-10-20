@@ -14,6 +14,21 @@ beforeEach(() => {
 });
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 describe('Media panel privacy behavior', () => {
+ it('resumes a suspended audio graph and preserves gain through mute/unmute', async () => {
+  const gain = {gain:{value:1},connect:vi.fn(),disconnect:vi.fn()};
+  const node = () => ({connect:vi.fn(),disconnect:vi.fn()}); const close = vi.fn().mockResolvedValue(undefined);
+  const context = {state:'suspended',createMediaStreamSource:node,createGain:()=>gain,createAnalyser:()=>({...node(),fftSize:256,getByteTimeDomainData:vi.fn()}),createMediaStreamDestination:()=>({...node(),stream:{getTracks:()=>[{stop:vi.fn()}]}}),addEventListener:vi.fn(),removeEventListener:vi.fn(),close,resume:vi.fn()};
+  context.resume.mockRejectedValueOnce(new Error('blocked')).mockImplementation(async()=>{context.state='running';});
+  vi.stubGlobal('AudioContext',class {constructor(){return context;}});
+  const {unmount}=open(); fireEvent.click(screen.getByRole('checkbox',{name:'J’autorise l’utilisation locale de mon microphone.'})); fireEvent.click(screen.getByRole('button',{name:'Activer microphone'}));
+  const resume = await screen.findByRole('button',{name:'Reprendre l’audio local'});
+  await waitFor(()=>expect(context.resume).toHaveBeenCalledOnce()); fireEvent.click(resume);
+  await waitFor(()=>expect(context.state).toBe('running'));
+  fireEvent.change(screen.getByRole('slider'),{target:{value:'1.6'}}); expect(gain.gain.value).toBe(1.6);
+  fireEvent.click(screen.getByRole('checkbox',{name:'Couper le son local'})); expect(gain.gain.value).toBe(0);
+  fireEvent.click(screen.getByRole('checkbox',{name:'Couper le son local'})); expect(gain.gain.value).toBe(1.6);
+  unmount(); expect(close).toHaveBeenCalledOnce();
+ });
  it('gates microphone requests on consent and stops when panel unmounts', async () => {
   const {unmount}=open(); expect(screen.getByRole('button',{name:'Activer microphone'})).toBeDisabled();
   fireEvent.click(screen.getByRole('checkbox',{name:'J’autorise l’utilisation locale de mon microphone.'}));
