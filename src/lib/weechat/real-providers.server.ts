@@ -30,7 +30,7 @@ export async function deepgramTranscribe(audio: Uint8Array, mime: string, langua
   if (!audio.byteLength) throw new ProviderError('empty_input', 'deepgram');
   if (audio.byteLength > MAX_AUDIO_BYTES) throw new ProviderError('input_too_large', 'deepgram');
   const res = await ok(await f(`https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&language=${l}`, {
-    method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': mime }, body: audio,
+    method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': mime }, body: new Blob([audio.slice()]),
   }), 'deepgram');
   const j = (await res.json()) as { results?: { channels?: { alternatives?: { transcript?: string }[] }[] } };
   return j.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? '';

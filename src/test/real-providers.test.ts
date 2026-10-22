@@ -15,13 +15,13 @@ describe('real provider adapters (no network)', () => {
   it('DeepL Free key uses the free host and fr -> EN-US', async () => {
     const f = vi.fn().mockResolvedValue(json({ translations: [{ text: 'hello' }] }));
     expect(await deeplTranslate('bonjour', 'fr', 'en', 'k:fx', f)).toBe('hello');
-    expect(f.mock.calls[0][0]).toBe('https://api-free.deepl.com/v2/translate');
-    expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ text: ['bonjour'], source_lang: 'FR', target_lang: 'EN-US' });
+    expect(f.mock.calls[0]![0]).toBe('https://api-free.deepl.com/v2/translate');
+    expect(JSON.parse(f.mock.calls[0]![1].body)).toEqual({ text: ['bonjour'], source_lang: 'FR', target_lang: 'EN-US' });
   });
   it('return path en -> fr', async () => {
     const f = vi.fn().mockResolvedValue(json({ translations: [{ text: 'bonjour' }] }));
     await deeplTranslate('hello', 'en', 'fr', 'k:fx', f);
-    expect(JSON.parse(f.mock.calls[0][1].body).target_lang).toBe('FR');
+    expect(JSON.parse(f.mock.calls[0]![1].body).target_lang).toBe('FR');
   });
   it('rejects unsupported language, empty and oversized input', async () => {
     const f = vi.fn();
@@ -38,6 +38,6 @@ describe('real provider adapters (no network)', () => {
   it('parses Deepgram transcript with language parameter', async () => {
     const f = vi.fn().mockResolvedValue(json({ results: { channels: [{ alternatives: [{ transcript: 'bonjour' }] }] } }));
     expect(await deepgramTranscribe(new Uint8Array([1, 2]), 'audio/webm', 'fr', 'k', f)).toBe('bonjour');
-    expect(f.mock.calls[0][0]).toContain('language=fr');
+    expect(f.mock.calls[0]![0]).toContain('language=fr');
   });
 });
