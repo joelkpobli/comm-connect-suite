@@ -46,3 +46,22 @@ Coûts engagés : 0 €.
 
 Premier parcours testable une fois les clés fournies : texte FR → EN (DeepL seul), puis FR parlé → EN entendu.
 Tests réels fournisseurs : **non exécutés** (aucune clé). Coûts engagés : 0 €.
+
+## Réévaluation 2026-10-22 — Deepgram fournisseur unique STT + TTS
+
+Sources officielles : developers.deepgram.com/docs/tts-models, /docs/tts-models-languages-overview, deepgram.com/pricing.
+
+- **STT Nova-3** (`/v1/listen?model=nova-3`) : fr, en, es, de, pt pris en charge.
+- **TTS Aura-2** (`/v1/speak`) : en, es, de, fr, nl, it, ja. **Portugais non pris en charge** → erreur explicite `unsupported_language`. Flux TTS (`/v2/speak`) est anglais uniquement.
+- Voix retenues : en `aura-2-thalia-en`, fr `aura-2-agathe-fr`, es `aura-2-celeste-es`, de `aura-2-julius-de`.
+- Crédit de démarrage : 200 $ offerts, sans carte bancaire, sans expiration annoncée (Pay As You Go). TTS ≈ 0,045 $ / 1 000 caractères (page produit). Concurrence PAYG : 50 REST STT, 45 TTS. À reconfirmer dans la console au moment de l'inscription.
+- ElevenLabs retiré : gratuit sans usage commercial, et une clé de moins à gérer.
+- Traduction : DeepL API Free conservé (`DEEPL_API_KEY`, se termine par `:fx`).
+
+Implémentation : `deepgramSynthesize`, `relayTurn` (fr→en puis retour en→fr) et la fonction serveur authentifiée `realRelay`. Clé absente → `missing_provider_key`, jamais de repli simulé. Les réponses simulées existent uniquement dans `src/test/real-providers.test.ts`.
+
+### Premier test réel — actions nécessaires
+1. Créer un compte sur console.deepgram.com (sans carte), créer une clé API.
+2. Créer un compte DeepL API Free et copier la clé `…:fx`.
+3. Me demander d'enregistrer `DEEPGRAM_API_KEY` et `DEEPL_API_KEY` dans les secrets du serveur.
+4. Se connecter à Weechat et enregistrer une courte phrase en français ; vérifier transcription, traduction anglaise et voix anglaise, puis le retour anglais → français.

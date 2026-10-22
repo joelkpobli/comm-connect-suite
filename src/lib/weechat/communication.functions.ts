@@ -17,7 +17,7 @@ async function run<T>(fn: () => Promise<T>): Promise<Outcome<T>> {
 export const providerStatus = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).handler(async () => ({
   recognition: Boolean(process.env['DEEPGRAM_API_KEY']),
   translation: Boolean(process.env['DEEPL_API_KEY']),
-  synthesis: Boolean(process.env['ELEVENLABS_API_KEY']),
+  synthesis: Boolean(process.env['DEEPGRAM_API_KEY']),
   avatar: false as const,
 }));
 
@@ -39,9 +39,21 @@ export const realTranslate = createServerFn({ method: 'POST' }).middleware([requ
 export const realSynthesize = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ text: z.string().min(1).max(2000), language: Lang }).parse(d))
   .handler(async ({ data }) => {
-    const { elevenlabsSynthesize } = await import('./real-providers.server');
-    const r = await run(() => elevenlabsSynthesize(data.text, data.language, process.env['ELEVENLABS_API_KEY']));
+    const { deepgramSynthesize } = await import('./real-providers.server');
+    const r = await run(() => deepgramSynthesize(data.text, data.language, process.env['DEEPGRAM_API_KEY']));
     if (!r.ok) return r;
     let s = ''; for (const b of r.value) s += String.fromCharCode(b);
     return { ok: true as const, value: btoa(s), ms: r.ms };
+  });
+
+const b64 = (u: Uint8Array) => { let s = ''; for (const b of u) s += String.fromCharCode(b); return btoa(s); };
+/** Full turn fr -> en (or en -> fr return path). Missing key => explicit missing_provider_key error. */
+export const realRelay = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ audioBase64: z.string().min(1).max(2_800_000), mime: z.string().regex(/^audio\/[\w.+-]+(;.*)?$/), source: Lang, target: Lang }).refine((v) => v.source !== v.target).parse(d))
+  .handler(async ({ data }) => {
+    const { relayTurn } = await import('./real-providers.server');
+    const bytes = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
+    const r = await run(() => relayTurn(bytes, data.mime, data.source, data.target, { deepgram: process.env['DEEPGRAM_API_KEY'], deepl: process.env['DEEPL_API_KEY'] }));
+    if (!r.ok) return r;
+    return { ok: true as const, ms: r.ms, value: { transcript: r.value.transcript, translation: r.value.translation, speechBase64: b64(r.value.speech) } };
   });
