@@ -7,7 +7,7 @@ export class ProviderError extends Error {
   constructor(public code: ProviderErrorCode, public provider: string, public status?: number) { super(`${provider}:${code}`); }
 }
 type Fetch = typeof fetch;
-export const PROVIDER_KEYS = { recognition: 'DEEPGRAM_API_KEY', translation: 'DEEPL_API_KEY', synthesis: 'ELEVENLABS_API_KEY' } as const;
+export const PROVIDER_KEYS = { recognition: 'DEEPGRAM_API_KEY', translation: 'DEEPL_API_KEY', synthesis: 'DEEPGRAM_API_KEY' } as const;
 export const MAX_TEXT = 2000;
 export const MAX_AUDIO_BYTES = 2_000_000;
 
@@ -29,7 +29,7 @@ export async function deepgramTranscribe(audio: Uint8Array, mime: string, langua
   const k = need(key, 'deepgram'); const l = lang(language, 'deepgram');
   if (!audio.byteLength) throw new ProviderError('empty_input', 'deepgram');
   if (audio.byteLength > MAX_AUDIO_BYTES) throw new ProviderError('input_too_large', 'deepgram');
-  const res = await ok(await f(`https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&language=${l}`, {
+  const res = await ok(await f(`https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true&language=${l}`, {
     method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': mime }, body: new Blob([audio.slice()]),
   }), 'deepgram');
   const j = (await res.json()) as { results?: { channels?: { alternatives?: { transcript?: string }[] }[] } };
@@ -51,15 +51,30 @@ export async function deeplTranslate(text: string, source: string, target: strin
   return j.translations?.[0]?.text ?? '';
 }
 
-export const DEFAULT_VOICE = 'JBFqnCBsd6RMkjVDRZzb';
-/** ElevenLabs multilingual TTS; returns MP3 bytes. */
-export async function elevenlabsSynthesize(text: string, language: string, key: string | undefined, f: Fetch = fetch, voiceId = DEFAULT_VOICE) {
-  const k = need(key, 'elevenlabs'); const l = lang(language, 'elevenlabs');
-  if (!text.trim()) throw new ProviderError('empty_input', 'elevenlabs');
-  if (text.length > MAX_TEXT) throw new ProviderError('input_too_large', 'elevenlabs');
-  const res = await ok(await f(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
-    method: 'POST', headers: { 'xi-api-key': k, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, model_id: 'eleven_turbo_v2_5', language_code: l }),
-  }), 'elevenlabs');
+/** Deepgram Aura-2 voices (official catalogue, checked 2026-10-22). Portuguese has no Aura-2 voice: fail explicitly. */
+export const AURA_VOICES: Record<string, string | null> = {
+  en: 'aura-2-thalia-en', fr: 'aura-2-agathe-fr', es: 'aura-2-celeste-es', de: 'aura-2-julius-de', pt: null,
+};
+/** Deepgram Aura-2 TTS; returns MP3 bytes. */
+export async function deepgramSynthesize(text: string, language: string, key: string | undefined, f: Fetch = fetch) {
+  const l = lang(language, 'deepgram-aura');
+  const voice = AURA_VOICES[l];
+  if (!voice) throw new ProviderError('unsupported_language', 'deepgram-aura');
+  if (!text.trim()) throw new ProviderError('empty_input', 'deepgram-aura');
+  if (text.length > MAX_TEXT) throw new ProviderError('input_too_large', 'deepgram-aura');
+  const k = need(key, 'deepgram-aura');
+  const res = await ok(await f(`https://api.deepgram.com/v1/speak?model=${voice}&encoding=mp3`, {
+    method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+  }), 'deepgram-aura');
   return new Uint8Array(await res.arrayBuffer());
+}
+
+/** One real relay turn: speech (source) -> text -> translated text -> speech (target). No simulated fallback. */
+export async function relayTurn(audio: Uint8Array, mime: string, source: string, target: string, keys: { deepgram?: string | undefined; deepl?: string | undefined }, f: Fetch = fetch) {
+  need(keys.deepgram, 'deepgram'); need(keys.deepl, 'deepl');
+  const transcript = await deepgramTranscribe(audio, mime, source, keys.deepgram, f);
+  if (!transcript.trim()) throw new ProviderError('empty_input', 'deepgram');
+  const translation = await deeplTranslate(transcript, source, target, keys.deepl, f);
+  const speech = await deepgramSynthesize(translation, target, keys.deepgram, f);
+  return { transcript, translation, speech };
 }
