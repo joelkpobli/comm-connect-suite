@@ -1,0 +1,65 @@
+// Real provider adapters (server-only). Keys are read by the caller from process.env and never reach the browser.
+// Each adapter fails closed with an explicit error code; nothing falls back to the simulation.
+import { isPipelineLanguage } from './translation-pipeline';
+
+export type ProviderErrorCode = 'missing_provider_key' | 'provider_rejected' | 'unsupported_language' | 'empty_input' | 'input_too_large';
+export class ProviderError extends Error {
+  constructor(public code: ProviderErrorCode, public provider: string, public status?: number) { super(`${provider}:${code}`); }
+}
+type Fetch = typeof fetch;
+export const PROVIDER_KEYS = { recognition: 'DEEPGRAM_API_KEY', translation: 'DEEPL_API_KEY', synthesis: 'ELEVENLABS_API_KEY' } as const;
+export const MAX_TEXT = 2000;
+export const MAX_AUDIO_BYTES = 2_000_000;
+
+function need(key: string | undefined, provider: string): string {
+  if (!key) throw new ProviderError('missing_provider_key', provider);
+  return key;
+}
+function lang(v: string, provider: string) {
+  if (!isPipelineLanguage(v)) throw new ProviderError('unsupported_language', provider);
+  return v;
+}
+async function ok(res: Response, provider: string) {
+  if (!res.ok) { console.error(`${provider} [${res.status}]: ${await res.text().catch(() => '')}`); throw new ProviderError('provider_rejected', provider, res.status); }
+  return res;
+}
+
+/** Deepgram pre-recorded transcription of one short utterance. */
+export async function deepgramTranscribe(audio: Uint8Array, mime: string, language: string, key: string | undefined, f: Fetch = fetch) {
+  const k = need(key, 'deepgram'); const l = lang(language, 'deepgram');
+  if (!audio.byteLength) throw new ProviderError('empty_input', 'deepgram');
+  if (audio.byteLength > MAX_AUDIO_BYTES) throw new ProviderError('input_too_large', 'deepgram');
+  const res = await ok(await f(`https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&language=${l}`, {
+    method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': mime }, body: audio,
+  }), 'deepgram');
+  const j = (await res.json()) as { results?: { channels?: { alternatives?: { transcript?: string }[] }[] } };
+  return j.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? '';
+}
+
+const DEEPL_TARGET: Record<string, string> = { fr: 'FR', en: 'EN-US', es: 'ES', de: 'DE', pt: 'PT-PT' };
+/** DeepL text translation; Free keys end with ":fx" and use the api-free host. */
+export async function deeplTranslate(text: string, source: string, target: string, key: string | undefined, f: Fetch = fetch) {
+  const k = need(key, 'deepl'); lang(source, 'deepl'); lang(target, 'deepl');
+  if (!text.trim()) throw new ProviderError('empty_input', 'deepl');
+  if (text.length > MAX_TEXT) throw new ProviderError('input_too_large', 'deepl');
+  const host = k.endsWith(':fx') ? 'https://api-free.deepl.com' : 'https://api.deepl.com';
+  const res = await ok(await f(`${host}/v2/translate`, {
+    method: 'POST', headers: { Authorization: `DeepL-Auth-Key ${k}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: [text], source_lang: source.toUpperCase(), target_lang: DEEPL_TARGET[target] }),
+  }), 'deepl');
+  const j = (await res.json()) as { translations?: { text: string }[] };
+  return j.translations?.[0]?.text ?? '';
+}
+
+export const DEFAULT_VOICE = 'JBFqnCBsd6RMkjVDRZzb';
+/** ElevenLabs multilingual TTS; returns MP3 bytes. */
+export async function elevenlabsSynthesize(text: string, language: string, key: string | undefined, f: Fetch = fetch, voiceId = DEFAULT_VOICE) {
+  const k = need(key, 'elevenlabs'); const l = lang(language, 'elevenlabs');
+  if (!text.trim()) throw new ProviderError('empty_input', 'elevenlabs');
+  if (text.length > MAX_TEXT) throw new ProviderError('input_too_large', 'elevenlabs');
+  const res = await ok(await f(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
+    method: 'POST', headers: { 'xi-api-key': k, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text, model_id: 'eleven_turbo_v2_5', language_code: l }),
+  }), 'elevenlabs');
+  return new Uint8Array(await res.arrayBuffer());
+}
