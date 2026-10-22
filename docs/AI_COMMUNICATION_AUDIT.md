@@ -65,3 +65,17 @@ Implémentation : `deepgramSynthesize`, `relayTurn` (fr→en puis retour en→fr
 2. Créer un compte DeepL API Free et copier la clé `…:fx`.
 3. Me demander d'enregistrer `DEEPGRAM_API_KEY` et `DEEPL_API_KEY` dans les secrets du serveur.
 4. Se connecter à Weechat et enregistrer une courte phrase en français ; vérifier transcription, traduction anglaise et voix anglaise, puis le retour anglais → français.
+
+## Étude DeepL Voice API (documentation officielle)
+
+Sources : developers.deepl.com/docs/voice/overview, /docs/voice/supported-voice-languages, /docs/voice/voice-api-requirements, /api-reference/voice/request-session, /api-reference/voice/deepl-voice-api-service-specification-updates ; support.deepl.com « DeepL API plans », « Usage count and billing ».
+
+- **Accès gratuit : non.** Le plan Developer/Free (clé `:fx`) n'inclut pas la Voice API ; abonnement payant API Growth (ou Enterprise) obligatoire. Les plans « DeepL Voice » (applications) ne donnent pas accès à l'API.
+- **Sortie :** une session WebSocket fournit transcription, traduction texte (≤ 5 cibles) **et voix traduite audible** (≤ 1 cible vocale par session).
+- **Langues :** fr, en (US/UK), es, de, pt (PT et BR) supportées en transcription, traduction et voix — couvre le portugais, absent de Deepgram Aura-2.
+- **Facturation :** à la minute audio, arrondie à la minute supérieure, en plus d'un abonnement fixe. Prix non lus directement sur deepl.com : sources tierces (~26–32,50 $/mois Growth, ~0,062 $/min speech-to-speech) **à confirmer**. Usage commercial couvert par les plans payants ; pas d'entraînement sur données clients.
+- **Latence :** aucune valeur officielle chiffrée ; non mesurée ici. Contraintes : morceaux 50–250 ms recommandés (≤ 100 Ko / 1 s), flux ≤ 2× temps réel, fermeture après 30 s sans audio, reconnexion à gérer côté client.
+- **Intégration :** POST `/v3/voice/realtime` côté serveur (clé secrète) → jeton éphémère à usage unique → WebSocket ouverte par le navigateur ; la clé ne quitte jamais le serveur. Nécessite un nouveau client streaming (actuellement le relais est requête/réponse).
+- **Remplacement :** pourrait remplacer tout le pipeline Deepgram STT + DeepL texte + Aura-2, mais **incompatible avec le budget 0,00 €**.
+
+**Recommandation :** conserver Deepgram Nova-3 + DeepL API Free + Aura-2 pour le prototype ; réévaluer DeepL Voice API dès qu'un budget est approuvé (gain : un seul flux, portugais vocal). Aucun appel effectué, aucune dépense.
