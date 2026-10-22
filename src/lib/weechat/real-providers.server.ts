@@ -70,7 +70,7 @@ export async function deepgramSynthesize(text: string, language: string, key: st
 }
 
 /** One real relay turn: speech (source) -> text -> translated text -> speech (target). No simulated fallback. */
-export async function relayTurn(audio: Uint8Array, mime: string, source: string, target: string, keys: { deepgram?: string; deepl?: string }, f: Fetch = fetch) {
+export async function relayTurn(audio: Uint8Array, mime: string, source: string, target: string, keys: { deepgram?: string | undefined; deepl?: string | undefined }, f: Fetch = fetch) {
   need(keys.deepgram, 'deepgram'); need(keys.deepl, 'deepl');
   const transcript = await deepgramTranscribe(audio, mime, source, keys.deepgram, f);
   if (!transcript.trim()) throw new ProviderError('empty_input', 'deepgram');

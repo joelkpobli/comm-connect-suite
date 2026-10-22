@@ -41,7 +41,7 @@ describe('real provider adapters (no network)', () => {
     expect(f.mock.calls[0]![0]).toContain('language=fr');
   });
   it('Aura-2 TTS uses official voice per language and refuses Portuguese', async () => {
-    const f = vi.fn().mockResolvedValue(new Response(new Uint8Array([7, 8])));
+    const f = vi.fn().mockImplementation(async () => new Response(new Uint8Array([7, 8])));
     expect(Array.from(await deepgramSynthesize('hello', 'en', 'k', f))).toEqual([7, 8]);
     expect(f.mock.calls[0]![0]).toContain('model=aura-2-thalia-en');
     await deepgramSynthesize('bonjour', 'fr', 'k', f);
