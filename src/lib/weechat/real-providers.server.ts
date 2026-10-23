@@ -2,7 +2,7 @@
 // Each adapter fails closed with an explicit error code; nothing falls back to the simulation.
 import { isPipelineLanguage } from './translation-pipeline';
 
-export type ProviderErrorCode = 'missing_provider_key' | 'provider_rejected' | 'unsupported_language' | 'empty_input' | 'input_too_large';
+export type ProviderErrorCode = 'missing_provider_key' | 'provider_rejected' | 'provider_unreachable' | 'invalid_response' | 'unsupported_language' | 'empty_input' | 'input_too_large';
 export class ProviderError extends Error {
   constructor(public code: ProviderErrorCode, public provider: string, public status?: number) { super(`${provider}:${code}`); }
 }
@@ -19,9 +19,14 @@ function lang(v: string, provider: string) {
   if (!isPipelineLanguage(v)) throw new ProviderError('unsupported_language', provider);
   return v;
 }
-async function ok(res: Response, provider: string) {
-  if (!res.ok) { console.error(`${provider} [${res.status}]: ${await res.text().catch(() => '')}`); throw new ProviderError('provider_rejected', provider, res.status); }
+async function ok(p: Promise<Response>, provider: string) {
+  let res: Response;
+  try { res = await p; } catch { console.error(`${provider}: network error`); throw new ProviderError('provider_unreachable', provider); }
+  if (!res.ok) { console.error(`${provider} [${res.status}]`); throw new ProviderError('provider_rejected', provider, res.status); }
   return res;
+}
+async function body<T>(res: Response, provider: string): Promise<T> {
+  try { return (await res.json()) as T; } catch { throw new ProviderError('invalid_response', provider); }
 }
 
 /** Deepgram pre-recorded transcription of one short utterance. */
