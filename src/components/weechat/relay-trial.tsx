@@ -44,7 +44,7 @@ export function RelayTrial() {
     timer.current = window.setTimeout(() => { if (r.state === 'recording') r.stop(); }, 8000);
   }
 
-  return <section className="settings-form" aria-labelledby="relay-title">
+  return <section className="mt-6 grid gap-3" aria-labelledby="relay-title">
     <h2 id="relay-title">{c.title}</h2><p>{c.note}</p>
     <p role="status">{keys === null ? '…' : keys ? c.ready : c.missing}</p>
     <label className="field"><span>{c.dir}</span><select className="w-full rounded-md border border-input bg-background p-3 text-foreground" value={dir} onChange={e => setDir(Number(e.target.value))}>{dirs.map(([s, t], i) => <option key={i} value={i}>{s.toUpperCase()} → {t.toUpperCase()}</option>)}</select></label>
