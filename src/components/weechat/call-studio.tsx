@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
 import { providerStatus, realRelay } from '@/lib/weechat/communication.functions';
+import { PersonaStudio } from './persona-studio';
 
 type L = 'fr' | 'en' | 'es' | 'de';
 const voices: Record<L, { id: string; name: string; g: 'f' | 'm' }[]> = {
@@ -13,7 +14,6 @@ const voices: Record<L, { id: string; name: string; g: 'f' | 'm' }[]> = {
   es: [{ id: 'aura-2-celeste-es', name: 'Celeste', g: 'f' }],
   de: [{ id: 'aura-2-viktoria-de', name: 'Viktoria', g: 'f' }, { id: 'aura-2-julius-de', name: 'Julius', g: 'm' }],
 };
-const faces = ['A', 'L', 'M', 'S'];
 const copy = {
   fr: { title: 'Studio d’appel', intro: 'Vous parlez votre langue. Votre voix choisie parle celle de l’autre. Sa réponse s’affiche ici en français.', mine: 'Ma langue', theirs: 'Langue de l’interlocuteur', voice: 'Voix qui me représente', f: 'Féminine', m: 'Masculine', face: 'Visage qui me représente', faceNote: 'Visage animé pas encore disponible : image fixe uniquement.', consent: 'J’accepte d’envoyer mes enregistrements aux services de traduction. Rien n’est conservé.', me: 'Je parle', them: 'L’interlocuteur parle', stop: 'Terminer la phrase', busy: 'Traduction…', convo: 'Conversation', empty: 'Aucun échange pour l’instant.', you: 'Vous', other: 'Interlocuteur', heard: 'Entendu par l’autre', listen: 'Écouter', missing: 'Service non configuré.', denied: 'Micro refusé ou indisponible.', failed: 'Échec de la traduction.', limit: 'Essai sur cet appareil, phrase par phrase (environ 2,5 s). Pas encore relié à WhatsApp, Instagram ou TikTok.' },
   en: { title: 'Call studio', intro: 'You speak your language. Your chosen voice speaks theirs. Their reply appears here in your language.', mine: 'My language', theirs: 'Their language', voice: 'Voice representing me', f: 'Female', m: 'Male', face: 'Face representing me', faceNote: 'Animated face not available yet: still image only.', consent: 'I agree to send my recordings to translation services. Nothing is kept.', me: 'I speak', them: 'They speak', stop: 'End sentence', busy: 'Translating…', convo: 'Conversation', empty: 'No exchange yet.', you: 'You', other: 'Them', heard: 'Heard by them', listen: 'Listen', missing: 'Service not configured.', denied: 'Microphone denied or unavailable.', failed: 'Translation failed.', limit: 'Trial on this device, sentence by sentence (about 2.5 s). Not yet connected to WhatsApp, Instagram or TikTok.' },
@@ -26,7 +26,7 @@ export function CallStudio() {
   const status = useServerFn(providerStatus); const relay = useServerFn(realRelay);
   const [ready, setReady] = useState<boolean | null>(null);
   const [mine, setMine] = useState<L>('fr'); const [theirs, setTheirs] = useState<L>('en');
-  const [voice, setVoice] = useState(voices.en[0]!.id); const [face, setFace] = useState(0);
+  const [voice, setVoice] = useState(voices.en[0]!.id);
   const [agree, setAgree] = useState(false); const [phase, setPhase] = useState<'idle' | 'me' | 'them' | 'busy'>('idle');
   const [turns, setTurns] = useState<Turn[]>([]); const [msg, setMsg] = useState('');
   const rec = useRef<MediaRecorder | null>(null); const stream = useRef<MediaStream | null>(null); const timer = useRef(0);
@@ -71,10 +71,6 @@ export function CallStudio() {
         <fieldset className="grid gap-2"><legend className="mb-2 font-semibold">{c.voice}</legend>
           {voices[theirs].map(v => <label key={v.id} className={`flex items-center gap-2 rounded-md border p-2 ${voice === v.id ? 'border-primary' : 'border-input'}`}><input type="radio" name="voice" checked={voice === v.id} onChange={() => setVoice(v.id)} />{v.name} · {c[v.g]}</label>)}
         </fieldset>
-        <fieldset><legend className="mb-2 font-semibold">{c.face}</legend>
-          <div className="flex gap-2">{faces.map((f, i) => <button key={f} type="button" aria-pressed={face === i} onClick={() => setFace(i)} className={`grid h-14 w-14 place-items-center rounded-full border-2 bg-secondary text-lg font-bold ${face === i ? 'border-primary' : 'border-transparent'}`}>{f}</button>)}</div>
-          <p className="mt-2 text-sm text-muted-foreground">{c.faceNote}</p>
-        </fieldset>
         <label className="flex items-start gap-2"><Checkbox checked={agree} onCheckedChange={v => setAgree(v === true)} /><span className="text-sm">{c.consent}</span></label>
         {ready === false && <p role="alert">{c.missing}</p>}
       </section>
@@ -95,5 +91,6 @@ export function CallStudio() {
         </ol>
       </section>
     </div>
+    <PersonaStudio />
   </div>;
 }

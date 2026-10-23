@@ -97,3 +97,10 @@ Source : developers.deepgram.com/docs/tts-models et /docs/tts-media-output-setti
 - Latence détaillée affichée : reconnaissance / traduction / voix.
 - Mesure réelle (même phrase, temps total HTTP) : MP3 Agathe 1,87 s, WAV Agathe 1,98 s, Hector 2,10 s ; MP3 Thalia 1,71 s, WAV Thalia 2,49 s, Helena 2,75 s, Arcas 2,49 s, Apollo 3,49 s, Draco 1,89 s. Une seule mesure, variable selon le réseau.
 - Échantillons dans Files « comparaison-voix ». Naturel NON validé : écoute humaine comparative requise. Les tests automatisés ne vérifient que format, voix autorisées et erreurs.
+
+## 2026-10-23 — Persona visuel et voix de référence (Studio d'appel)
+- Catalogue : 6 portraits et 6 arrière-plans (salon, piscine, salle de bain, bureau, café, jardin) générés par IA pour Weechat, sans droits tiers.
+- Imports utilisateur : photo et arrière-plan (JPG/PNG/WebP ≤ 8 Mo) après attestation de droits ; restent dans le navigateur (aucun envoi, aucun stockage).
+- Composition locale à deux couches (fond + visage) avec flou réglable et mention « Image générée par IA » (AI Act art. 50). Image fixe : aucun suivi des mouvements.
+- Voix de référence : enregistrement ou import 10–30 s après attestation ; locale uniquement. Clonage vocal NON branché (Deepgram Aura-2 ne le propose pas ; options : Cartesia / ElevenLabs payants, XTTS/OpenVoice sur GPU).
+- Non vérifié : affichage connecté (session de test impossible sur Supabase externe), vrai micro.

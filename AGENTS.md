@@ -26,3 +26,5 @@
 - Keep audio processing and canvas video composition browser-local without recording, storage, network sinks or speaker monitoring; this enforces zero retention and avoids feedback.
 - Keep video output lifecycle in video-pipeline and future communication stages in disabled communication-contracts interfaces; modular boundaries prevent claiming unavailable integrations or leaking captured media.
 - Keep future payment contracts provider-neutral and fail-closed with no executable adapter; fulfillment requires a verified server event, durable order matching and unique ledger reference before any enablement.
+
+- Persona catalogue images and upload rules live in src/lib/weechat/persona-catalog; uploads stay as browser object URLs, never sent or stored.

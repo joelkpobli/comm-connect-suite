@@ -26,3 +26,8 @@
 - [x] Provider-neutral fail-closed payment contracts, without products, activation or expenditure.
 - [x] Document multimedia evidence, limitations and external actions.
 - [ ] Physical capture/permission/quality and multi-device validation — needs user's target computer; native sandbox capture returns NotFoundError (no devices).
+
+- [x] Studio : catalogue visages/arrière-plans, imports, aperçu composé, voix de référence
+- [ ] Clonage vocal (choix fournisseur + budget)
+- [ ] Visage animé suivant les mouvements
+- [ ] Caméra et micro virtuels Windows (WhatsApp, Messenger, Instagram, TikTok)
