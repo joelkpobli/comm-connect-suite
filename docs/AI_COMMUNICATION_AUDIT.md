@@ -79,3 +79,11 @@ Sources : developers.deepl.com/docs/voice/overview, /docs/voice/supported-voice-
 - **Remplacement :** pourrait remplacer tout le pipeline Deepgram STT + DeepL texte + Aura-2, mais **incompatible avec le budget 0,00 €**.
 
 **Recommandation :** conserver Deepgram Nova-3 + DeepL API Free + Aura-2 pour le prototype ; réévaluer DeepL Voice API dès qu'un budget est approuvé (gain : un seul flux, portugais vocal). Aucun appel effectué, aucune dépense.
+
+## 2026-10-23 — Connexion réelle Deepgram + DeepL (état)
+- Secrets serveur `DEEPGRAM_API_KEY` et `DEEPL_API_KEY` : **absents** à cette date ; aucun appel réel effectué, aucun test réel déclaré réussi.
+- Adaptateurs : erreurs `provider_unreachable` (réseau) et `invalid_response` (réponse illisible/vide) ajoutées ; clés DeepL non `:fx` refusées (budget 0 €, seul `api-free.deepl.com` est utilisé).
+- Interface : Paramètres → Communication → « Essai réel : enregistrer et traduire » (consentement explicite, 8 s max, micro coupé après enregistrement et à la sortie de l'écran, aucune conservation). Sens FR→EN, EN→FR, FR→ES, FR→DE. Portugais : reconnaissance et traduction possibles, pas de voix Aura-2 → erreur explicite.
+- Tests automatisés (simulés, sans réseau) : 13 dans `src/test/real-providers.test.ts`.
+- Coûts : Deepgram consomme le crédit d'essai offert (pas de carte) ; DeepL Free 500 000 caractères/mois. Aucune dépense engagée.
+- Non opérationnel : caméra/micro virtuels, WhatsApp/Instagram/TikTok, avatar animé.
