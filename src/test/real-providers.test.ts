@@ -33,7 +33,7 @@ describe('real provider adapters (no network)', () => {
   it('surfaces provider rejection with status', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const f = vi.fn().mockResolvedValue(new Response('quota', { status: 456 }));
-    await expect(deeplTranslate('a', 'fr', 'en', 'k', f)).rejects.toMatchObject({ code: 'provider_rejected', status: 456 });
+    await expect(deeplTranslate('a', 'fr', 'en', 'k:fx', f)).rejects.toMatchObject({ code: 'provider_rejected', status: 456 });
   });
   it('parses Deepgram transcript with language parameter', async () => {
     const f = vi.fn().mockResolvedValue(json({ results: { channels: [{ alternatives: [{ transcript: 'bonjour' }] }] } }));
@@ -69,6 +69,24 @@ describe('real provider adapters (no network)', () => {
   it('relay without Deepgram key fails explicitly before any call', async () => {
     const f = vi.fn();
     expect(await code(relayTurn(new Uint8Array([1]), 'audio/webm', 'fr', 'en', { deepl: 'k' }, f))).toBe('missing_provider_key');
+    expect(f).not.toHaveBeenCalled();
+  });
+  it('network failure is reported as provider_unreachable, never simulated', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    const f = vi.fn().mockRejectedValue(new TypeError('fetch failed'));
+    expect(await code(deeplTranslate('bonjour', 'fr', 'en', 'k:fx', f))).toBe('provider_unreachable');
+    expect(await code(deepgramTranscribe(new Uint8Array([1]), 'audio/webm', 'fr', 'k', f))).toBe('provider_unreachable');
+  });
+  it('invalid provider responses are rejected', async () => {
+    const bad = vi.fn().mockImplementation(async () => new Response('not json'));
+    expect(await code(deeplTranslate('bonjour', 'fr', 'en', 'k:fx', bad))).toBe('invalid_response');
+    expect(await code(deepgramTranscribe(new Uint8Array([1]), 'audio/webm', 'fr', 'k', bad))).toBe('invalid_response');
+    const empty = vi.fn().mockImplementation(async () => new Response(new Uint8Array([])));
+    expect(await code(deepgramSynthesize('hello', 'en', 'k', empty))).toBe('invalid_response');
+  });
+  it('refuses a paid DeepL Pro key (budget 0 EUR)', async () => {
+    const f = vi.fn();
+    expect(await code(deeplTranslate('bonjour', 'fr', 'en', 'pro-key', f))).toBe('missing_provider_key');
     expect(f).not.toHaveBeenCalled();
   });
 });
