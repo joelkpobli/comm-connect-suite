@@ -87,3 +87,4 @@ Sources : developers.deepl.com/docs/voice/overview, /docs/voice/supported-voice-
 - Tests automatisés (simulés, sans réseau) : 13 dans `src/test/real-providers.test.ts`.
 - Coûts : Deepgram consomme le crédit d'essai offert (pas de carte) ; DeepL Free 500 000 caractères/mois. Aucune dépense engagée.
 - Non opérationnel : caméra/micro virtuels, WhatsApp/Instagram/TikTok, avatar animé.
+- **Premier essai réel (2026-10-23, serveur, vraies API)** : phrase française produite par Deepgram Aura (voix Agathe) puis relais complet. FR→EN : transcription exacte, traduction « Hello, I'm calling to confirm our appointment for tomorrow. », MP3 18 576 octets, 2 490 ms. EN→FR : « Bonjour. Je peux te retrouver demain à dix heures. », MP3 24 048 octets, 2 389 ms. Latence au-dessus de l'objectif de 1 800 ms (mode tour par tour, non streaming). Micro réel non testé (aucun appareil dans l'environnement).
