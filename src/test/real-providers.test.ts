@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { deepgramTranscribe, deeplTranslate, deepgramSynthesize, relayTurn, ProviderError } from '@/lib/weechat/real-providers.server';
+import { deepgramTranscribe, deeplTranslate, deepgramSynthesize, relayTurn, ProviderError, prepareSpeechText } from '@/lib/weechat/real-providers.server';
 
 const json = (b: unknown, status = 200) => new Response(JSON.stringify(b), { status });
 const code = async (p: Promise<unknown>) => { try { await p; return 'none'; } catch (e) { return (e as ProviderError).code; } };
@@ -88,5 +88,30 @@ describe('real provider adapters (no network)', () => {
     const f = vi.fn();
     expect(await code(deeplTranslate('bonjour', 'fr', 'en', 'pro-key', f))).toBe('missing_provider_key');
     expect(f).not.toHaveBeenCalled();
+  });
+});
+
+describe('voice quality settings (no claim about how natural it sounds)', () => {
+  const okAudio = () => vi.fn(async () => new Response(new Uint8Array([1, 2, 3])));
+  it('requests WAV linear16 at 24 kHz instead of MP3', async () => {
+    const f = okAudio();
+    await deepgramSynthesize('Hello', 'en', 'k', f as unknown as typeof fetch);
+    const url = String((f.mock.calls[0] as unknown[])[0]);
+    expect(url).toContain('encoding=linear16'); expect(url).toContain('container=wav'); expect(url).toContain('sample_rate=24000'); expect(url).not.toContain('mp3');
+  });
+  it('accepts the documented French voice Hector', async () => {
+    const f = okAudio();
+    await deepgramSynthesize('Bonjour', 'fr', 'k', f as unknown as typeof fetch, 'aura-2-hector-fr');
+    expect(String((f.mock.calls[0] as unknown[])[0])).toContain('model=aura-2-hector-fr');
+  });
+  it('rejects a voice not in the catalogue or of another language, without calling Deepgram', async () => {
+    const f = okAudio();
+    await expect(deepgramSynthesize('Bonjour', 'fr', 'k', f as unknown as typeof fetch, 'aura-2-thalia-en')).rejects.toMatchObject({ code: 'unsupported_language' });
+    await expect(deepgramSynthesize('Hi', 'en', 'k', f as unknown as typeof fetch, 'aura-2-fake-en')).rejects.toMatchObject({ code: 'unsupported_language' });
+    expect(f).not.toHaveBeenCalled();
+  });
+  it('adds only a final full stop, never changing words', () => {
+    expect(prepareSpeechText('Hello  how are you')).toBe('Hello how are you.');
+    expect(prepareSpeechText('Ça va ?')).toBe('Ça va ?');
   });
 });
