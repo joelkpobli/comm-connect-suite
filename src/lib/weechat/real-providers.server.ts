@@ -62,20 +62,31 @@ export async function deeplTranslate(text: string, source: string, target: strin
   return t;
 }
 
-/** Deepgram Aura-2 voices (official catalogue, checked 2026-10-22). Portuguese has no Aura-2 voice: fail explicitly. */
+/** Default Deepgram Aura-2 voice per language (official catalogue, checked 2026-10-23). Portuguese has no Aura-2 voice: fail explicitly. */
 export const AURA_VOICES: Record<string, string | null> = {
   en: 'aura-2-thalia-en', fr: 'aura-2-agathe-fr', es: 'aura-2-celeste-es', de: 'aura-2-julius-de', pt: null,
 };
-/** Deepgram Aura-2 TTS; returns MP3 bytes. */
-export async function deepgramSynthesize(text: string, language: string, key: string | undefined, f: Fetch = fetch) {
+/** Allowed alternatives for listening comparison (all listed in developers.deepgram.com/docs/tts-models). */
+export const AURA_VOICE_OPTIONS: Record<string, readonly string[]> = {
+  en: ['aura-2-thalia-en', 'aura-2-helena-en', 'aura-2-arcas-en', 'aura-2-apollo-en', 'aura-2-draco-en'],
+  fr: ['aura-2-agathe-fr', 'aura-2-hector-fr'],
+  es: ['aura-2-celeste-es'], de: ['aura-2-julius-de', 'aura-2-viktoria-de'], pt: [],
+};
+/** Adds terminal punctuation only (never rewrites words) so the voice ends with a natural falling intonation. */
+export function prepareSpeechText(text: string) {
+  const t = text.replace(/\s+/g, ' ').trim();
+  return /[.!?…»"”)]$/.test(t) ? t : `${t}.`;
+}
+/** Deepgram Aura-2 TTS; returns WAV (linear16, 24 kHz) bytes — avoids the 22.05 kHz/48 kbps MP3 artefacts. */
+export async function deepgramSynthesize(text: string, language: string, key: string | undefined, f: Fetch = fetch, voiceChoice?: string) {
   const l = lang(language, 'deepgram-aura');
-  const voice = AURA_VOICES[l];
-  if (!voice) throw new ProviderError('unsupported_language', 'deepgram-aura');
+  const voice = voiceChoice ?? AURA_VOICES[l];
+  if (!voice || !(AURA_VOICE_OPTIONS[l] ?? []).includes(voice)) throw new ProviderError('unsupported_language', 'deepgram-aura');
   if (!text.trim()) throw new ProviderError('empty_input', 'deepgram-aura');
   if (text.length > MAX_TEXT) throw new ProviderError('input_too_large', 'deepgram-aura');
   const k = need(key, 'deepgram-aura');
-  const res = await ok(f(`https://api.deepgram.com/v1/speak?model=${voice}&encoding=mp3`, {
-    method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
+  const res = await ok(f(`https://api.deepgram.com/v1/speak?model=${voice}&encoding=linear16&container=wav&sample_rate=24000`, {
+    method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ text: prepareSpeechText(text) }),
   }), 'deepgram-aura');
   const audio = new Uint8Array(await res.arrayBuffer());
   if (!audio.byteLength) throw new ProviderError('invalid_response', 'deepgram-aura');
@@ -83,11 +94,15 @@ export async function deepgramSynthesize(text: string, language: string, key: st
 }
 
 /** One real relay turn: speech (source) -> text -> translated text -> speech (target). No simulated fallback. */
-export async function relayTurn(audio: Uint8Array, mime: string, source: string, target: string, keys: { deepgram?: string | undefined; deepl?: string | undefined }, f: Fetch = fetch) {
+export async function relayTurn(audio: Uint8Array, mime: string, source: string, target: string, keys: { deepgram?: string | undefined; deepl?: string | undefined }, f: Fetch = fetch, voice?: string) {
   need(keys.deepgram, 'deepgram'); need(keys.deepl, 'deepl');
+  const t0 = Date.now();
   const transcript = await deepgramTranscribe(audio, mime, source, keys.deepgram, f);
   if (!transcript.trim()) throw new ProviderError('empty_input', 'deepgram');
+  const t1 = Date.now();
   const translation = await deeplTranslate(transcript, source, target, keys.deepl, f);
-  const speech = await deepgramSynthesize(translation, target, keys.deepgram, f);
-  return { transcript, translation, speech };
+  const t2 = Date.now();
+  const speech = await deepgramSynthesize(translation, target, keys.deepgram, f, voice);
+  const t3 = Date.now();
+  return { transcript, translation, speech, timings: { sttMs: t1 - t0, translateMs: t2 - t1, ttsMs: t3 - t2 } };
 }
