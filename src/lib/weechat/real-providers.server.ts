@@ -34,11 +34,13 @@ export async function deepgramTranscribe(audio: Uint8Array, mime: string, langua
   const k = need(key, 'deepgram'); const l = lang(language, 'deepgram');
   if (!audio.byteLength) throw new ProviderError('empty_input', 'deepgram');
   if (audio.byteLength > MAX_AUDIO_BYTES) throw new ProviderError('input_too_large', 'deepgram');
-  const res = await ok(await f(`https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true&language=${l}`, {
+  const res = await ok(f(`https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true&language=${l}`, {
     method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': mime }, body: new Blob([audio.slice()]),
   }), 'deepgram');
-  const j = (await res.json()) as { results?: { channels?: { alternatives?: { transcript?: string }[] }[] } };
-  return j.results?.channels?.[0]?.alternatives?.[0]?.transcript ?? '';
+  const j = await body<{ results?: { channels?: { alternatives?: { transcript?: string }[] }[] } }>(res, 'deepgram');
+  const t = j?.results?.channels?.[0]?.alternatives?.[0]?.transcript;
+  if (typeof t !== 'string') throw new ProviderError('invalid_response', 'deepgram');
+  return t;
 }
 
 const DEEPL_TARGET: Record<string, string> = { fr: 'FR', en: 'EN-US', es: 'ES', de: 'DE', pt: 'PT-PT' };
@@ -47,13 +49,17 @@ export async function deeplTranslate(text: string, source: string, target: strin
   const k = need(key, 'deepl'); lang(source, 'deepl'); lang(target, 'deepl');
   if (!text.trim()) throw new ProviderError('empty_input', 'deepl');
   if (text.length > MAX_TEXT) throw new ProviderError('input_too_large', 'deepl');
-  const host = k.endsWith(':fx') ? 'https://api-free.deepl.com' : 'https://api.deepl.com';
-  const res = await ok(await f(`${host}/v2/translate`, {
+  // Budget 0 EUR: only DeepL API Free keys (":fx") are accepted; a Pro key would bill usage.
+  if (!k.endsWith(':fx')) throw new ProviderError('missing_provider_key', 'deepl');
+  const host = 'https://api-free.deepl.com';
+  const res = await ok(f(`${host}/v2/translate`, {
     method: 'POST', headers: { Authorization: `DeepL-Auth-Key ${k}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ text: [text], source_lang: source.toUpperCase(), target_lang: DEEPL_TARGET[target] }),
   }), 'deepl');
-  const j = (await res.json()) as { translations?: { text: string }[] };
-  return j.translations?.[0]?.text ?? '';
+  const j = await body<{ translations?: { text?: string }[] }>(res, 'deepl');
+  const t = j?.translations?.[0]?.text;
+  if (typeof t !== 'string' || !t.trim()) throw new ProviderError('invalid_response', 'deepl');
+  return t;
 }
 
 /** Deepgram Aura-2 voices (official catalogue, checked 2026-10-22). Portuguese has no Aura-2 voice: fail explicitly. */
@@ -68,10 +74,12 @@ export async function deepgramSynthesize(text: string, language: string, key: st
   if (!text.trim()) throw new ProviderError('empty_input', 'deepgram-aura');
   if (text.length > MAX_TEXT) throw new ProviderError('input_too_large', 'deepgram-aura');
   const k = need(key, 'deepgram-aura');
-  const res = await ok(await f(`https://api.deepgram.com/v1/speak?model=${voice}&encoding=mp3`, {
+  const res = await ok(f(`https://api.deepgram.com/v1/speak?model=${voice}&encoding=mp3`, {
     method: 'POST', headers: { Authorization: `Token ${k}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ text }),
   }), 'deepgram-aura');
-  return new Uint8Array(await res.arrayBuffer());
+  const audio = new Uint8Array(await res.arrayBuffer());
+  if (!audio.byteLength) throw new ProviderError('invalid_response', 'deepgram-aura');
+  return audio;
 }
 
 /** One real relay turn: speech (source) -> text -> translated text -> speech (target). No simulated fallback. */
