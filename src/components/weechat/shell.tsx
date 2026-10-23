@@ -3,14 +3,14 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSessionUser, displayName, initials } from '@/hooks/use-session';
 import { useEffect, useState, type ReactNode } from 'react';
-import { LayoutDashboard, Coins, History, Settings, ArrowUpRight, Menu, LogOut, PanelLeftClose, PanelLeftOpen, Globe2, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Coins, History, Settings, Phone, ArrowUpRight, Menu, LogOut, PanelLeftClose, PanelLeftOpen, Globe2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Brand, LanguageSelect, DemoBadge } from './shared';
 import { useDemo } from './provider';
 import { uiCopy } from '@/lib/weechat/ui-copy';
 import { profileQuery } from '@/lib/weechat/profile-query';
 import type { CopyKey } from '@/lib/weechat/i18n';
-const nav = [ { to: '/tableau-de-bord', label: 'dashboard', icon: LayoutDashboard }, { to: '/credits', label: 'credits', icon: Coins }, { to: '/historique', label: 'history', icon: History }, { to: '/parametres', label: 'settings', icon: Settings } ] as const;
+const nav = [ { to: '/tableau-de-bord', label: 'dashboard', icon: LayoutDashboard }, { to: '/credits', label: 'credits', icon: Coins }, { to: '/historique', label: 'history', icon: History }, { to: '/studio', label: 'studio', icon: Phone }, { to: '/parametres', label: 'settings', icon: Settings } ] as const;
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: s => s.location.pathname });
   const { t, locale, setLocale } = useDemo(); const tr = (text: string) => uiCopy(text, locale);
