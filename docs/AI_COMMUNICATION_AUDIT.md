@@ -88,3 +88,12 @@ Sources : developers.deepl.com/docs/voice/overview, /docs/voice/supported-voice-
 - Coûts : Deepgram consomme le crédit d'essai offert (pas de carte) ; DeepL Free 500 000 caractères/mois. Aucune dépense engagée.
 - Non opérationnel : caméra/micro virtuels, WhatsApp/Instagram/TikTok, avatar animé.
 - **Premier essai réel (2026-10-23, serveur, vraies API)** : phrase française produite par Deepgram Aura (voix Agathe) puis relais complet. FR→EN : transcription exacte, traduction « Hello, I'm calling to confirm our appointment for tomorrow. », MP3 18 576 octets, 2 490 ms. EN→FR : « Bonjour. Je peux te retrouver demain à dix heures. », MP3 24 048 octets, 2 389 ms. Latence au-dessus de l'objectif de 1 800 ms (mode tour par tour, non streaming). Micro réel non testé (aucun appareil dans l'environnement).
+
+## Naturel des voix — 2026-10-23
+Source : developers.deepgram.com/docs/tts-models et /docs/tts-media-output-settings.
+- Ancien réglage : MP3 imposé par Deepgram à 22 050 Hz / 48 kbps (compression audible). Nouveau : linear16 WAV 24 kHz (format REST par défaut, non compressé).
+- Voix documentées retenues pour comparaison : FR Agathe, Hector ; EN Thalia, Helena, Arcas, Apollo, Draco ; DE Julius, Viktoria ; ES Celeste. PT : aucune voix Aura-2.
+- Texte : seule une ponctuation finale est ajoutée si absente ; aucun mot modifié, aucun SSML, aucune accélération.
+- Latence détaillée affichée : reconnaissance / traduction / voix.
+- Mesure réelle (même phrase, temps total HTTP) : MP3 Agathe 1,87 s, WAV Agathe 1,98 s, Hector 2,10 s ; MP3 Thalia 1,71 s, WAV Thalia 2,49 s, Helena 2,75 s, Arcas 2,49 s, Apollo 3,49 s, Draco 1,89 s. Une seule mesure, variable selon le réseau.
+- Échantillons dans Files « comparaison-voix ». Naturel NON validé : écoute humaine comparative requise. Les tests automatisés ne vérifient que format, voix autorisées et erreurs.
