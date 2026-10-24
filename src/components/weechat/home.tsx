@@ -62,7 +62,7 @@ export function HomePage() {
   const [open, setOpen] = useState<number | null>(0);
   const panel = c.panels[tab]!;
   const plans = mode === 'swap' ? swapPlans : audioPlans;
-  const panelVideo = tab === 0 ? clip1.url : tab === 2 ? clip2.url : null;
+  const panelVideo = tab === 0 ? heroClips[0]! : tab === 2 ? heroClips[1]! : null;
   return <div className="lp">
     <nav className="lp-subnav" aria-label="Sections">{c.nav.map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}</nav>
 
@@ -95,7 +95,7 @@ export function HomePage() {
         <div className="lp-visual">{tab === 1
           ? <div className="lp-bubbles"><p><b>FR</b>{c.bubbles[0]}</p><p className="out"><b>EN</b>{c.bubbles[1]}</p></div>
           : panelVideo
-            ? <video key={panelVideo} src={panelVideo} autoPlay muted loop playsInline />
+            ? <video key={panelVideo.src} src={panelVideo.src} poster={panelVideo.poster} autoPlay muted loop playsInline ref={v => { v?.play().catch(() => {}); }} />
             : <img src={landingFaces[4]!.src} alt="" />}</div>
       </div>
     </section>
