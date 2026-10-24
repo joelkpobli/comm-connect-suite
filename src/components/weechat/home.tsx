@@ -118,12 +118,12 @@ export function HomePage() {
 
     <section id="pricing" className="lp-section">
       <span className="lp-eyebrow">{c.priceEyebrow}</span><h2>{c.priceTitle}</h2><p className="lp-lead">{c.priceText}</p>
-      <p className="lp-modehint"><b>{c.modeSwap}</b> {c.priceModeHint.split('(')[1] ? `(${c.priceModeHint.split('(')[1]}` : ''}</p>
+      <p className="lp-modehint">{c.priceModeHint}</p>
       <div className="lp-toggle">{([['swap', c.modeSwap, Video], ['audio', c.modeAudio, Mic]] as const).map(([k, label, I]) => <button key={k} className={mode === k ? 'active' : ''} aria-pressed={mode === k} onClick={() => setMode(k)}><I size={15} />{label}</button>)}</div>
       <div className="lp-currow"><span>{c.showPricesIn}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
       <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : c.audioTitle}</h3>
       <p className="lp-lead">{mode === 'swap' ? c.swapSub : c.audioSub}</p>
-      <div className={`lp-prices ${mode === 'audio' ? 'three' : ''}`}>{plans.map(p => <PlanCard key={p.id} plan={p} cur={cur} c={c} />)}</div>
+      <div className={`lp-prices ${mode === 'audio' ? 'three' : ''}`}>{plans.map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
       <small className="lp-conso">{c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>
     </section>
