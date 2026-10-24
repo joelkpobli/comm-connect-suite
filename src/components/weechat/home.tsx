@@ -35,15 +35,14 @@ function VideoSwap({ live, lang, note }: { live: string; lang: string; note: str
   </div>;
 }
 
-function PlanCard({ plan, cur, c }: { plan: Plan; cur: Currency; c: ReturnType<typeof landingCopy> }) {
+function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale: 'fr' | 'en'; c: ReturnType<typeof landingCopy> }) {
   const sym = cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$';
   return <article className={plan.popular ? 'popular' : ''}>
     {plan.popular && <span className="lp-pop">{c.popular}</span>}
     <header><h3>{plan.name}</h3>{plan.badge && <span className="lp-badge">{plan.badge}</span>}<span className="lp-validity">{plan.validity} {c.days}</span></header>
     <strong>{plan.price[cur]}<small>{sym}</small></strong>
     {plan.points && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.points)} {c.points}</p>}
-    <ul>{plan.lines[cur === 'XOF' ? 'fr' : 'fr'].map?.(l => null)}{plan.lines.fr.map(l => null)}</ul>
-    <ul>{(plan.lines as Record<'fr' | 'en', string[]>)[c === landingCopy('en') ? 'en' : 'fr'].map(l => <li key={l}><Check size={15} />{l}</li>)}</ul>
+    <ul>{plan.lines[locale].map(l => <li key={l}><Check size={15} />{l}</li>)}</ul>
     <Button asChild variant={plan.popular ? 'default' : 'outline'}><Link to="/credits">{c.choose} {plan.name}</Link></Button>
   </article>;
 }
