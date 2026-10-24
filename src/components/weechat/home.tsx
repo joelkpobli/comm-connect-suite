@@ -49,7 +49,7 @@ function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale:
     <header><h3>{plan.name}</h3>{plan.badge && <span className="lp-badge">{plan.badge}</span>}<span className="lp-validity">{plan.validity} {c.days}</span></header>
     <strong>{plan.price[cur]}<small>{sym}</small></strong>
     {plan.points && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.points)} {c.points}</p>}
-    <ul>{plan.lines[locale].map(l => <li key={l}><Check size={15} />{l}</li>)}</ul>
+    <ul>{(plan.lines[locale] ?? plan.lines.fr ?? []).map(l => <li key={l}><Check size={15} />{l}</li>)}</ul>
     <Button asChild variant={plan.popular ? 'default' : 'outline'}><Link to="/credits">{c.choose} {plan.name}</Link></Button>
   </article>;
 }
@@ -64,7 +64,7 @@ export function HomePage() {
   const plans = mode === 'swap' ? swapPlans : audioPlans;
   const panelVideo = tab === 0 ? heroClips[0]! : tab === 2 ? heroClips[1]! : null;
   return <div className="lp">
-    <nav className="lp-subnav" aria-label="Sections">{c.nav.map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}</nav>
+    <nav className="lp-subnav" aria-label="Sections">{(c.nav ?? []).map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}</nav>
 
     <section className="lp-hero">
       <VideoSwap live={c.liveTag} lang={c.langTag} note={c.heroNote} />
@@ -79,19 +79,19 @@ export function HomePage() {
 
     <section className="lp-band">
       <span className="lp-eyebrow">{c.bandEyebrow}</span><h2>{c.bandTitle}</h2>
-      <div className="lp-specs">{c.specs.map(s => <span key={s}>{s}</span>)}</div>
-      <div className="lp-platforms">{platformLogos.map(p => <span key={p.name} className="lp-plat">{p.svg}{p.name}</span>)}</div>
+      <div className="lp-specs">{(c.specs ?? []).map(s => <span key={s}>{s}</span>)}</div>
+      <div className="lp-platforms">{(platformLogos ?? []).map(p => <span key={p.name} className="lp-plat">{p.svg}{p.name}</span>)}</div>
       <small>{c.bandNote}</small>
     </section>
 
     <section id="how" className="lp-section"><h2>{c.howTitle}</h2><p className="lp-lead">{c.howText}</p>
-      <div className="lp-steps">{c.steps.map(([t, d], n) => <article key={t}><span>0{n + 1}</span><h3>{t}</h3><p>{d}</p></article>)}</div>
+      <div className="lp-steps">{(c.steps ?? []).map(([t, d], n) => <article key={t}><span>0{n + 1}</span><h3>{t}</h3><p>{d}</p></article>)}</div>
     </section>
 
     <section id="features" className="lp-section"><h2>{c.featTitle}</h2>
-      <div className="lp-tabs" role="tablist">{c.tabs.map((t, n) => <button key={t} role="tab" aria-selected={tab === n} className={tab === n ? 'active' : ''} onClick={() => setTab(n)}>{t}</button>)}</div>
+      <div className="lp-tabs" role="tablist">{(c.tabs ?? []).map((t, n) => <button key={t} role="tab" aria-selected={tab === n} className={tab === n ? 'active' : ''} onClick={() => setTab(n)}>{t}</button>)}</div>
       <div className="lp-panel">
-        <div><span className="lp-status">{panel.status}</span><h3>{panel.title}</h3><p>{panel.text}</p><ul>{panel.points.map(p => <li key={p}><Check size={16} />{p}</li>)}</ul><Button asChild variant="outline"><Link to="/studio">{c.try} <ArrowRight /></Link></Button></div>
+        <div><span className="lp-status">{panel.status}</span><h3>{panel.title}</h3><p>{panel.text}</p><ul>{(panel.points ?? []).map(p => <li key={p}><Check size={16} />{p}</li>)}</ul><Button asChild variant="outline"><Link to="/studio">{c.try} <ArrowRight /></Link></Button></div>
         <div className="lp-visual">{tab === 1
           ? <div className="lp-bubbles"><p><b>FR</b>{c.bubbles[0]}</p><p className="out"><b>EN</b>{c.bubbles[1]}</p></div>
           : panelVideo
@@ -101,7 +101,7 @@ export function HomePage() {
     </section>
 
     <section id="security" className="lp-section"><span className="lp-eyebrow">{c.secEyebrow}</span><h2>{c.secTitle}</h2>
-      <div className="lp-cards">{c.sec.map(([t, d], n) => { const I = [Fingerprint, Lock, Trash2, EyeOff][n]!; return <article key={t}><I size={22} /><h3>{t}</h3><p>{d}</p></article>; })}</div>
+      <div className="lp-cards">{(c.sec ?? []).map(([t, d], n) => { const I = [Fingerprint, Lock, Trash2, EyeOff][n]!; return <article key={t}><I size={22} /><h3>{t}</h3><p>{d}</p></article>; })}</div>
     </section>
 
     <section id="payment" className="lp-section"><h2>{c.payTitle}</h2><p className="lp-lead">{c.payText}</p>
@@ -109,9 +109,9 @@ export function HomePage() {
         <article>
           <Smartphone size={22} /><h3>{c.momoTitle}</h3><p>{c.momoText}</p>
           <h4>{c.momoOperators}</h4>
-          <div className="lp-ops">{momoOperators.map(o => <span key={o}>{o}</span>)}</div>
+          <div className="lp-ops">{(momoOperators ?? []).map(o => <span key={o}>{o}</span>)}</div>
           <h4>{c.momoCountries}</h4>
-          <div className="lp-flags">{momoCountries.map(([f, n]) => <span key={n}><i>{f}</i>{n}</span>)}</div>
+          <div className="lp-flags">{(momoCountries ?? []).map(([f, n]) => <span key={n}><i>{f}</i>{n}</span>)}</div>
           <small className="lp-paynote"><Check size={14} />{c.momoNote}</small>
         </article>
         <article>
@@ -130,13 +130,13 @@ export function HomePage() {
       <div className="lp-currow"><span>{c.showPricesIn}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
       <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : c.audioTitle}</h3>
       <p className="lp-lead">{mode === 'swap' ? c.swapSub : c.audioSub}</p>
-      <div className={`lp-prices ${mode === 'audio' ? 'three' : ''}`}>{plans.map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
+      <div className={`lp-prices ${mode === 'audio' ? 'three' : ''}`}>{(plans ?? []).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
       <small className="lp-conso">{c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>
     </section>
 
     <section id="faq" className="lp-section narrow"><h2>{c.faqTitle}</h2>
-      <div className="lp-faq">{c.faq.map(([q, a], n) => <div key={q} className={open === n ? 'open' : ''}><button aria-expanded={open === n} onClick={() => setOpen(open === n ? null : n)}>{q}<ChevronDown size={18} /></button>{open === n && <p>{a}</p>}</div>)}</div>
+      <div className="lp-faq">{(c.faq ?? []).map(([q, a], n) => <div key={q} className={open === n ? 'open' : ''}><button aria-expanded={open === n} onClick={() => setOpen(open === n ? null : n)}>{q}<ChevronDown size={18} /></button>{open === n && <p>{a}</p>}</div>)}</div>
     </section>
 
     <section className="lp-help"><MessageCircle size={26} /><div><h3>{c.helpTitle}</h3><p>{c.helpText}</p></div><Button variant="outline" asChild><a href="mailto:contact@weechat.app">{c.helpCta}</a></Button></section>
