@@ -9,8 +9,8 @@ import { landingCopy, landingFaces, EUR_TO_XOF } from '@/lib/weechat/landing-cop
 function FaceSwap({ note }: { note: string }) {
   const [i, setI] = useState(0);
   useEffect(() => { const id = setInterval(() => setI(v => (v + 1) % landingFaces.length), 3200); return () => clearInterval(id); }, []);
-  const prev = landingFaces[(i - 1 + landingFaces.length) % landingFaces.length];
-  const cur = landingFaces[i];
+  const prev = landingFaces[(i - 1 + landingFaces.length) % landingFaces.length]!;
+  const cur = landingFaces[i]!;
   return <div className="lp-swap" aria-label={note}>
     <img className="lp-swap-img" src={prev.src} alt="" />
     <div key={cur.id} className="lp-swap-next"><img className="lp-swap-img" src={cur.src} alt="" /></div>
@@ -23,7 +23,7 @@ export function HomePage() {
   const { locale } = useDemo(); const c = landingCopy(locale);
   const [tab, setTab] = useState(0); const [cur, setCur] = useState<'EUR' | 'XOF'>('EUR'); const [open, setOpen] = useState<number | null>(0);
   const price = (p: string) => { const eur = Number(p.replace(',', '.')); return cur === 'EUR' ? `${p} €` : `${new Intl.NumberFormat('fr-FR').format(Math.round(eur * EUR_TO_XOF / 100) * 100)} FCFA`; };
-  const panel = c.panels[tab];
+  const panel = c.panels[tab]!;
   return <div className="lp">
     <nav className="lp-subnav" aria-label="Sections">{c.nav.map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}</nav>
 
@@ -55,12 +55,12 @@ export function HomePage() {
         <div><span className="lp-status">{panel.status}</span><h3>{panel.title}</h3><p>{panel.text}</p><ul>{panel.points.map(p => <li key={p}><Check size={16} />{p}</li>)}</ul><Button asChild variant="outline"><Link to="/studio">{c.try} <ArrowRight /></Link></Button></div>
         <div className="lp-visual">{tab === 1
           ? <div className="lp-bubbles"><p><b>FR</b>{c.bubbles[0]}</p><p className="out"><b>EN</b>{c.bubbles[1]}</p></div>
-          : <img src={landingFaces[(tab * 2) % landingFaces.length].src} alt="" />}</div>
+          : <img src={landingFaces[(tab * 2) % landingFaces.length]!.src} alt="" />}</div>
       </div>
     </section>
 
     <section id="security" className="lp-section"><span className="lp-eyebrow">{c.secEyebrow}</span><h2>{c.secTitle}</h2>
-      <div className="lp-cards">{c.sec.map(([t, d], n) => { const I = [Fingerprint, Lock, Trash2, EyeOff][n]; return <article key={t}><I size={22} /><h3>{t}</h3><p>{d}</p></article>; })}</div>
+      <div className="lp-cards">{c.sec.map(([t, d], n) => { const I = [Fingerprint, Lock, Trash2, EyeOff][n]!; return <article key={t}><I size={22} /><h3>{t}</h3><p>{d}</p></article>; })}</div>
       <div className="lp-resp"><span>18+</span><div><h3>{c.respTitle}</h3><p>{c.respText}</p></div></div>
     </section>
 
