@@ -7,8 +7,15 @@ import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOp
 import clip1 from '@/assets/hero/hero-swap-1.mp4.asset.json';
 import clip2 from '@/assets/hero/hero-swap-2.mp4.asset.json';
 import clip3 from '@/assets/hero/hero-swap-3.mp4.asset.json';
+import poster1 from '@/assets/hero/hero-swap-1.jpg.asset.json';
+import poster2 from '@/assets/hero/hero-swap-2.jpg.asset.json';
+import poster3 from '@/assets/hero/hero-swap-3.jpg.asset.json';
 
-const heroClips = [clip1.url, clip2.url, clip3.url];
+const heroClips = [
+  { src: clip1.url, poster: poster1.url },
+  { src: clip2.url, poster: poster2.url },
+  { src: clip3.url, poster: poster3.url },
+];
 
 // Official-style platform marks (simplified inline SVG, brand colors).
 const platformLogos: { name: string; svg: React.ReactNode }[] = [
@@ -28,7 +35,7 @@ function VideoSwap({ live, lang, note }: { live: string; lang: string; note: str
   useEffect(() => { const id = setInterval(() => setI(v => (v + 1) % heroClips.length), 6500); return () => clearInterval(id); }, []);
   const cur = heroClips[i]!;
   return <div className="lp-swap" aria-label={note}>
-    <video key={cur} className="lp-swap-img" src={cur} autoPlay muted loop playsInline />
+    <video key={cur.src} className="lp-swap-img" src={cur.src} poster={cur.poster} autoPlay muted loop playsInline ref={v => { v?.play().catch(() => {}); }} />
     <div key={`b${i}`} className="lp-beam" aria-hidden="true" />
     <span className="lp-live-tag"><span />{live}</span>
     <span className="lp-lang-tag">{lang}</span>
