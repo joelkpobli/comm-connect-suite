@@ -32,6 +32,7 @@ export function CallStudio() {
   const rec = useRef<MediaRecorder | null>(null); const stream = useRef<MediaStream | null>(null); const timer = useRef(0);
   const stopTracks = () => { stream.current?.getTracks().forEach(t => t.stop()); stream.current = null; };
   useEffect(() => { status().then(s => setReady(s.recognition && s.translation)).catch(() => setReady(false)); return () => { clearTimeout(timer.current); if (rec.current) rec.current.onstop = null; stopTracks(); }; }, [status]);
+  const pickMine = (l: L) => { if (theirs === l) { const other = (langs.find(x => x !== l) ?? l) as L; setTheirs(other); setVoice(voices[other][0]!.id); } setMine(l); };
   const pickTheirs = (l: L) => { setTheirs(l); setVoice(voices[l][0]!.id); };
   const langs = (Object.keys(voices) as L[]);
 
@@ -66,7 +67,7 @@ export function CallStudio() {
     <header><h1>{c.title}</h1><p>{c.intro}</p><p className="text-sm text-muted-foreground">{c.limit}</p></header>
     <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
       <section className="panel grid gap-4">
-        <label className="field"><span>{c.mine}</span><select className={sel} value={mine} onChange={e => setMine(e.target.value as L)}>{langs.map(l => <option key={l} value={l}>{l.toUpperCase()}</option>)}</select></label>
+        <label className="field"><span>{c.mine}</span><select className={sel} value={mine} onChange={e => pickMine(e.target.value as L)}>{langs.map(l => <option key={l} value={l}>{l.toUpperCase()}</option>)}</select></label>
         <label className="field"><span>{c.theirs}</span><select className={sel} value={theirs} onChange={e => pickTheirs(e.target.value as L)}>{langs.filter(l => l !== mine).map(l => <option key={l} value={l}>{l.toUpperCase()}</option>)}</select></label>
         <fieldset className="grid gap-2"><legend className="mb-2 font-semibold">{c.voice}</legend>
           {voices[theirs].map(v => <label key={v.id} className={`flex items-center gap-2 rounded-md border p-2 ${voice === v.id ? 'border-primary' : 'border-input'}`}><input type="radio" name="voice" checked={voice === v.id} onChange={() => setVoice(v.id)} />{v.name} · {c[v.g]}</label>)}
