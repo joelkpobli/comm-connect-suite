@@ -32,6 +32,7 @@ export function CallStudio() {
   const rec = useRef<MediaRecorder | null>(null); const stream = useRef<MediaStream | null>(null); const timer = useRef(0);
   const stopTracks = () => { stream.current?.getTracks().forEach(t => t.stop()); stream.current = null; };
   useEffect(() => { status().then(s => setReady(s.recognition && s.translation)).catch(() => setReady(false)); return () => { clearTimeout(timer.current); if (rec.current) rec.current.onstop = null; stopTracks(); }; }, [status]);
+  const pickMine = (l: L) => { if (theirs === l) { const other = (langs.find(x => x !== l) ?? l) as L; setTheirs(other); setVoice(voices[other][0]!.id); } setMine(l); };
   const pickTheirs = (l: L) => { setTheirs(l); setVoice(voices[l][0]!.id); };
   const langs = (Object.keys(voices) as L[]);
 
