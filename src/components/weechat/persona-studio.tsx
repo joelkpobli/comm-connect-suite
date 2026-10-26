@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Mic, Square, Upload, Trash2 } from 'lucide-react';
+import { Mic, Square, Upload, Trash2, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
@@ -115,8 +115,10 @@ export function PersonaStudio() {
     <div className="grid content-start gap-6">
       <section className="panel grid gap-3" aria-labelledby="prev-h">
         <h2 id="prev-h">{c.preview}</h2>
-        <canvas ref={canvas} width={640} height={360} className="w-full rounded-lg" aria-label={c.preview} />
+        <canvas ref={canvas} width={1280} height={720} className="w-full rounded-lg bg-background" aria-label={c.preview} />
         <p className="text-sm text-muted-foreground">{c.still}</p>
+        <Button type="button" variant="outline" className="w-fit" onClick={() => void canvas.current?.requestFullscreen?.().catch(() => {})}><Maximize2 />{locale === 'fr' ? 'Sortie propre pour OBS (plein écran)' : 'Clean output for OBS (fullscreen)'}</Button>
+        <p className="text-sm text-muted-foreground">{locale === 'fr' ? 'Dans OBS : Capture de fenêtre sur ce navigateur, puis « Démarrer la caméra virtuelle ». Échap pour quitter.' : 'In OBS: Window capture on this browser, then “Start Virtual Camera”. Esc to exit.'}</p>
       </section>
       <section className="panel grid gap-3" aria-labelledby="voice-h">
         <h2 id="voice-h">{c.voice}</h2>
