@@ -35,6 +35,11 @@ export function CallStudio() {
   const pickMine = (l: L) => { if (theirs === l) { const other = (langs.find(x => x !== l) ?? l) as L; setTheirs(other); setVoice(voices[other][0]!.id); } setMine(l); };
   const pickTheirs = (l: L) => { setTheirs(l); setVoice(voices[l][0]!.id); };
   const langs = (Object.keys(voices) as L[]);
+  const sinkOk = typeof window !== 'undefined' && 'setSinkId' in HTMLMediaElement.prototype;
+  const [outs, setOuts] = useState<MediaDeviceInfo[]>([]); const [sink, setSink] = useState('');
+  const loadOuts = async () => { try { const d = await navigator.mediaDevices.enumerateDevices(); setOuts(d.filter(x => x.kind === 'audiooutput')); } catch { setOuts([]); } };
+  useEffect(() => { void loadOuts(); }, []);
+  const play = (src: string) => { const a = new Audio(src) as HTMLAudioElement & { setSinkId?: (id: string) => Promise<void> }; const go = () => void a.play(); if (sink && a.setSinkId) a.setSinkId(sink).then(go).catch(go); else go(); };
 
   async function start(who: 'me' | 'them') {
     setMsg('');
@@ -53,7 +58,7 @@ export function CallStudio() {
         else {
           const audio = `data:audio/wav;base64,${res.value.speechBase64}`;
           setTurns(t => [...t, { who, original: res.value.transcript, translated: res.value.translation, audio, ms: res.ms }]);
-          if (who === 'me') void new Audio(audio).play();
+          if (who === 'me') play(audio);
         }
       } catch { setMsg(c.failed); }
       setPhase('idle');
@@ -74,6 +79,13 @@ export function CallStudio() {
         </fieldset>
         <label className="flex items-start gap-2"><Checkbox checked={agree} onCheckedChange={v => setAgree(v === true)} /><span className="text-sm">{c.consent}</span></label>
         {ready === false && <p role="alert">{c.missing}</p>}
+        <label className="field"><span>{locale === 'fr' ? 'Sortie de ma voix traduite' : 'Translated voice output'}</span>
+          {sinkOk ? <select className={sel} value={sink} onChange={e => setSink(e.target.value)} onFocus={() => void loadOuts()}>
+            <option value="">{locale === 'fr' ? 'Sortie par défaut' : 'Default output'}</option>
+            {outs.filter(o => o.deviceId && o.deviceId !== 'default').map(o => <option key={o.deviceId} value={o.deviceId}>{o.label || o.deviceId.slice(0, 8)}</option>)}
+          </select> : <p className="text-sm text-muted-foreground">{locale === 'fr' ? 'Choix de sortie non pris en charge : utilisez Chrome ou Edge.' : 'Output choice not supported: use Chrome or Edge.'}</p>}
+        </label>
+        <p className="text-sm text-muted-foreground">{locale === 'fr' ? 'Choisissez « CABLE Input » pour envoyer la voix vers WhatsApp (micro « CABLE Output »). Les noms s’affichent après autorisation du micro.' : 'Pick “CABLE Input” to send the voice to WhatsApp (mic “CABLE Output”). Names appear after microphone permission.'}</p>
       </section>
       <section className="panel grid content-start gap-4" aria-labelledby="convo">
         <h2 id="convo">{c.convo}</h2>
@@ -87,7 +99,7 @@ export function CallStudio() {
           {turns.map((t, i) => <li key={i} className={`rounded-lg border border-input p-3 ${t.who === 'me' ? 'ml-8 bg-secondary' : 'mr-8'}`}>
             <strong>{t.who === 'me' ? c.you : c.other}</strong>
             {t.who === 'me' ? <><p>{t.original}</p><p className="text-sm text-muted-foreground">{c.heard} : {t.translated}</p></> : <><p className="text-lg">{t.translated}</p><p className="text-sm text-muted-foreground">{t.original}</p></>}
-            <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground"><Button type="button" size="sm" variant="ghost" onClick={() => void new Audio(t.audio).play()}><Volume2 />{c.listen}</Button>{t.ms} ms</div>
+            <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground"><Button type="button" size="sm" variant="ghost" onClick={() => play(t.audio)}><Volume2 />{c.listen}</Button>{t.ms} ms</div>
           </li>)}
         </ol>
       </section>
