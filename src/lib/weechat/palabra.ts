@@ -7,6 +7,9 @@ export const PALABRA_LANGUAGES = {
   ar: 'العربية', zh: '中文', ja: '日本語', ko: '한국어', ru: 'Русский', tr: 'Türkçe', pl: 'Polski', uk: 'Українська',
   hi: 'हिन्दी', id: 'Bahasa Indonesia', sv: 'Svenska', da: 'Dansk', fi: 'Suomi', cs: 'Čeština', sk: 'Slovenčina',
   ro: 'Română', bg: 'Български', el: 'Ελληνικά', he: 'עברית', hu: 'Magyar', vi: 'Tiếng Việt', ms: 'Bahasa Melayu',
+  hr: 'Hrvatski', no: 'Norsk', fil: 'Filipino', ta: 'தமிழ்', cy: 'Cymraeg', ca: 'Català', et: 'Eesti', lv: 'Latviešu', lt: 'Lietuvių',
+  sl: 'Slovenščina', sr: 'Српски', mk: 'Македонски', be: 'Беларуская', hy: 'Հայերեն', kk: 'Қазақ', gl: 'Galego', sw: 'Kiswahili',
+  th: 'ไทย', ur: 'اردو',
 } as const;
 export type PalabraLang = keyof typeof PALABRA_LANGUAGES;
 export const PALABRA_CODES = Object.keys(PALABRA_LANGUAGES) as PalabraLang[];
