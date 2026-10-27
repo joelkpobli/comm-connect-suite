@@ -3,26 +3,26 @@ import { Mic, Square, Upload, Trash2, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
-import { backgrounds, checkImage, checkVoiceSample, personas, VOICE_MAX_S, type Gender } from '@/lib/weechat/persona-catalog';
+import { backgrounds, checkImage, checkVoiceSample, personas, placeFigure, VOICE_MAX_S, type Gender, type Pose } from '@/lib/weechat/persona-catalog';
 
 const copy = {
   fr: {
-    face: '1. Visage qui me représente', all: 'Tous', f: 'Femmes', m: 'Hommes', age: 'ans env.', catalog: 'Images générées par IA pour Weechat, utilisables librement dans vos appels et lives.',
+    face: '1. Visage qui me représente', all: 'Tous', f: 'Femmes', m: 'Hommes', age: 'ans env.', catalog: 'Vraies photos sous licence libre (Wikimedia Commons), personne détourée en pied. Pour votre photo : de la tête aux pieds, de face, idéalement en PNG sans fond.',
     myPhoto: 'Importer ma photo', rights: 'Je certifie détenir les droits sur cette image et l’accord de la personne représentée.',
     bg: '2. Arrière-plan', myBg: 'Importer mon arrière-plan', bgRights: 'Je certifie avoir le droit d’utiliser cette image.', blur: 'Flou d’arrière-plan', none: 'Aucun',
-    bgNames: { salon: 'Salon', piscine: 'Piscine', bain: 'Salle de bain', bureau: 'Bureau', cafe: 'Café', jardin: 'Jardin' } as Record<string, string>,
-    preview: '3. Aperçu de ce que l’autre verra', label: 'Image générée par IA · Weechat', still: 'Image fixe : le visage ne suit pas encore vos mouvements.',
+    bgNames: { salon: 'Salon', villa: 'Villa', piscine: 'Piscine', piscine2: 'Piscine vue mer', jardin: 'Jardin' }, pose: 'Posture', stand: 'Debout', sit: 'Assis(e)', shadow: 'Ombre au sol' as Record<string, string>,
+    preview: '3. Aperçu de ce que l’autre verra', label: 'Persona Weechat', still: 'Image fixe : la silhouette ne suit pas encore vos mouvements.',
     voice: '4. Ma voix de référence', voiceIntro: 'Enregistrez ou importez 10 à 30 secondes de voix. Elle servira à reproduire votre timbre quand le service sera branché.',
     voiceRights: 'C’est ma voix, ou j’ai l’accord écrit de la personne.', rec: 'Enregistrer', stop: 'Arrêter', upload: 'Importer un fichier audio', remove: 'Supprimer',
     voiceNote: 'Reproduction de voix pas encore disponible : l’appel utilise encore les voix du catalogue. L’extrait reste sur cet appareil.',
     errType: 'Format non accepté (JPG, PNG ou WebP).', errSize: 'Fichier trop lourd (8 Mo max).', errShort: 'Trop court : 10 secondes minimum.', errLong: 'Trop long : 30 secondes maximum.', errAudio: 'Fichier audio non valide.', denied: 'Micro refusé ou indisponible.', ok: 'Extrait prêt', s: 's',
   },
   en: {
-    face: '1. Face representing me', all: 'All', f: 'Women', m: 'Men', age: 'approx.', catalog: 'AI-generated images made for Weechat, free to use in your calls and lives.',
+    face: '1. Face representing me', all: 'All', f: 'Women', m: 'Men', age: 'approx.', catalog: 'Real photos under free licences (Wikimedia Commons), full-body cut-outs. For your photo: head to toe, facing camera, ideally a PNG without background.',
     myPhoto: 'Upload my photo', rights: 'I confirm I hold the rights to this image and the consent of the person shown.',
     bg: '2. Background', myBg: 'Upload my background', bgRights: 'I confirm I may use this image.', blur: 'Background blur', none: 'None',
-    bgNames: { salon: 'Living room', piscine: 'Pool', bain: 'Bathroom', bureau: 'Office', cafe: 'Café', jardin: 'Garden' } as Record<string, string>,
-    preview: '3. Preview of what they will see', label: 'AI-generated image · Weechat', still: 'Still image: the face does not follow your movements yet.',
+    bgNames: { salon: 'Living room', villa: 'Villa', piscine: 'Pool', piscine2: 'Sea-view pool', jardin: 'Garden' }, pose: 'Posture', stand: 'Standing', sit: 'Seated', shadow: 'Floor shadow' as Record<string, string>,
+    preview: '3. Preview of what they will see', label: 'Weechat persona', still: 'Still image: the figure does not follow your movements yet.',
     voice: '4. My reference voice', voiceIntro: 'Record or upload 10 to 30 seconds of voice. It will be used to reproduce your tone once the service is connected.',
     voiceRights: 'This is my voice, or I have written consent from the speaker.', rec: 'Record', stop: 'Stop', upload: 'Upload an audio file', remove: 'Delete',
     voiceNote: 'Voice reproduction not available yet: calls still use catalogue voices. The sample stays on this device.',
@@ -42,7 +42,7 @@ export function PersonaStudio() {
   const [filter, setFilter] = useState<'all' | Gender>('all');
   const [face, setFace] = useState<string>(personas[0]!.src); const [myFace, setMyFace] = useState(''); const [faceRights, setFaceRights] = useState(false);
   const [bg, setBg] = useState<string>(backgrounds[0]!.src); const [myBg, setMyBg] = useState(''); const [bgRights, setBgRights] = useState(false);
-  const [blur, setBlur] = useState(4); const [err, setErr] = useState('');
+  const [blur, setBlur] = useState(2); const [pose, setPose] = useState<Pose>('stand'); const [shadow, setShadow] = useState(5); const [err, setErr] = useState('');
   const canvas = useRef<HTMLCanvasElement>(null);
   const [voiceUrl, setVoiceUrl] = useState(''); const [voiceS, setVoiceS] = useState(0); const [voiceRights, setVoiceRights] = useState(false); const [vErr, setVErr] = useState(''); const [recording, setRecording] = useState(false);
   const rec = useRef<MediaRecorder | null>(null); const stream = useRef<MediaStream | null>(null); const timer = useRef(0);
@@ -57,13 +57,14 @@ export function PersonaStudio() {
       if (!live) return; const W = cv.width, H = cv.height;
       ctx.clearRect(0, 0, W, H);
       if (b) { ctx.save(); ctx.filter = blur ? `blur(${blur}px)` : 'none'; cover(ctx, b, -blur * 2, -blur * 2, W + blur * 4, H + blur * 4); ctx.restore(); } else { ctx.fillStyle = getComputedStyle(cv).getPropertyValue('--surface-deep') || '#070B12'; ctx.fillRect(0, 0, W, H); }
-      const r = H * 0.38; const cx = W / 2; const cy = H * 0.52;
-      ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.closePath(); ctx.clip(); cover(ctx, f, cx - r, cy - r, r * 2, r * 2); ctx.restore();
+      const p = placeFigure(W, H, f.width, f.height, pose);
+      if (shadow) { ctx.save(); const g = ctx.createRadialGradient(W / 2, p.floor, 0, W / 2, p.floor, p.w * 0.6); g.addColorStop(0, `rgba(0,0,0,${shadow / 10})`); g.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = g; ctx.translate(W / 2, p.floor); ctx.scale(1, 0.18); ctx.translate(-W / 2, -p.floor); ctx.beginPath(); ctx.arc(W / 2, p.floor, p.w * 0.6, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+      ctx.drawImage(f, p.x, p.y, p.w, p.h);
       ctx.font = '600 14px system-ui, sans-serif'; const t = c.label; const tw = ctx.measureText(t).width;
       ctx.fillStyle = 'rgba(7,11,18,0.7)'; ctx.fillRect(12, H - 36, tw + 20, 24); ctx.fillStyle = '#ffffff'; ctx.textBaseline = 'middle'; ctx.fillText(t, 22, H - 24);
     }).catch(() => {});
     return () => { live = false; };
-  }, [face, bg, blur, c.label]);
+  }, [face, bg, blur, pose, shadow, c.label]);
 
   function pickImage(file: File | undefined, kind: 'face' | 'bg') {
     setErr(''); if (!file) return;
@@ -93,8 +94,8 @@ export function PersonaStudio() {
       <h2 id="face-h">{c.face}</h2>
       <div className="flex gap-2">{(['all', 'f', 'm'] as const).map(k => <Button key={k} type="button" size="sm" variant={filter === k ? 'default' : 'outline'} onClick={() => setFilter(k)}>{c[k]}</Button>)}</div>
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-        {list.map(p => <button key={p.id} type="button" aria-pressed={face === p.src} aria-label={`${c[p.g]} ${p.age} ${c.age}`} onClick={() => setFace(p.src)} className={tile(face === p.src)}><img src={p.src} alt="" loading="lazy" width={816} height={816} className="aspect-square w-full object-cover" /></button>)}
-        {myFace && <button type="button" aria-pressed={face === myFace} aria-label={c.myPhoto} onClick={() => setFace(myFace)} className={tile(face === myFace)}><img src={myFace} alt="" className="aspect-square w-full object-cover" /></button>}
+        {list.map(p => <button key={p.id} type="button" aria-pressed={face === p.src} aria-label={c[p.g]} title={p.credit} onClick={() => setFace(p.src)} className={`${tile(face === p.src)} bg-secondary`}><img src={p.src} alt="" loading="lazy" className="aspect-[3/4] w-full object-contain" /></button>)}
+        {myFace && <button type="button" aria-pressed={face === myFace} aria-label={c.myPhoto} onClick={() => setFace(myFace)} className={tile(face === myFace)}><img src={myFace} alt="" className="aspect-[3/4] w-full bg-secondary object-contain" /></button>}
       </div>
       <p className="text-sm text-muted-foreground">{c.catalog}</p>
       <label className="flex items-start gap-2"><Checkbox checked={faceRights} onCheckedChange={v => setFaceRights(v === true)} /><span className="text-sm">{c.rights}</span></label>
@@ -103,11 +104,13 @@ export function PersonaStudio() {
       <h2 className="mt-4">{c.bg}</h2>
       <div className="grid grid-cols-3 gap-2">
         <button type="button" aria-pressed={bg === ''} onClick={() => setBg('')} className={`${tile(bg === '')} grid aspect-video place-items-center bg-secondary text-sm`}>{c.none}</button>
-        {backgrounds.map(b => <button key={b.id} type="button" aria-pressed={bg === b.src} aria-label={c.bgNames[b.id]} onClick={() => setBg(b.src)} className={`${tile(bg === b.src)} relative`}><img src={b.src} alt="" loading="lazy" width={1280} height={720} className="aspect-video w-full object-cover" /><span className="absolute bottom-0 left-0 right-0 bg-background/80 px-1 text-xs">{c.bgNames[b.id]}</span></button>)}
+        {backgrounds.map(b => <button key={b.id} type="button" aria-pressed={bg === b.src} aria-label={c.bgNames[b.id]} title={b.credit} onClick={() => setBg(b.src)} className={`${tile(bg === b.src)} relative`}><img src={b.src} alt="" loading="lazy" width={1280} height={720} className="aspect-video w-full object-cover" /><span className="absolute bottom-0 left-0 right-0 bg-background/80 px-1 text-xs">{c.bgNames[b.id]}</span></button>)}
         {myBg && <button type="button" aria-pressed={bg === myBg} aria-label={c.myBg} onClick={() => setBg(myBg)} className={tile(bg === myBg)}><img src={myBg} alt="" className="aspect-video w-full object-cover" /></button>}
       </div>
       <label className="flex items-start gap-2"><Checkbox checked={bgRights} onCheckedChange={v => setBgRights(v === true)} /><span className="text-sm">{c.bgRights}</span></label>
       <label className={`inline-flex w-fit items-center gap-2 rounded-md border border-input px-3 py-2 text-sm ${bgRights ? 'cursor-pointer' : 'pointer-events-none opacity-50'}`}><Upload size={16} />{c.myBg}<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={!bgRights} onChange={e => { pickImage(e.target.files?.[0], 'bg'); e.target.value = ''; }} /></label>
+      <div className="flex gap-2" role="group" aria-label={c.pose}>{(['stand', 'sit'] as const).map(k => <Button key={k} type="button" size="sm" variant={pose === k ? 'default' : 'outline'} onClick={() => setPose(k)}>{c[k]}</Button>)}</div>
+      <label className="field"><span>{c.shadow} : {shadow * 10}%</span><input type="range" min={0} max={9} value={shadow} onChange={e => setShadow(Number(e.target.value))} /></label>
       <label className="field"><span>{c.blur} : {blur}px</span><input type="range" min={0} max={12} value={blur} onChange={e => setBlur(Number(e.target.value))} /></label>
       {err && <p role="alert" className="text-destructive">{err}</p>}
     </section>
