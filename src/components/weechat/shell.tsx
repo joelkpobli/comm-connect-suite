@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSessionUser, displayName, initials } from '@/hooks/use-session';
 import { useEffect, useState, type ReactNode } from 'react';
-import { LayoutDashboard, Coins, History, Settings, Phone, ArrowUpRight, Menu, LogOut, PanelLeftClose, PanelLeftOpen, Globe2, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Coins, History, Settings, Video, Languages, Image as ImageIcon, Users, ArrowUpRight, Menu, LogOut, PanelLeftClose, PanelLeftOpen, Globe2, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Brand, LanguageSelect, DemoBadge } from './shared';
 import { useDemo } from './provider';
@@ -11,7 +11,7 @@ import { uiCopy } from '@/lib/weechat/ui-copy';
 import { profileQuery } from '@/lib/weechat/profile-query';
 import type { CopyKey } from '@/lib/weechat/i18n';
 import { WhatsAppFloat } from './whatsapp-float';
-const nav = [ { to: '/tableau-de-bord', label: 'dashboard', icon: LayoutDashboard }, { to: '/credits', label: 'credits', icon: Coins }, { to: '/historique', label: 'history', icon: History }, { to: '/studio', label: 'studio', icon: Phone }, { to: '/parametres', label: 'settings', icon: Settings } ] as const;
+const nav = [ { to: '/tableau-de-bord', label: 'dashboard', icon: LayoutDashboard }, { to: '/swap-live', label: 'swapLive', icon: Video }, { to: '/traduction', label: 'translation', icon: Languages }, { to: '/swap-photo', label: 'swapPhoto', icon: ImageIcon }, { to: '/avatars', label: 'avatars', icon: Users }, { to: '/credits', label: 'credits', icon: Coins }, { to: '/historique', label: 'history', icon: History }, { to: '/parametres', label: 'settings', icon: Settings } ] as const;
 export function AppShell({ children }: { children: ReactNode }) {
   const path = useRouterState({ select: s => s.location.pathname });
   const { t, locale, setLocale } = useDemo(); const tr = (text: string) => uiCopy(text, locale);

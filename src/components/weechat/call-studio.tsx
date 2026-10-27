@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
 import { providerStatus, realRelay } from '@/lib/weechat/communication.functions';
-import { PersonaStudio } from './persona-studio';
 
 type L = 'fr' | 'en' | 'es' | 'de';
 const voices: Record<L, { id: string; name: string; g: 'f' | 'm' }[]> = {
@@ -104,6 +103,5 @@ export function CallStudio() {
         </ol>
       </section>
     </div>
-    <PersonaStudio />
   </div>;
 }
