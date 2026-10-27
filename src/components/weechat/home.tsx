@@ -142,7 +142,7 @@ export function HomePage() {
         <article>
           <Smartphone size={22} /><h3>{c.momoTitle}</h3><p>{c.momoText}</p>
           <h4>{c.momoOperators}</h4>
-          <div className="lp-ops">{(momoOperators ?? []).map(o => <span key={o} className={`lp-op ${opLogos[o]?.tone ?? ''}`} title={o}><img src={opLogos[o]?.src} alt={o} height={26} loading="lazy" /></span>)}</div>
+          <div className="lp-ops">{(momoOperators ?? []).map(o => <span key={o} className={`lp-op ${opLogos[o]?.tone ?? ''}`} title={o}><img src={opLogos[o]?.src} alt={o} height={26} /></span>)}</div>
           <h4>{c.momoCountries}</h4>
           <div className="lp-flags">{(momoCountries ?? []).map(([f, n]) => <span key={n}><span className={`fi fi-${f}`} aria-hidden="true" />{n}</span>)}</div>
           <small className="lp-paynote"><Check size={14} />{c.momoNote}</small>
@@ -150,7 +150,7 @@ export function HomePage() {
         <article>
           <CreditCard size={22} /><h3>{c.cardTitle}</h3><p>{c.cardText}</p>
           <h4>{c.cardNetworks}</h4>
-          <div className="lp-ops"><span className="lp-op light" title="Visa"><img src={visaLogo.url} alt="Visa" height={22} loading="lazy" /></span><span className="lp-op light" title="Mastercard"><img src={mcLogo.url} alt="Mastercard" height={26} loading="lazy" /></span></div>
+          <div className="lp-ops"><span className="lp-op light" title="Visa"><img src={visaLogo.url} alt="Visa" height={22} /></span><span className="lp-op light" title="Mastercard"><img src={mcLogo.url} alt="Mastercard" height={26} /></span></div>
           <small className="lp-paynote"><Check size={14} />{c.cardNote}</small>
         </article>
       </div>
