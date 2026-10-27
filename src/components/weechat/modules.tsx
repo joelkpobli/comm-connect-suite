@@ -4,7 +4,6 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
-import { PersonaStudio } from './persona-studio';
 import { FaceTracker } from './face-tracker';
 
 export function SwapLivePage() {
