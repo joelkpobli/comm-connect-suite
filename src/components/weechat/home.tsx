@@ -12,6 +12,7 @@ import mcLogo from '@/assets/pay/mastercard.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
 import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
+import { whatsappLink } from '@/lib/weechat/contact';
 import clip1 from '@/assets/hero/hero-swap-1.mp4.asset.json';
 import clip2 from '@/assets/hero/hero-swap-2.mp4.asset.json';
 import clip3 from '@/assets/hero/hero-swap-3.mp4.asset.json';
@@ -173,7 +174,7 @@ export function HomePage() {
       <div className="lp-faq">{(c.faq ?? []).map(([q, a], n) => <div key={q} className={open === n ? 'open' : ''}><button aria-expanded={open === n} onClick={() => setOpen(open === n ? null : n)}>{q}<ChevronDown size={18} /></button>{open === n && <p>{a}</p>}</div>)}</div>
     </section>
 
-    <section className="lp-help"><MessageCircle size={26} /><div><h3>{c.helpTitle}</h3><p>{c.helpText}</p></div><Button variant="outline" asChild><a href="mailto:contact@weechat.app">{c.helpCta}</a></Button></section>
+    <section className="lp-help"><MessageCircle size={26} /><div><h3>{c.helpTitle}</h3><p>{c.helpText}</p></div><Button variant="outline" asChild><a href={whatsappLink(locale)} target="_blank" rel="noreferrer">{c.helpCta}</a></Button></section>
 
     <section className="lp-final"><h2>{c.finalTitle}</h2><p>{c.finalText}</p><div className="lp-actions"><Button size="lg" asChild><Link to="/inscription">{c.signup}</Link></Button><Button size="lg" variant="outline" asChild><Link to="/connexion">{c.haveAccount}</Link></Button></div></section>
   </div>;
