@@ -40,6 +40,6 @@ const english: Record<string, string> = {
   'Conçu pour accompagner vos échanges.': 'Designed to complement your conversations.', 'Plateformes cibles · Compatibilité non validée': 'Target platforms · Compatibility unverified',
   'L’AMBITION WEECHAT': 'THE WEECHAT VISION', 'Plus proches, même à l’autre bout du monde.': 'Closer, even across the world.', 'Concept en développement': 'Concept in development',
   'Aucun mouvement': 'No movements', 'Bonjour': 'Hello', 'Historique': 'History',
-  'Aide': 'Help', 'Aide sur WhatsApp': 'Help on WhatsApp',
+  'Aide': 'Help', 'Aide sur WhatsApp': 'Help on WhatsApp', 'Comment ça marche': 'How it works',
 };
 export function uiCopy(text: string, locale: Locale) { return locale === 'en' ? english[text] ?? text : text; }

@@ -76,7 +76,6 @@ export const momoOperators = ['Wave', 'Orange Money', 'MTN MoMo', 'Moov Money', 
 
 type L = 'fr' | 'en';
 const fr = {
-  nav: [['features', 'Fonctionnalités'], ['how', 'Comment ça marche'], ['payment', 'Paiements'], ['pricing', 'Tarifs'], ['faq', 'FAQ']],
   heroTitle: ['Changez d’apparence.', 'Traduisez en direct.'],
   heroText: 'Persona, voix et traduction pour vos appels, lives et streams — Weechat accompagne vos applications existantes.',
   start: 'Commencer', pricing: 'Voir les tarifs', login: 'Connexion',
@@ -131,7 +130,6 @@ const fr = {
   footerLegal: 'Conditions d’utilisation', footerPrivacy: 'Confidentialité', footerResp: 'Usage responsable · 18+',
 };
 const en: typeof fr = {
-  nav: [['features', 'Features'], ['how', 'How it works'], ['payment', 'Payments'], ['pricing', 'Pricing'], ['faq', 'FAQ']],
   heroTitle: ['Change your look.', 'Translate live.'],
   heroText: 'Persona, voice and translation for your calls, lives and streams — Weechat works alongside your existing apps.',
   start: 'Get started', pricing: 'See pricing', login: 'Sign in',

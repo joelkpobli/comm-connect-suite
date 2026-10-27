@@ -98,7 +98,6 @@ export function HomePage() {
   const plans = mode === 'swap' ? swapPlans : audioPlans;
   const panelVideo = tab === 0 ? heroClips[0]! : tab === 2 ? heroClips[1]! : null;
   return <div className="lp">
-    <nav className="lp-subnav" aria-label="Sections">{(c.nav ?? []).map(([id, label]) => <a key={id} href={`#${id}`}>{label}</a>)}</nav>
 
     <section className="lp-hero">
       <VideoSwap live={c.liveTag} lang={c.langTag} note={c.heroNote} />
