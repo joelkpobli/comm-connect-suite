@@ -49,7 +49,7 @@ function DownloadPage() {
       <h2>Après le téléchargement</h2>
       <div className="dl-steps">
         <div className="dl-card"><b>1</b><h3>Installer</h3><p>Installez OBS, puis VB-Cable (clic droit → « Exécuter en tant qu’administrateur »), et redémarrez.</p></div>
-        <div className="dl-card"><b>2</b><h3>Préparer le Studio</h3><p>Ouvrez le <Link to="/studio" className="underline">Studio</Link>, sortie audio « CABLE Input », puis le mode plein écran.</p></div>
+        <div className="dl-card"><b>2</b><h3>Préparer le Studio</h3><p>Ouvrez le <Link to="/traduction" className="underline">Traduction en direct</Link>, sortie audio « CABLE Input », puis le mode plein écran.</p></div>
         <div className="dl-card"><b>3</b><h3>Démarrer OBS</h3><p>Ajoutez une « Capture de fenêtre » du navigateur, puis « Démarrer la caméra virtuelle ».</p></div>
       </div>
     </section>
