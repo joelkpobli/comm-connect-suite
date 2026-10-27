@@ -164,6 +164,7 @@ export function FaceTracker() {
           <Button variant="outline" disabled={status !== 'on'} onClick={() => cv.current?.requestFullscreen?.()}><Maximize2 className="mr-2 h-4 w-4" />{fr ? 'Plein écran' : 'Full screen'}</Button>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={mesh} onCheckedChange={v => setMesh(v === true)} />{fr ? 'Afficher le maillage' : 'Show mesh'}</label>
         </div>
+        <VcamControl canvas={cv} active={status === 'on'} fr={fr} />
         <div className="grid gap-3 rounded-lg border border-border p-3 sm:grid-cols-3">
           {([['head', fr ? 'Mouvements de tête' : 'Head movement'], ['blink', fr ? 'Clignements' : 'Blinks'], ['mouth', fr ? 'Bouche' : 'Mouth']] as const).map(([k, label]) => (
             <div key={k} className="grid gap-2">
