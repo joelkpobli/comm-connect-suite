@@ -1,6 +1,6 @@
 # Weechat Companion pour Windows — architecture
 
-Statut : **squelette Tauri v2 dans `desktop/` (non compilé)** ; caméra et micro virtuels non construits. Aucun binaire, pilote, certificat ni compatibilité n'existe à ce jour. Rien de ce document ne peut être réalisé depuis le navigateur.
+Statut : **squelette Tauri v2 dans `desktop/` (non compilé)** ; code du pilote caméra « Weechat Virtual Camera » (DirectShow, base softcam MIT, `desktop/vcam/`) et commandes installer/diffuser/arrêter écrits mais non compilés ni testés sur Windows ; micro virtuel non construit.
 
 ## 1. Rôle
 Le navigateur peut lire webcam et micro, mais ne peut pas créer de périphérique système. WhatsApp Desktop, Zoom, Teams, Meet (navigateur), Messenger et TikTok LIVE Studio ne voient que les périphériques Windows. L'application compagnon déclare :

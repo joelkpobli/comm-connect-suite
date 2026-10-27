@@ -1,0 +1,8 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Autorise uniquement le site Weechat publié à piloter la caméra virtuelle.",
+  "windows": ["main"],
+  "remote": { "urls": ["https://comm-connect-suite.lovable.app/*"] },
+  "permissions": ["core:default"]
+}
