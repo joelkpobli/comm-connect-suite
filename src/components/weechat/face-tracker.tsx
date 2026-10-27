@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Camera, CameraOff, Maximize2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Slider } from '@/components/ui/slider';
 import { useDemo } from './provider';
 import { faces, checkImage } from '@/lib/weechat/persona-catalog';
-import { faceState, smooth, faceGeometry, type FaceState, type FaceGeometry } from '@/lib/weechat/face-metrics';
+import { faceState, smooth, faceGeometry, blinkThreshold, DEFAULT_SENS, SENS_MIN, SENS_MAX, type FaceState, type FaceGeometry } from '@/lib/weechat/face-metrics';
 
 const WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.1.1/wasm';
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
@@ -24,6 +25,7 @@ export function FaceTracker() {
   const stream = useRef<MediaStream | null>(null); const raf = useRef(0); const lm = useRef<{ close(): void } | null>(null);
   const img = useRef<HTMLImageElement | null>(null); const meshRef = useRef(mesh); meshRef.current = mesh;
   const geo = useRef<{ src: string; g: FaceGeometry | null; skin: string }>({ src: '', g: null, skin: '' });
+  const [sens, setSens] = useState(DEFAULT_SENS); const sensRef = useRef(sens); sensRef.current = sens;
 
   useEffect(() => { const i = new Image(); i.src = target; img.current = i; }, [target]);
   useEffect(() => () => { if (own) URL.revokeObjectURL(own); }, [own]);
@@ -75,30 +77,33 @@ export function FaceTracker() {
             } catch { /* portrait sans visage lisible : rendu simple */ }
           }
           if (prev && im?.complete && im.naturalWidth) {
+            const S = sensRef.current, cl = (v: number) => Math.max(-1, Math.min(1, v));
+            const hy = cl(prev.yaw * S.head), hp = cl(prev.pitch * S.head), hr = prev.roll * S.head;
+            const hm = Math.min(1, prev.mouth * S.mouth), bt = blinkThreshold(S.blink);
             const W = c.width, H = c.height, sz = prev.size * W * 1.25;
             const nw = im.naturalWidth, nh = im.naturalHeight, g = geo.current.g;
-            ctx.save(); ctx.translate(W - prev.cx * W, prev.cy * H); ctx.rotate(-prev.roll);
-            ctx.scale(1 - Math.abs(prev.yaw) * 0.25, 1 - Math.abs(prev.pitch) * 0.15);
+            ctx.save(); ctx.translate(W - prev.cx * W, prev.cy * H); ctx.rotate(-hr);
+            ctx.scale(1 - Math.abs(hy) * 0.25, 1 - Math.abs(hp) * 0.15);
             ctx.beginPath(); ctx.ellipse(0, 0, sz * 0.4, sz * 0.52, 0, 0, Math.PI * 2); ctx.clip();
             // Cadre le visage détecté du portrait au centre de l'ellipse.
             const k = g ? (sz * 0.8) / (g.face.w * nw) : Math.max((sz * 0.8) / nw, (sz * 1.04) / nh);
             const fx = g ? g.face.x + g.face.w / 2 : 0.5, fy = g ? g.face.y + g.face.h / 2 : 0.5;
-            const dx = -fx * nw * k - prev.yaw * sz * 0.08, dy = -fy * nh * k + prev.pitch * sz * 0.05;
+            const dx = -fx * nw * k - hy * sz * 0.08, dy = -fy * nh * k + hp * sz * 0.05;
             const X = (u: number) => dx + u * nw * k, Y = (v: number) => dy + v * nh * k;
             ctx.drawImage(im, dx, dy, nw * k, nh * k);
             if (g) {
               // Bouche : la mâchoire du portrait descend avec la vôtre.
-              const open = Math.min(1, prev.mouth) * g.mouth.h * nh * k * 2.2;
+              const open = Math.min(1, hm) * g.mouth.h * nh * k * 2.2;
               if (open > 0.5) {
                 ctx.fillStyle = 'rgb(40,12,16)';
                 ctx.beginPath(); ctx.ellipse(X(g.mouth.x + g.mouth.w / 2), Y(g.jaw.y) + open / 2, (g.mouth.w * nw * k) / 2.1, open / 2 + 1, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.drawImage(im, g.jaw.x * nw, g.jaw.y * nh, g.jaw.w * nw, g.jaw.h * nh, X(g.jaw.x), Y(g.jaw.y) + open, g.jaw.w * nw * k, g.jaw.h * nh * k);
               }
               // Yeux : paupières qui se ferment avec les vôtres.
-              if (prev.blink > 0.35 && geo.current.skin) {
+              if (prev.blink > bt && geo.current.skin) {
                 ctx.fillStyle = geo.current.skin;
                 for (const e of g.eyes) {
-                  const eh = e.h * nh * k * Math.min(1, (prev.blink - 0.35) / 0.4);
+                  const eh = e.h * nh * k * Math.min(1, (prev.blink - bt) / 0.4);
                   ctx.beginPath(); ctx.ellipse(X(e.x + e.w / 2), Y(e.y) + eh / 2, (e.w * nw * k) / 2, eh / 2, 0, 0, Math.PI * 2); ctx.fill();
                 }
               }
@@ -158,6 +163,15 @@ export function FaceTracker() {
             : <Button onClick={start} disabled={!agree}><Camera className="mr-2 h-4 w-4" />{fr ? 'Activer la caméra' : 'Turn camera on'}</Button>}
           <Button variant="outline" disabled={status !== 'on'} onClick={() => cv.current?.requestFullscreen?.()}><Maximize2 className="mr-2 h-4 w-4" />{fr ? 'Plein écran' : 'Full screen'}</Button>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={mesh} onCheckedChange={v => setMesh(v === true)} />{fr ? 'Afficher le maillage' : 'Show mesh'}</label>
+        </div>
+        <div className="grid gap-3 rounded-lg border border-border p-3 sm:grid-cols-3">
+          {([['head', fr ? 'Mouvements de tête' : 'Head movement'], ['blink', fr ? 'Clignements' : 'Blinks'], ['mouth', fr ? 'Bouche' : 'Mouth']] as const).map(([k, label]) => (
+            <div key={k} className="grid gap-2">
+              <div className="flex justify-between text-sm"><span>{label}</span><span className="text-muted-foreground">{Math.round(sens[k] * 100)} %</span></div>
+              <Slider min={SENS_MIN} max={SENS_MAX} step={0.1} value={[sens[k]]} aria-label={label} onValueChange={v => setSens(s => ({ ...s, [k]: v[0] ?? 1 }))} />
+            </div>
+          ))}
+          <Button variant="ghost" size="sm" className="sm:col-span-3 justify-self-start" onClick={() => setSens(DEFAULT_SENS)}>{fr ? 'Réinitialiser les réglages' : 'Reset settings'}</Button>
         </div>
         <p role="status" className="text-sm text-muted-foreground">
           {status === 'loading' && (fr ? 'Chargement du suivi facial…' : 'Loading face tracking…')}

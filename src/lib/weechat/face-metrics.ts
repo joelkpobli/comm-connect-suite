@@ -49,3 +49,11 @@ export function faceGeometry(pts: Pt[]): FaceGeometry | null {
   const jaw: Box = { x: mouth.x - mouth.w * 0.35, y: jawTop, w: mouth.w * 1.7, h: Math.max(0, pts[152]!.y - jawTop) };
   return { face, mouth, jaw, eyes: [box([33, 133, 159, 145], 0.004), box([362, 263, 386, 374], 0.004)], cheek: pts[50]! };
 }
+
+/** Sensitivity multipliers (1 = normal) for Swap Live animation. */
+export const SENS_MIN = 0.2, SENS_MAX = 2;
+export const DEFAULT_SENS = { head: 1, blink: 1, mouth: 1 };
+/** Higher blink sensitivity closes the eyelids earlier: 1 → 0.35, 2 → 0.1, 0.2 → 0.55. */
+export function blinkThreshold(s: number): number {
+  return Math.max(0.05, Math.min(0.9, 0.6 - 0.25 * s));
+}
