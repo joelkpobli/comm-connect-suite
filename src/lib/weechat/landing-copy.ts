@@ -111,7 +111,7 @@ const fr = {
   modeSwap: 'Swap Live', modeAudio: 'Audio', showPricesIn: 'Afficher les prix en :',
   swapTitle: 'Swap Live', swapSub: 'Transformez votre visage et votre apparence en temps réel.',
   audioTitle: 'Traduction audio', audioSub: 'Parlez. On traduit votre voix en temps réel.',
-  points: 'points', choose: 'Choisir', popular: 'Meilleur choix', days: 'jours',
+  points: 'points', bonusLabel: 'Bonus inclus', choose: 'Choisir', popular: 'Meilleur choix', days: 'jours',
   consumptionNote: '1 s de Live = 2 pts/s · Restyle = 2 pts/s · Photo = 2 pts/photo',
   priceDisclaimer: 'Grille de présentation · aucun paiement n’est encore actif sur Weechat.',
   faqTitle: 'Foire aux questions',

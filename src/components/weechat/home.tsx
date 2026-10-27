@@ -1,9 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Coins, CalendarClock, Gift, type LucideIcon } from 'lucide-react';
+import 'flag-icons/css/flag-icons.min.css';
+import mtnLogo from '@/assets/pay/mtn.svg.asset.json';
+import orangeLogo from '@/assets/pay/orange.png.asset.json';
+import moovLogo from '@/assets/pay/moov.png.asset.json';
+import airtelLogo from '@/assets/pay/airtel.png.asset.json';
+import waveLogo from '@/assets/pay/wave.png.asset.json';
+import visaLogo from '@/assets/pay/visa.png.asset.json';
+import mcLogo from '@/assets/pay/mastercard.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
-import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, type Currency, type Plan } from '@/lib/weechat/landing-copy';
+import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 import clip1 from '@/assets/hero/hero-swap-1.mp4.asset.json';
 import clip2 from '@/assets/hero/hero-swap-2.mp4.asset.json';
 import clip3 from '@/assets/hero/hero-swap-3.mp4.asset.json';
@@ -42,6 +50,31 @@ function VideoSwap({ live, lang, note }: { live: string; lang: string; note: str
   </div>;
 }
 
+const lineIcon: Record<LineKind, LucideIcon> = { live: Video, restyle: Wand2, photo: ImageIcon, translate: Languages, vcam: Camera, languages: Languages, speed: Zap, support: Headphones, points: Coins, validity: CalendarClock };
+const opLogos: Record<string, { src: string; tone: string }> = {
+  'Wave': { src: waveLogo.url, tone: 'light' }, 'Orange Money': { src: orangeLogo.url, tone: 'light' }, 'MTN MoMo': { src: mtnLogo.url, tone: 'mtn' },
+  'Moov Money': { src: moovLogo.url, tone: 'dark' }, 'Airtel Money': { src: airtelLogo.url, tone: 'light' },
+};
+
+function PlanLines({ plan, locale, c }: { plan: Plan; locale: 'fr' | 'en'; c: ReturnType<typeof landingCopy> }) {
+  const lines = (plan.lines[locale] ?? plan.lines.fr ?? []).map(l => ({ l, ...classifyLine(l) }));
+  const main = lines.filter(x => !x.bonus && x.kind !== 'validity'); const bonus = lines.filter(x => x.bonus); const valid = lines.find(x => x.kind === 'validity');
+  return <>
+    <ul>{main.map(({ l, kind }) => { const I = lineIcon[kind]; return <li key={l}><I size={16} />{l}</li>; })}</ul>
+    {bonus.length > 0 && <div className="lp-bonus"><span><Gift size={14} />{c.bonusLabel}</span><ul>{bonus.map(({ l, kind }) => { const I = lineIcon[kind]; return <li key={l}><I size={16} />{l.replace(/^Bonus\s*:\s*/i, '')}</li>; })}</ul></div>}
+    {valid && <p className="lp-valid"><CalendarClock size={14} />{valid.l}</p>}
+  </>;
+}
+
+function DiscoveryCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale: 'fr' | 'en'; c: ReturnType<typeof landingCopy> }) {
+  const sym = cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$';
+  return <article className="lp-discovery">
+    <div><span className="lp-badge">{plan.badge}</span><h3>{plan.name}</h3><p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.points ?? 0)} {c.points}</p></div>
+    <div className="lp-discovery-lines"><PlanLines plan={plan} locale={locale} c={c} /></div>
+    <div className="lp-discovery-cta"><strong>{plan.price[cur]}<small>{sym}</small></strong><Button asChild variant="outline"><Link to="/credits">{c.choose}</Link></Button></div>
+  </article>;
+}
+
 function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale: 'fr' | 'en'; c: ReturnType<typeof landingCopy> }) {
   const sym = cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$';
   return <article className={plan.popular ? 'popular' : ''}>
@@ -49,7 +82,7 @@ function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale:
     <header><h3>{plan.name}</h3>{plan.badge && <span className="lp-badge">{plan.badge}</span>}<span className="lp-validity">{plan.validity} {c.days}</span></header>
     <strong>{plan.price[cur]}<small>{sym}</small></strong>
     {plan.points && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.points)} {c.points}</p>}
-    <ul>{(plan.lines[locale] ?? plan.lines.fr ?? []).map(l => <li key={l}><Check size={15} />{l}</li>)}</ul>
+    <PlanLines plan={plan} locale={locale} c={c} />
     <Button asChild variant={plan.popular ? 'default' : 'outline'}><Link to="/credits">{c.choose} {plan.name}</Link></Button>
   </article>;
 }
@@ -109,15 +142,15 @@ export function HomePage() {
         <article>
           <Smartphone size={22} /><h3>{c.momoTitle}</h3><p>{c.momoText}</p>
           <h4>{c.momoOperators}</h4>
-          <div className="lp-ops">{(momoOperators ?? []).map(o => <span key={o}>{o}</span>)}</div>
+          <div className="lp-ops">{(momoOperators ?? []).map(o => <span key={o} className={`lp-op ${opLogos[o]?.tone ?? ''}`} title={o}><img src={opLogos[o]?.src} alt={o} height={26} loading="lazy" /></span>)}</div>
           <h4>{c.momoCountries}</h4>
-          <div className="lp-flags">{(momoCountries ?? []).map(([f, n]) => <span key={n}><i>{f}</i>{n}</span>)}</div>
+          <div className="lp-flags">{(momoCountries ?? []).map(([f, n]) => <span key={n}><span className={`fi fi-${f}`} aria-hidden="true" />{n}</span>)}</div>
           <small className="lp-paynote"><Check size={14} />{c.momoNote}</small>
         </article>
         <article>
           <CreditCard size={22} /><h3>{c.cardTitle}</h3><p>{c.cardText}</p>
           <h4>{c.cardNetworks}</h4>
-          <div className="lp-ops"><span className="lp-visa">VISA</span><span className="lp-mc"><i /><i />Mastercard</span></div>
+          <div className="lp-ops"><span className="lp-op light" title="Visa"><img src={visaLogo.url} alt="Visa" height={22} loading="lazy" /></span><span className="lp-op light" title="Mastercard"><img src={mcLogo.url} alt="Mastercard" height={26} loading="lazy" /></span></div>
           <small className="lp-paynote"><Check size={14} />{c.cardNote}</small>
         </article>
       </div>
@@ -130,7 +163,8 @@ export function HomePage() {
       <div className="lp-currow"><span>{c.showPricesIn}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
       <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : c.audioTitle}</h3>
       <p className="lp-lead">{mode === 'swap' ? c.swapSub : c.audioSub}</p>
-      <div className={`lp-prices ${mode === 'audio' ? 'three' : ''}`}>{(plans ?? []).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
+      {plans.filter(p => p.badge).map(p => <DiscoveryCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}
+      <div className={`lp-prices ${mode === 'audio' ? 'three' : 'four'}`}>{(plans ?? []).filter(p => !p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
       <small className="lp-conso">{c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>
     </section>
