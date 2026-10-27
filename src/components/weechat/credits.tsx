@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
-import { creditsQuery } from '@/lib/weechat/credits-query';
+import { creditsQuery, audioQuery } from '@/lib/weechat/credits-query';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, AudioLines, Check, Clock, Coins, History, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,19 +9,19 @@ import { useDemo } from './provider';
 import { formatCredits } from '@/lib/weechat/demo-data';
 import { swapPlans, audioPlans, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 
-/** Audio minutes have no persisted ledger yet: the counter is shown honestly at zero. */
-export const AUDIO_MINUTES_AVAILABLE = 0;
+/** Audio minutes come from the separate audio-time ledger (stored in seconds). */
+const fmtAudio = (sec: number | undefined) => sec === undefined ? '…' : sec % 60 ? `${Math.floor(sec / 60)} min ${sec % 60} s` : `${sec / 60} min`;
 
 const sym = (c: Currency) => (c === 'XOF' ? 'FCFA' : c === 'EUR' ? '€' : '$');
 
 /** Two separate balances (points + audio minutes) for the member header. */
 export function BalanceChips() {
   const { locale } = useDemo();
-  const { data } = useQuery(creditsQuery);
+  const { data } = useQuery(creditsQuery); const { data: audio } = useQuery(audioQuery);
   const en = locale === 'en';
   return <div className="balance-chips" aria-label={en ? 'Your balances' : 'Vos soldes'}>
     <Link to="/credits" className="balance-chip" title={en ? 'Points (Swap Live, Restyle, Photo)' : 'Points (Swap Live, Restyle, Photo)'}><Coins size={15} /><strong>{data ? formatCredits(data.totals.balance) : '…'}</strong><span>pts</span></Link>
-    <Link to="/credits" hash="audio" className="balance-chip" title={en ? 'Audio translation minutes' : 'Minutes de traduction audio'}><AudioLines size={15} /><strong>{AUDIO_MINUTES_AVAILABLE}</strong><span>min</span></Link>
+    <Link to="/credits" hash="audio" className="balance-chip" title={en ? 'Audio translation minutes' : 'Minutes de traduction audio'}><AudioLines size={15} /><strong>{fmtAudio(audio)}</strong></Link>
   </div>;
 }
 
@@ -53,7 +53,7 @@ export function CreditsPage() {
     <PageTitle title={en ? 'Top up points' : 'Recharge de points'} subtitle={en ? 'Two separate balances: points for video, minutes for audio translation. No payment is active yet.' : 'Deux soldes séparés : les points pour la vidéo, les minutes pour la traduction audio. Aucun paiement n’est encore actif.'} action={<Button asChild variant="outline"><Link to="/historique"><History />{en ? 'History' : 'Historique'}</Link></Button>} />
     <div className="dual-balance">
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><Coins size={26} /></span><div><span>{en ? 'Points · Swap Live, Restyle, Photo' : 'Points · Swap Live, Restyle, Photo'}</span><strong>{formatCredits(real.totals.balance)} <small>pts</small></strong></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
-      <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><AudioLines size={26} /></span><div><span>{en ? 'Audio translation minutes' : 'Minutes de traduction audio'}</span><strong>{AUDIO_MINUTES_AVAILABLE} <small>min</small></strong></div></div><span className="demo-badge"><span />{en ? 'Not yet connected' : 'Pas encore relié'}</span></div>
+      <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><AudioLines size={26} /></span><div><span>{en ? 'Audio translation minutes' : 'Minutes de traduction audio'}</span><strong>{fmtAudio(audio)}</strong></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
     </div>
     <div className="lp-currow"><span>{en ? 'Show prices in' : 'Afficher les prix en'}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} type="button" className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
     <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio'] as const).map(k => <button key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); setSelected(k === 'swap' ? swapPlans[2]! : audioPlans[1]!); setDone(false); }}>{k === 'swap' ? 'Swap Live' : (en ? 'Audio translation' : 'Traduction audio')}</button>)}</div></div>
