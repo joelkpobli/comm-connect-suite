@@ -16,7 +16,7 @@ export function UsageDemo({ service, fr }: { service: UsageService; fr: boolean 
   const [bal, setBal] = useState<number | null>(null);
   const [sec, setSec] = useState(0); const [running, setRunning] = useState(false);
   const [ended, setEnded] = useState(''); const [log, setLog] = useState<Log[]>([]);
-  const st = useRef({ bal: 0, sec: 0, block: 0 }); const timer = useRef<ReturnType<typeof setInterval>>();
+  const st = useRef({ bal: 0, sec: 0, block: 0 }); const timer = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   const halt = (why: string) => { clearInterval(timer.current); setRunning(false); setEnded(why); };
   useEffect(() => () => clearInterval(timer.current), []);
