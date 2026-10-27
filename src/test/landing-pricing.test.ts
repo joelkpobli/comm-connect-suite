@@ -26,7 +26,7 @@ describe('Grille tarifaire en points (présentation)', () => {
   it('couvre exactement 24 pays Mobile Money avec drapeaux', () => {
     expect(momoCountries).toHaveLength(24);
     for (const [flag, name] of momoCountries) {
-      expect(flag).toBeTruthy();
+      expect(flag).toMatch(/^[a-z]{2}$/);
       expect(name.length).toBeGreaterThan(2);
     }
   });
@@ -46,5 +46,16 @@ describe('Grille tarifaire en points (présentation)', () => {
   it('indique honnêtement qu’aucun paiement n’est actif', () => {
     expect(landingCopy('fr').priceDisclaimer).toContain('aucun paiement');
     expect(landingCopy('fr').payText).toContain('Aucun paiement');
+  });
+});
+
+import { classifyLine } from '@/lib/weechat/landing-copy';
+describe('présentation des lignes de pack', () => {
+  it('sépare les bonus et attribue une icône à chaque fonctionnalité', () => {
+    expect(classifyLine('Live : 33 min')).toEqual({ kind: 'live', bonus: false });
+    expect(classifyLine('Photos : 1 980')).toEqual({ kind: 'photo', bonus: false });
+    expect(classifyLine('Bonus : Traduction 30 min')).toEqual({ kind: 'translate', bonus: true });
+    expect(classifyLine('Caméra virtuelle à vie')).toEqual({ kind: 'vcam', bonus: true });
+    expect(classifyLine('Valable 90 jours').kind).toBe('validity');
   });
 });

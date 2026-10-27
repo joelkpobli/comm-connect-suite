@@ -64,15 +64,15 @@ export const audioPlans: Plan[] = [
 
 export const consumption = { live: 2, restyle: 2, photo: 2 }; // pts per second / per photo
 
-// Mobile Money coverage: 24 African countries (flag emoji + name).
+// Mobile Money coverage: 24 African countries (ISO 3166 code for the official flag + name).
 export const momoCountries: [string, string][] = [
-  ['🇨🇮', 'Côte d’Ivoire'], ['🇸🇳', 'Sénégal'], ['🇧🇯', 'Bénin'], ['🇹🇬', 'Togo'], ['🇲🇱', 'Mali'],
-  ['🇧🇫', 'Burkina Faso'], ['🇳🇪', 'Niger'], ['🇬🇳', 'Guinée'], ['🇬🇼', 'Guinée-Bissau'], ['🇬🇭', 'Ghana'],
-  ['🇳🇬', 'Nigeria'], ['🇸🇱', 'Sierra Leone'], ['🇨🇲', 'Cameroun'], ['🇨🇬', 'Congo-Brazzaville'], ['🇨🇩', 'Congo-Kinshasa'],
-  ['🇬🇦', 'Gabon'], ['🇰🇪', 'Kenya'], ['🇷🇼', 'Rwanda'], ['🇺🇬', 'Ouganda'], ['🇹🇿', 'Tanzanie'],
-  ['🇿🇲', 'Zambie'], ['🇲🇼', 'Malawi'], ['🇲🇿', 'Mozambique'], ['🇹🇩', 'Tchad'],
+  ['ci', 'Côte d’Ivoire'], ['sn', 'Sénégal'], ['bj', 'Bénin'], ['tg', 'Togo'], ['ml', 'Mali'],
+  ['bf', 'Burkina Faso'], ['ne', 'Niger'], ['gn', 'Guinée'], ['gw', 'Guinée-Bissau'], ['gh', 'Ghana'],
+  ['ng', 'Nigeria'], ['sl', 'Sierra Leone'], ['cm', 'Cameroun'], ['cg', 'Congo-Brazzaville'], ['cd', 'Congo-Kinshasa'],
+  ['ga', 'Gabon'], ['ke', 'Kenya'], ['rw', 'Rwanda'], ['ug', 'Ouganda'], ['tz', 'Tanzanie'],
+  ['zm', 'Zambie'], ['mw', 'Malawi'], ['mz', 'Mozambique'], ['td', 'Tchad'],
 ];
-export const momoOperators = ['Wave', 'Orange Money', 'MTN MoMo', 'Moov', 'Airtel Money'];
+export const momoOperators = ['Wave', 'Orange Money', 'MTN MoMo', 'Moov Money', 'Airtel Money'];
 
 type L = 'fr' | 'en';
 const fr = {
@@ -111,7 +111,7 @@ const fr = {
   modeSwap: 'Swap Live', modeAudio: 'Audio', showPricesIn: 'Afficher les prix en :',
   swapTitle: 'Swap Live', swapSub: 'Transformez votre visage et votre apparence en temps réel.',
   audioTitle: 'Traduction audio', audioSub: 'Parlez. On traduit votre voix en temps réel.',
-  points: 'points', choose: 'Choisir', popular: 'Meilleur choix', days: 'jours',
+  points: 'points', bonusLabel: 'Bonus inclus', choose: 'Choisir', popular: 'Meilleur choix', days: 'jours',
   consumptionNote: '1 s de Live = 2 pts/s · Restyle = 2 pts/s · Photo = 2 pts/photo',
   priceDisclaimer: 'Grille de présentation · aucun paiement n’est encore actif sur Weechat.',
   faqTitle: 'Foire aux questions',
@@ -166,7 +166,7 @@ const en: typeof fr = {
   modeSwap: 'Swap Live', modeAudio: 'Audio', showPricesIn: 'Show prices in:',
   swapTitle: 'Swap Live', swapSub: 'Transform your face and appearance in real time.',
   audioTitle: 'Audio translation', audioSub: 'Speak. We translate your voice in real time.',
-  points: 'points', choose: 'Choose', popular: 'Best choice', days: 'days',
+  points: 'points', bonusLabel: 'Included bonus', choose: 'Choose', popular: 'Best choice', days: 'days',
   consumptionNote: '1 s of Live = 2 pts/s · Restyle = 2 pts/s · Photo = 2 pts/photo',
   priceDisclaimer: 'Presentation pricing · no payment is active on Weechat yet.',
   faqTitle: 'Frequently asked questions',
@@ -187,3 +187,21 @@ const en: typeof fr = {
 };
 export const landingCopy = (l: L) => (l === 'en' ? en : fr);
 export const EUR_TO_XOF = 655.957; // fixed official parity
+
+// Plan line presentation: each line gets an icon kind; bonuses and validity are shown apart.
+export type LineKind = 'live' | 'restyle' | 'photo' | 'translate' | 'vcam' | 'languages' | 'speed' | 'support' | 'points' | 'validity';
+export function classifyLine(line: string): { kind: LineKind; bonus: boolean } {
+  const l = line.toLowerCase();
+  const bonus = l.startsWith('bonus') || l.includes('virtuelle') || l.includes('virtual camera') || l.includes('prioritaire') || l.includes('priority');
+  const kind: LineKind = l.includes('valable') || l.includes('valid') ? 'validity'
+    : l.includes('virtuel') || l.includes('virtual') ? 'vcam'
+    : l.includes('restyle') ? 'restyle'
+    : l.includes('photo') ? 'photo'
+    : l.includes('point') ? 'points'
+    : l.startsWith('live') || l.includes('en direct') || l.includes('live face') ? 'live'
+    : l.includes('langue') || l.includes('language') ? 'languages'
+    : l.includes('rapide') || l.includes('fast') ? 'speed'
+    : l.includes('support') ? 'support'
+    : 'translate';
+  return { kind, bonus };
+}

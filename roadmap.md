@@ -1,33 +1,9 @@
-# Weechat execution roadmap
-- [x] Harden capture interruptions/device removal and audio/video pipeline cleanup; test regressions and document current evidence.
-- [x] Prepare disabled recognition/translation/synthesis/avatar integration boundaries without external services.
-- [x] Recheck account isolation and production configuration evidence; document inaccessible hosted settings.
-- [x] Create eight visual screens and coherent local demo navigation.
-- [x] Separate demo data, reusable presentation, and UI language state.
-- [x] Verify routes, fictional purchase, forms and mobile layout.
-- [x] Record test outcomes and prototype limits.
-- [x] Lock the resend button for 30 s with a visible countdown after a successful send.
-- [x] Keep the show/hide password control working on the login screen.
-- [x] Audit and harden auth: revoke rls_auto_enable, least-privilege grants, profile column+language checks, recovery-link requirement, post-confirmation redirect.
-- [x] Prove account isolation with 11 negative tests on two real throwaway accounts (25/25 tests green).
-- [x] Real credit ledger, balance and latest history — atomic service-only writes and isolation verified.
-- [ ] Commercial packs and purchases — blocked by approved prices and merchant/provider information.
-- [ ] User-side Supabase settings: Site URL, redirect URLs (/connexion, /reinitialisation), SMTP.
-- [x] Persist directive v2 and document actual implementation and blockers.
-- [x] Real profile settings and persisted independent UI/voice languages, verified through the UI.
-- [x] Translate existing screens and validate key French/English flows; saved profile identity shown throughout workspace.
-- [ ] Payment integration — blocked by merchant country, currency, approved prices and provider credentials.
-- [ ] Audio translation integration — blocked by authorized provider credentials/budget; device tests required.
-- [ ] Avatar and virtual camera — external desktop bridge and physical application tests required.
-- [ ] Production readiness — mail delivery, deployment authorization and external integration checks required.
-- [x] Browser microphone/camera consent, denial/errors, device selection and stop/revocation — mocked/synthetic tests pass; physical capture blocked by sandbox.
-- [x] Local representation: initials, authorized photo and static avatar; consent/no retention tested (not automated identity verification).
-- [x] Local audio level/processing and video composition; cleanup/races/regressions tested with synthetic streams.
-- [x] Provider-neutral fail-closed payment contracts, without products, activation or expenditure.
-- [x] Document multimedia evidence, limitations and external actions.
-- [ ] Physical capture/permission/quality and multi-device validation — needs user's target computer; native sandbox capture returns NotFoundError (no devices).
+# Roadmap
 
-- [x] Studio : catalogue visages/arrière-plans, imports, aperçu composé, voix de référence
-- [ ] Clonage vocal (choix fournisseur + budget)
-- [ ] Visage animé suivant les mouvements
-- [ ] Caméra et micro virtuels Windows (WhatsApp, Messenger, Instagram, TikTok)
+- [x] Drapeaux officiels des 24 pays + logos officiels Wave, Orange, MTN, Moov Africa, Airtel, Visa, Mastercard
+- [x] Pack Découverte horizontal, icônes par fonctionnalité, bonus séparés
+- [x] Plan de construction par module (docs/BUILD_PLAN.md)
+- [ ] Test réel OBS + VB-Cable sur WhatsApp — attend un test sur le PC Windows de l'utilisateur
+- [ ] Tableau de bord recentré sur 5 tuiles (une par module) — après validation du plan
+- [ ] Studio découpé en onglets par module — après validation du plan
+- [ ] Comparaison détaillée avec facevo.live — attend le lien de l'utilisateur
