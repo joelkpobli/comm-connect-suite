@@ -57,3 +57,21 @@ export const realRelay = createServerFn({ method: 'POST' }).middleware([requireS
     if (!r.ok) return r;
     return { ok: true as const, ms: r.ms, value: { transcript: r.value.transcript, translation: r.value.translation, speechBase64: b64(r.value.speech), timings: r.value.timings } };
   });
+
+/** Creates a short-lived Palabra streaming session; only the publisher token reaches the browser. */
+export const palabraSession = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).handler(async () => {
+  const key = process.env['PALABRA_API_KEY'];
+  if (!key) return { ok: false as const, error: 'missing_provider_key' };
+  let res: Response;
+  try {
+    res = await fetch('https://api.palabra.ai/session-storage/session', { method: 'POST', headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ data: {} }) });
+  } catch { return { ok: false as const, error: 'provider_unreachable' }; }
+  if (!res.ok) { console.error(`palabra session [${res.status}]`); return { ok: false as const, error: 'provider_rejected' }; }
+  const j = (await res.json().catch(() => null)) as { data?: { publisher?: string; ws_url?: string; id?: string } } | null;
+  const token = j?.data?.publisher;
+  if (!token) return { ok: false as const, error: 'invalid_response' };
+  const wsUrl = j?.data?.ws_url ?? `wss://streaming.palabra.ai/streaming-api/${crypto.randomUUID()}/v1/speech-to-speech/stream`;
+  return { ok: true as const, token, wsUrl };
+});
+
+export const palabraStatus = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).handler(async () => ({ configured: Boolean(process.env['PALABRA_API_KEY']) }));
