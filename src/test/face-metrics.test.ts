@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { faceState, smooth, faceGeometry } from '@/lib/weechat/face-metrics';
+import { faceState, smooth, faceGeometry, blinkThreshold } from '@/lib/weechat/face-metrics';
 
 const pts = () => Array.from({ length: 478 }, () => ({ x: 0.5, y: 0.5 }));
 function face(noseX: number) {
@@ -29,4 +29,10 @@ describe('faceGeometry', () => {
     expect(g.jaw.h).toBeCloseTo(0.19);
     expect(g.mouth.w).toBeCloseTo(0.2);
   });
+});
+
+describe('blinkThreshold', () => {
+  it('keeps the normal threshold at sensitivity 1', () => { expect(blinkThreshold(1)).toBeCloseTo(0.35); });
+  it('reacts earlier at higher sensitivity', () => { expect(blinkThreshold(2)).toBeCloseTo(0.1); });
+  it('reacts later at lower sensitivity', () => { expect(blinkThreshold(0.2)).toBeCloseTo(0.55); });
 });
