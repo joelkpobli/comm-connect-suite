@@ -1,3 +1,4 @@
+import { faces } from '@/lib/weechat/persona-catalog';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,7 +6,6 @@ import { PageTitle } from './shared';
 import { useDemo } from './provider';
 import { PersonaStudio } from './persona-studio';
 import { LocalMediaPanel } from './local-media';
-import { personas, backgrounds } from '@/lib/weechat/persona-catalog';
 
 export function SwapLivePage() {
   const { locale } = useDemo(); const fr = locale === 'fr';
