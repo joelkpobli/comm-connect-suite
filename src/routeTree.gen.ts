@@ -16,11 +16,15 @@ import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as RecuperationRouteImport } from './routes/recuperation'
 import { Route as ReinitialisationRouteImport } from './routes/reinitialisation'
 import { Route as TelechargerRouteImport } from './routes/telecharger'
+import { Route as AuthenticatedAvatarsRouteImport } from './routes/_authenticated/avatars'
 import { Route as AuthenticatedCreditsRouteImport } from './routes/_authenticated/credits'
 import { Route as AuthenticatedHistoriqueRouteImport } from './routes/_authenticated/historique'
 import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
+import { Route as AuthenticatedSwapLiveRouteImport } from './routes/_authenticated/swap-live'
+import { Route as AuthenticatedSwapPhotoRouteImport } from './routes/_authenticated/swap-photo'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
+import { Route as AuthenticatedTraductionRouteImport } from './routes/_authenticated/traduction'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -56,6 +60,11 @@ const TelechargerRoute = TelechargerRouteImport.update({
   path: '/telecharger',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAvatarsRoute = AuthenticatedAvatarsRouteImport.update({
+  id: '/avatars',
+  path: '/avatars',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCreditsRoute = AuthenticatedCreditsRouteImport.update({
   id: '/credits',
   path: '/credits',
@@ -76,12 +85,27 @@ const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   path: '/studio',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSwapLiveRoute = AuthenticatedSwapLiveRouteImport.update({
+  id: '/swap-live',
+  path: '/swap-live',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSwapPhotoRoute = AuthenticatedSwapPhotoRouteImport.update({
+  id: '/swap-photo',
+  path: '/swap-photo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTableauDeBordRoute =
   AuthenticatedTableauDeBordRouteImport.update({
     id: '/tableau-de-bord',
     path: '/tableau-de-bord',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTraductionRoute = AuthenticatedTraductionRouteImport.update({
+  id: '/traduction',
+  path: '/traduction',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -90,11 +114,15 @@ export interface FileRoutesByFullPath {
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
+  '/avatars': typeof AuthenticatedAvatarsRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/parametres': typeof AuthenticatedParametresRoute
   '/studio': typeof AuthenticatedStudioRoute
+  '/swap-live': typeof AuthenticatedSwapLiveRoute
+  '/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
+  '/traduction': typeof AuthenticatedTraductionRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,11 +131,15 @@ export interface FileRoutesByTo {
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
+  '/avatars': typeof AuthenticatedAvatarsRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/parametres': typeof AuthenticatedParametresRoute
   '/studio': typeof AuthenticatedStudioRoute
+  '/swap-live': typeof AuthenticatedSwapLiveRoute
+  '/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
+  '/traduction': typeof AuthenticatedTraductionRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,11 +150,15 @@ export interface FileRoutesById {
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
+  '/_authenticated/avatars': typeof AuthenticatedAvatarsRoute
   '/_authenticated/credits': typeof AuthenticatedCreditsRoute
   '/_authenticated/historique': typeof AuthenticatedHistoriqueRoute
   '/_authenticated/parametres': typeof AuthenticatedParametresRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
+  '/_authenticated/swap-live': typeof AuthenticatedSwapLiveRoute
+  '/_authenticated/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
+  '/_authenticated/traduction': typeof AuthenticatedTraductionRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -133,11 +169,15 @@ export interface FileRouteTypes {
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
+    | '/avatars'
     | '/credits'
     | '/historique'
     | '/parametres'
     | '/studio'
+    | '/swap-live'
+    | '/swap-photo'
     | '/tableau-de-bord'
+    | '/traduction'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -146,11 +186,15 @@ export interface FileRouteTypes {
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
+    | '/avatars'
     | '/credits'
     | '/historique'
     | '/parametres'
     | '/studio'
+    | '/swap-live'
+    | '/swap-photo'
     | '/tableau-de-bord'
+    | '/traduction'
   id:
     | '__root__'
     | '/'
@@ -160,11 +204,15 @@ export interface FileRouteTypes {
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
+    | '/_authenticated/avatars'
     | '/_authenticated/credits'
     | '/_authenticated/historique'
     | '/_authenticated/parametres'
     | '/_authenticated/studio'
+    | '/_authenticated/swap-live'
+    | '/_authenticated/swap-photo'
     | '/_authenticated/tableau-de-bord'
+    | '/_authenticated/traduction'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -228,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TelechargerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/avatars': {
+      id: '/_authenticated/avatars'
+      path: '/avatars'
+      fullPath: '/avatars'
+      preLoaderRoute: typeof AuthenticatedAvatarsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/credits': {
       id: '/_authenticated/credits'
       path: '/credits'
@@ -256,6 +311,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStudioRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/swap-live': {
+      id: '/_authenticated/swap-live'
+      path: '/swap-live'
+      fullPath: '/swap-live'
+      preLoaderRoute: typeof AuthenticatedSwapLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/swap-photo': {
+      id: '/_authenticated/swap-photo'
+      path: '/swap-photo'
+      fullPath: '/swap-photo'
+      preLoaderRoute: typeof AuthenticatedSwapPhotoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/tableau-de-bord': {
       id: '/_authenticated/tableau-de-bord'
       path: '/tableau-de-bord'
@@ -263,23 +332,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTableauDeBordRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/traduction': {
+      id: '/_authenticated/traduction'
+      path: '/traduction'
+      fullPath: '/traduction'
+      preLoaderRoute: typeof AuthenticatedTraductionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAvatarsRoute: typeof AuthenticatedAvatarsRoute
   AuthenticatedCreditsRoute: typeof AuthenticatedCreditsRoute
   AuthenticatedHistoriqueRoute: typeof AuthenticatedHistoriqueRoute
   AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
+  AuthenticatedSwapLiveRoute: typeof AuthenticatedSwapLiveRoute
+  AuthenticatedSwapPhotoRoute: typeof AuthenticatedSwapPhotoRoute
   AuthenticatedTableauDeBordRoute: typeof AuthenticatedTableauDeBordRoute
+  AuthenticatedTraductionRoute: typeof AuthenticatedTraductionRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAvatarsRoute: AuthenticatedAvatarsRoute,
   AuthenticatedCreditsRoute: AuthenticatedCreditsRoute,
   AuthenticatedHistoriqueRoute: AuthenticatedHistoriqueRoute,
   AuthenticatedParametresRoute: AuthenticatedParametresRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
+  AuthenticatedSwapLiveRoute: AuthenticatedSwapLiveRoute,
+  AuthenticatedSwapPhotoRoute: AuthenticatedSwapPhotoRoute,
   AuthenticatedTableauDeBordRoute: AuthenticatedTableauDeBordRoute,
+  AuthenticatedTraductionRoute: AuthenticatedTraductionRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
