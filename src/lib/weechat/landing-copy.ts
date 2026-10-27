@@ -166,7 +166,7 @@ const en: typeof fr = {
   modeSwap: 'Swap Live', modeAudio: 'Audio', showPricesIn: 'Show prices in:',
   swapTitle: 'Swap Live', swapSub: 'Transform your face and appearance in real time.',
   audioTitle: 'Audio translation', audioSub: 'Speak. We translate your voice in real time.',
-  points: 'points', choose: 'Choose', popular: 'Best choice', days: 'days',
+  points: 'points', bonusLabel: 'Included bonus', choose: 'Choose', popular: 'Best choice', days: 'days',
   consumptionNote: '1 s of Live = 2 pts/s · Restyle = 2 pts/s · Photo = 2 pts/photo',
   priceDisclaimer: 'Presentation pricing · no payment is active on Weechat yet.',
   faqTitle: 'Frequently asked questions',
