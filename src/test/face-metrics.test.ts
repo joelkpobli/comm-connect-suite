@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { faceState, smooth } from '@/lib/weechat/face-metrics';
+import { faceState, smooth, faceGeometry } from '@/lib/weechat/face-metrics';
 
 const pts = () => Array.from({ length: 478 }, () => ({ x: 0.5, y: 0.5 }));
 function face(noseX: number) {
@@ -15,5 +15,18 @@ describe('face metrics', () => {
   it('smooth moves halfway at alpha 0.5', () => {
     const a = faceState(face(0.5), [])!; const b = { ...a, mouth: 1 };
     expect(smooth({ ...a, mouth: 0 }, b, 0.5).mouth).toBe(0.5);
+  });
+});
+
+describe('faceGeometry', () => {
+  it('returns null without a full face mesh', () => { expect(faceGeometry([])).toBeNull(); });
+  it('places the jaw below the lips and above the chin', () => {
+    const pts = Array.from({ length: 478 }, () => ({ x: 0.5, y: 0.5 }));
+    pts[13] = { x: 0.5, y: 0.6 }; pts[14] = { x: 0.5, y: 0.62 }; pts[152] = { x: 0.5, y: 0.8 };
+    pts[61] = { x: 0.4, y: 0.61 }; pts[291] = { x: 0.6, y: 0.61 };
+    const g = faceGeometry(pts)!;
+    expect(g.jaw.y).toBeCloseTo(0.61);
+    expect(g.jaw.h).toBeCloseTo(0.19);
+    expect(g.mouth.w).toBeCloseTo(0.2);
   });
 });

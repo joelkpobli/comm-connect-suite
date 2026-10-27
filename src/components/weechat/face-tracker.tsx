@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
 import { faces, checkImage } from '@/lib/weechat/persona-catalog';
-import { faceState, smooth, type FaceState } from '@/lib/weechat/face-metrics';
+import { faceState, smooth, faceGeometry, type FaceState, type FaceGeometry } from '@/lib/weechat/face-metrics';
 
 const WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.1.1/wasm';
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
@@ -18,11 +18,12 @@ export function FaceTracker() {
   const [target, setTarget] = useState<string>(faces[0]!.src);
   const [own, setOwn] = useState(''); const [ownRights, setOwnRights] = useState(false);
   const [err, setErr] = useState('');
-  const [mesh, setMesh] = useState(true);
+  const [mesh, setMesh] = useState(false);
   const [st, setSt] = useState<FaceState | null>(null);
   const video = useRef<HTMLVideoElement>(null); const cv = useRef<HTMLCanvasElement>(null);
   const stream = useRef<MediaStream | null>(null); const raf = useRef(0); const lm = useRef<{ close(): void } | null>(null);
   const img = useRef<HTMLImageElement | null>(null); const meshRef = useRef(mesh); meshRef.current = mesh;
+  const geo = useRef<{ src: string; g: FaceGeometry | null; skin: string }>({ src: '', g: null, skin: '' });
 
   useEffect(() => { const i = new Image(); i.src = target; img.current = i; }, [target]);
   useEffect(() => () => { if (own) URL.revokeObjectURL(own); }, [own]);
@@ -45,8 +46,9 @@ export function FaceTracker() {
       const { FilesetResolver, FaceLandmarker, DrawingUtils } = await import('@mediapipe/tasks-vision');
       const files = await FilesetResolver.forVisionTasks(WASM);
       const fl = await FaceLandmarker.createFromOptions(files, { baseOptions: { modelAssetPath: MODEL, delegate: 'GPU' }, runningMode: 'VIDEO', numFaces: 1, outputFaceBlendshapes: true });
-      if (!stream.current) { fl.close(); return; }
-      lm.current = fl; setStatus('on');
+      const imgLm = await FaceLandmarker.createFromOptions(files, { baseOptions: { modelAssetPath: MODEL, delegate: 'CPU' }, runningMode: 'IMAGE', numFaces: 1 });
+      if (!stream.current) { fl.close(); imgLm.close(); return; }
+      lm.current = { close: () => { fl.close(); imgLm.close(); } }; geo.current = { src: '', g: null, skin: '' }; setStatus('on');
       const c = cv.current!; const ctx = c.getContext('2d')!; const draw = new DrawingUtils(ctx);
       let prev: FaceState | null = null; let last = -1; let tick = 0;
       const loop = () => {
@@ -62,13 +64,45 @@ export function FaceTracker() {
           if (pts && meshRef.current) draw.drawConnectors(pts, FaceLandmarker.FACE_LANDMARKS_TESSELATION, { color: 'rgba(25,181,254,0.35)', lineWidth: 0.6 });
           ctx.restore();
           const im = img.current;
+          if (im?.complete && im.naturalWidth && geo.current.src !== im.src) {
+            geo.current = { src: im.src, g: null, skin: '' };
+            try {
+              const g = faceGeometry(imgLm.detect(im).faceLandmarks[0] ?? []);
+              const t = document.createElement('canvas'); t.width = im.naturalWidth; t.height = im.naturalHeight;
+              const tc = t.getContext('2d')!; tc.drawImage(im, 0, 0);
+              const p = g ? tc.getImageData(g.cheek.x * t.width, g.cheek.y * t.height, 1, 1).data : null;
+              geo.current = { src: im.src, g, skin: p ? `rgb(${p[0]},${p[1]},${p[2]})` : '' };
+            } catch { /* portrait sans visage lisible : rendu simple */ }
+          }
           if (prev && im?.complete && im.naturalWidth) {
             const W = c.width, H = c.height, sz = prev.size * W * 1.25;
+            const nw = im.naturalWidth, nh = im.naturalHeight, g = geo.current.g;
             ctx.save(); ctx.translate(W - prev.cx * W, prev.cy * H); ctx.rotate(-prev.roll);
-            ctx.scale(1 - Math.abs(prev.yaw) * 0.25, (1 - Math.abs(prev.pitch) * 0.15) * (1 + prev.mouth * 0.06));
+            ctx.scale(1 - Math.abs(prev.yaw) * 0.25, 1 - Math.abs(prev.pitch) * 0.15);
             ctx.beginPath(); ctx.ellipse(0, 0, sz * 0.4, sz * 0.52, 0, 0, Math.PI * 2); ctx.clip();
-            const k = Math.max((sz * 0.8) / im.naturalWidth, (sz * 1.04) / im.naturalHeight);
-            ctx.drawImage(im, (-im.naturalWidth * k) / 2 - prev.yaw * sz * 0.08, (-im.naturalHeight * k) / 2 + prev.pitch * sz * 0.05, im.naturalWidth * k, im.naturalHeight * k);
+            // Cadre le visage détecté du portrait au centre de l'ellipse.
+            const k = g ? (sz * 0.8) / (g.face.w * nw) : Math.max((sz * 0.8) / nw, (sz * 1.04) / nh);
+            const fx = g ? g.face.x + g.face.w / 2 : 0.5, fy = g ? g.face.y + g.face.h / 2 : 0.5;
+            const dx = -fx * nw * k - prev.yaw * sz * 0.08, dy = -fy * nh * k + prev.pitch * sz * 0.05;
+            const X = (u: number) => dx + u * nw * k, Y = (v: number) => dy + v * nh * k;
+            ctx.drawImage(im, dx, dy, nw * k, nh * k);
+            if (g) {
+              // Bouche : la mâchoire du portrait descend avec la vôtre.
+              const open = Math.min(1, prev.mouth) * g.mouth.h * nh * k * 2.2;
+              if (open > 0.5) {
+                ctx.fillStyle = 'rgb(40,12,16)';
+                ctx.beginPath(); ctx.ellipse(X(g.mouth.x + g.mouth.w / 2), Y(g.jaw.y) + open / 2, (g.mouth.w * nw * k) / 2.1, open / 2 + 1, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.drawImage(im, g.jaw.x * nw, g.jaw.y * nh, g.jaw.w * nw, g.jaw.h * nh, X(g.jaw.x), Y(g.jaw.y) + open, g.jaw.w * nw * k, g.jaw.h * nh * k);
+              }
+              // Yeux : paupières qui se ferment avec les vôtres.
+              if (prev.blink > 0.35 && geo.current.skin) {
+                ctx.fillStyle = geo.current.skin;
+                for (const e of g.eyes) {
+                  const eh = e.h * nh * k * Math.min(1, (prev.blink - 0.35) / 0.4);
+                  ctx.beginPath(); ctx.ellipse(X(e.x + e.w / 2), Y(e.y) + eh / 2, (e.w * nw * k) / 2, eh / 2, 0, 0, Math.PI * 2); ctx.fill();
+                }
+              }
+            }
             ctx.restore();
           }
           if (++tick % 6 === 0) setSt(prev);
@@ -94,7 +128,7 @@ export function FaceTracker() {
     <section className="panel grid gap-5">
       <div>
         <h2 className="text-lg font-semibold">{fr ? 'Suivi facial en direct' : 'Live face tracking'}</h2>
-        <p className="text-sm text-muted-foreground">{fr ? 'Votre webcam est analysée sur cet appareil (MediaPipe). Rien n’est envoyé ni enregistré. Le visage choisi suit votre tête ; le rendu photoréaliste par IA viendra ensuite.' : 'Your webcam is analysed on this device (MediaPipe). Nothing is sent or recorded. The chosen face follows your head; photoreal AI rendering comes next.'}</p>
+        <p className="text-sm text-muted-foreground">{fr ? 'Votre webcam est analysée sur cet appareil (MediaPipe). Rien n’est envoyé ni enregistré. Le visage choisi suit votre tête, ouvre la bouche et cligne des yeux avec vous. Le rendu photoréaliste par IA viendra ensuite.' : 'Your webcam is analysed on this device (MediaPipe). Nothing is sent or recorded. The chosen face follows your head, opens its mouth and blinks with you. Photoreal AI rendering comes next.'}</p>
       </div>
 
       <div>
