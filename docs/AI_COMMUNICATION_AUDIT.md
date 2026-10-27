@@ -104,3 +104,10 @@ Source : developers.deepgram.com/docs/tts-models et /docs/tts-media-output-setti
 - Composition locale à deux couches (fond + visage) avec flou réglable et mention « Image générée par IA » (AI Act art. 50). Image fixe : aucun suivi des mouvements.
 - Voix de référence : enregistrement ou import 10–30 s après attestation ; locale uniquement. Clonage vocal NON branché (Deepgram Aura-2 ne le propose pas ; options : Cartesia / ElevenLabs payants, XTTS/OpenVoice sur GPU).
 - Non vérifié : affichage connecté (session de test impossible sur Supabase externe), vrai micro.
+
+## 2026-10-27 — Palabra AI (streaming speech-to-speech)
+Sources : palabra.ai/pricing, docs.palabra.ai (auth, session management, translation management API).
+- Offre : 50 $ de crédit gratuit à l'inscription, puis 0,04 $/min ; 60+ langues ; clonage vocal inclus ; aucune conservation des données.
+- Intégration : la clé `PALABRA_API_KEY` reste côté serveur ; `palabraSession` (authentifiée) crée une session et ne renvoie au navigateur que le jeton `publisher` éphémère. Le navigateur ouvre la WebSocket, envoie le micro en PCM 24 kHz par tranches de 100 ms, lit la voix traduite en continu (sortie au choix, ex. CABLE Input) et affiche les sous-titres.
+- Essai réel serveur (phrase de synthèse Aura FR, pas de micro réel) : transcription exacte, traduction « Hello, I'm calling to confirm our appointment for tomorrow morning. », voix anglaise reçue. Micro réel et latence perçue non mesurés.
+- Deepgram + DeepL reste disponible en mode phrase par phrase (7 langues vocales max).
