@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { canStart, minuteCost, minutesLeft, usageReference } from '@/lib/weechat/usage-meter';
+import { blockCost, canStart, secondsLeft, usageReference, usageUnit } from '@/lib/weechat/usage-meter';
 
-describe('live usage metering', () => {
-  it('audio translation costs 1 point per minute', () => expect(minuteCost('audio')).toBe(1));
-  it('Swap Live costs 3 points per minute', () => expect(minuteCost('swap_live')).toBe(3));
-  it('refuses to start Swap Live with 2 points', () => expect(canStart(2, 'swap_live')).toBe(false));
-  it('allows audio with 1 point', () => expect(canStart(1, 'audio')).toBe(true));
-  it('10 points give 3 Swap Live minutes', () => expect(minutesLeft(10, 'swap_live')).toBe(3));
-  it('same minute of same session yields the same reference (no double debit)', () => {
+describe('live usage metering (pricing page rules)', () => {
+  it('Swap Live costs 2 points per second (20 per 10 s block)', () => expect(blockCost('swap_live')).toBe(20));
+  it('Swap Live uses points', () => expect(usageUnit('swap_live')).toBe('points'));
+  it('live translation uses the audio minutes balance, not points', () => expect(usageUnit('audio')).toBe('audio_seconds'));
+  it('live translation debits 10 seconds per block', () => expect(blockCost('audio')).toBe(10));
+  it('Pack Découverte 417 pts gives 3 min 28 s of Swap Live', () => expect(secondsLeft(417, 'swap_live')).toBe(208));
+  it('refuses Swap Live with 19 points', () => expect(canStart(19, 'swap_live')).toBe(false));
+  it('refuses translation with 5 seconds left', () => expect(canStart(5, 'audio')).toBe(false));
+  it('same block of same session yields same reference (no double debit)', () => {
     expect(usageReference('audio', 'u', 's', 2)).toBe(usageReference('audio', 'u', 's', 2));
     expect(usageReference('audio', 'u', 's', 2)).not.toBe(usageReference('audio', 'u', 's', 3));
   });
