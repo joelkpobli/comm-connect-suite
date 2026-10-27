@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
 import { FaceTracker } from './face-tracker';
+import { UsageDemo } from './usage-demo';
 
 export function SwapLivePage() {
   const { locale } = useDemo(); const fr = locale === 'fr';
   return <><PageTitle title="Swap Live" subtitle={fr ? 'Votre webcam, un visage cible qui suit vos mouvements, et le plein écran.' : 'Your webcam, a target face following your moves, and full screen.'} />
-    <div className="grid gap-6"><FaceTracker /></div></>;
+    <div className="grid gap-6"><FaceTracker /><UsageDemo service="swap_live" fr={fr} /></div></>;
 }
 
 export function AvatarsPage() {

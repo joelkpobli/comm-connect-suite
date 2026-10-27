@@ -14,3 +14,15 @@ describe('live usage metering (pricing page rules)', () => {
     expect(usageReference('audio', 'u', 's', 2)).not.toBe(usageReference('audio', 'u', 's', 3));
   });
 });
+
+import { simulateBlock } from '@/lib/weechat/usage-meter';
+describe('local billing demo', () => {
+  it('70 fictive points allow 3 Swap Live blocks then stop', () => {
+    let b = 70, n = 0; for (;;) { const r = simulateBlock(b, 'swap_live'); if (!r.ok) break; b = r.balance; n++; }
+    expect(n).toBe(3); expect(b).toBe(10);
+  });
+  it('45 fictive audio seconds allow 4 translation blocks', () => {
+    let b = 45, n = 0; for (;;) { const r = simulateBlock(b, 'audio'); if (!r.ok) break; b = r.balance; n++; }
+    expect(n).toBe(4);
+  });
+});
