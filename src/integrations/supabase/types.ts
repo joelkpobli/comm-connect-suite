@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      audio_time_transactions: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          reason: string
+          reference: string
+          seconds: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          reason: string
+          reference: string
+          seconds: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          reason?: string
+          reference?: string
+          seconds?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audio_time_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -105,6 +143,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_audio_seconds: { Args: never; Returns: number }
       get_credit_snapshot: { Args: never; Returns: Json }
       get_credit_totals: {
         Args: never
@@ -120,6 +159,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      post_audio_operation: {
+        Args: {
+          p_kind: string
+          p_reason: string
+          p_reference: string
+          p_seconds: number
+          p_user_id: string
+        }
+        Returns: string
       }
       post_credit_operation: {
         Args: {
