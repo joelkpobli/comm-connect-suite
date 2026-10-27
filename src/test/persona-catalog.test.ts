@@ -20,3 +20,12 @@ describe('persona catalogue rules', () => {
     expect(checkVoiceSample(15, 100, 'video/mp4')).toBe('type');
   });
 });
+
+import { faces } from '@/lib/weechat/persona-catalog';
+describe('face presets', () => {
+  it('offers 12 real Pexels faces of both genders', () => {
+    expect(faces).toHaveLength(12);
+    expect(faces.some(f => f.g === 'f') && faces.some(f => f.g === 'm')).toBe(true);
+    expect(faces.every(f => f.credit.includes('Pexels'))).toBe(true);
+  });
+});
