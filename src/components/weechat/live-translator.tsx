@@ -4,6 +4,7 @@ import { ArrowLeftRight, Mic, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
+import { useUsageMeter, UsageBadge } from './usage-meter';
 import { palabraSession, palabraStatus } from '@/lib/weechat/communication.functions';
 import { PALABRA_CODES, PALABRA_LANGUAGES, PALABRA_SAMPLE_RATE, buildSetTask, floatToPcmBase64, parsePalabraMessage, pcmBase64ToFloat, type PalabraLang } from '@/lib/weechat/palabra';
 
@@ -26,12 +27,15 @@ export function LiveTranslator() {
   const [outs, setOuts] = useState<MediaDeviceInfo[]>([]); const [sink, setSink] = useState('');
   const r = useRef<{ ws?: WebSocket; stream?: MediaStream; inCtx?: AudioContext; outCtx?: AudioContext; t: number }>({ t: 0 });
 
+  const meterRef = useRef<{ end(): void } | null>(null);
   const stop = () => {
+    meterRef.current?.end();
     const s = r.current;
     try { if (s.ws?.readyState === WebSocket.OPEN) s.ws.send(JSON.stringify({ message_type: 'end_task', data: {} })); } catch { /* closing */ }
     s.ws?.close(); s.stream?.getTracks().forEach(t => t.stop()); void s.inCtx?.close(); void s.outCtx?.close();
     r.current = { t: 0 }; setPhase('idle');
   };
+  const meter = useUsageMeter('audio', () => stop()); meterRef.current = meter;
   useEffect(() => { status().then(s => setReady(s.configured)).catch(() => setReady(false)); }, [status]);
   useEffect(() => { const h = () => { if (document.hidden) stop(); }; document.addEventListener('visibilitychange', h); return () => { document.removeEventListener('visibilitychange', h); stop(); }; }, []);
   const loadOuts = async () => { try { setOuts((await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audiooutput' && d.deviceId && d.deviceId !== 'default')); } catch { setOuts([]); } };
@@ -47,6 +51,8 @@ export function LiveTranslator() {
 
   async function start() {
     setMsg(''); setLines([]); setPhase('connecting');
+    const paid = await meter.begin();
+    if (paid !== 'ok') { setMsg(paid === 'insufficient' ? (locale === 'fr' ? 'Solde de points insuffisant pour démarrer.' : 'Not enough points to start.') : c.failed); setPhase('idle'); return; }
     let stream: MediaStream;
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } }); }
     catch { setMsg(c.denied); setPhase('idle'); return; }
@@ -98,6 +104,7 @@ export function LiveTranslator() {
       </select></label>
     <p className="text-sm text-muted-foreground">{c.cable}</p>
     <label className="flex items-start gap-2"><Checkbox checked={agree} disabled={busy} onCheckedChange={v => setAgree(v === true)} /><span className="text-sm">{c.consent}</span></label>
+    <UsageBadge service="audio" meter={meter} fr={locale === 'fr'} />
     {ready === false && <p role="alert">{c.missing}</p>}
     <div className="flex flex-wrap items-center gap-3">
       {busy ? <Button type="button" onClick={stop}><Square />{c.stop}</Button>

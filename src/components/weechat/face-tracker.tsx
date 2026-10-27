@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { useDemo } from './provider';
+import { useUsageMeter, UsageBadge } from './usage-meter';
 import { faces, checkImage } from '@/lib/weechat/persona-catalog';
 import { faceState, smooth, faceGeometry, blinkThreshold, DEFAULT_SENS, SENS_MIN, SENS_MAX, type FaceState, type FaceGeometry } from '@/lib/weechat/face-metrics';
 import { isCompanion, vcam, pushCanvasFrame } from '@/lib/weechat/virtual-camera-bridge';
@@ -31,7 +32,9 @@ export function FaceTracker() {
   useEffect(() => { const i = new Image(); i.src = target; img.current = i; }, [target]);
   useEffect(() => () => { if (own) URL.revokeObjectURL(own); }, [own]);
 
+  const meterRef = useRef<{ end(): void } | null>(null);
   const stop = () => {
+    meterRef.current?.end();
     cancelAnimationFrame(raf.current); stream.current?.getTracks().forEach(t => t.stop()); stream.current = null;
     lm.current?.close(); lm.current = null; setSt(null); setStatus('off');
   };
@@ -41,8 +44,11 @@ export function FaceTracker() {
     return () => { document.removeEventListener('visibilitychange', vis); stop(); };
   }, []);
 
+  const meter = useUsageMeter('swap_live', () => stop()); meterRef.current = meter;
   const start = async () => {
     setStatus('loading');
+    const paid = await meter.begin();
+    if (paid !== 'ok') { setErr(paid === 'insufficient' ? (fr ? 'Solde de points insuffisant pour démarrer.' : 'Not enough points to start.') : (fr ? 'Décompte des points indisponible.' : 'Point metering unavailable.')); setStatus('off'); return; }
     try {
       const s = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' }, audio: false });
       stream.current = s; const v = video.current!; v.srcObject = s; await v.play();
@@ -165,6 +171,7 @@ export function FaceTracker() {
           <Button variant="outline" disabled={status !== 'on'} onClick={() => cv.current?.requestFullscreen?.()}><Maximize2 className="mr-2 h-4 w-4" />{fr ? 'Plein écran' : 'Full screen'}</Button>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={mesh} onCheckedChange={v => setMesh(v === true)} />{fr ? 'Afficher le maillage' : 'Show mesh'}</label>
         </div>
+        <UsageBadge service="swap_live" meter={meter} fr={fr} />
         <VcamControl canvas={cv} active={status === 'on'} fr={fr} />
         <div className="grid gap-3 rounded-lg border border-border p-3 sm:grid-cols-3">
           {([['head', fr ? 'Mouvements de tête' : 'Head movement'], ['blink', fr ? 'Clignements' : 'Blinks'], ['mouth', fr ? 'Bouche' : 'Mouth']] as const).map(([k, label]) => (
