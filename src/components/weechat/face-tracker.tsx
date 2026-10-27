@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { Camera, CameraOff, Maximize2, Upload } from 'lucide-react';
+import { Camera, CameraOff, Maximize2, Upload, Radio, Square } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { useDemo } from './provider';
 import { faces, checkImage } from '@/lib/weechat/persona-catalog';
 import { faceState, smooth, faceGeometry, blinkThreshold, DEFAULT_SENS, SENS_MIN, SENS_MAX, type FaceState, type FaceGeometry } from '@/lib/weechat/face-metrics';
+import { isCompanion, vcam, pushCanvasFrame } from '@/lib/weechat/virtual-camera-bridge';
 
 const WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.1.1/wasm';
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
@@ -164,6 +165,7 @@ export function FaceTracker() {
           <Button variant="outline" disabled={status !== 'on'} onClick={() => cv.current?.requestFullscreen?.()}><Maximize2 className="mr-2 h-4 w-4" />{fr ? 'Plein écran' : 'Full screen'}</Button>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={mesh} onCheckedChange={v => setMesh(v === true)} />{fr ? 'Afficher le maillage' : 'Show mesh'}</label>
         </div>
+        <VcamControl canvas={cv} active={status === 'on'} fr={fr} />
         <div className="grid gap-3 rounded-lg border border-border p-3 sm:grid-cols-3">
           {([['head', fr ? 'Mouvements de tête' : 'Head movement'], ['blink', fr ? 'Clignements' : 'Blinks'], ['mouth', fr ? 'Bouche' : 'Mouth']] as const).map(([k, label]) => (
             <div key={k} className="grid gap-2">
@@ -196,5 +198,58 @@ export function FaceTracker() {
         </dl>
       )}
     </section>
+  );
+}
+
+function VcamControl({ canvas, active, fr }: { canvas: React.RefObject<HTMLCanvasElement | null>; active: boolean; fr: boolean }) {
+  const [on, setOn] = useState(false);
+  const [msg, setMsg] = useState('');
+  const timer = useRef<number | null>(null);
+  const busy = useRef(false);
+  const scratch = useRef<HTMLCanvasElement | null>(null);
+  const companion = isCompanion();
+
+  const halt = async (text?: string) => {
+    const was = timer.current !== null;
+    if (was) { clearInterval(timer.current!); timer.current = null; try { await vcam('stop'); } catch { /* ignore */ } }
+    setOn(false);
+    if (text !== undefined) setMsg(text);
+  };
+
+  const begin = async () => {
+    setMsg('');
+    try {
+      const s = await vcam('start');
+      if (!s.installed) { setMsg(s.message || (fr ? 'Caméra virtuelle non installée.' : 'Virtual camera not installed.')); return; }
+      scratch.current ??= document.createElement('canvas');
+      timer.current = window.setInterval(async () => {
+        if (busy.current || !canvas.current) return;
+        busy.current = true;
+        try { await pushCanvasFrame(canvas.current, scratch.current!); }
+        catch (e) { void halt((fr ? 'Diffusion interrompue : ' : 'Streaming stopped: ') + (e instanceof Error ? e.message : String(e))); }
+        finally { busy.current = false; }
+      }, 1000 / 15);
+      setOn(true);
+      setMsg(fr ? 'Diffusion en cours vers « Weechat Virtual Camera ».' : 'Streaming to "Weechat Virtual Camera".');
+    } catch (e) { setMsg(e instanceof Error ? e.message : String(e)); }
+  };
+
+  useEffect(() => { if (!active && timer.current !== null) void halt(fr ? 'Diffusion arrêtée : caméra coupée.' : 'Streaming stopped: camera off.'); }, [active]);
+  useEffect(() => () => { if (timer.current !== null) { clearInterval(timer.current); void vcam('stop').catch(() => {}); } }, []);
+
+  return (
+    <div className="grid gap-2 rounded-lg border border-border p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        {on
+          ? <Button variant="outline" onClick={() => void halt(fr ? 'Diffusion arrêtée.' : 'Streaming stopped.')}><Square className="mr-2 h-4 w-4" />{fr ? 'Arrêter la diffusion' : 'Stop streaming'}</Button>
+          : <Button onClick={() => void begin()} disabled={!companion || !active}><Radio className="mr-2 h-4 w-4" />{fr ? 'Diffuser vers la caméra Weechat' : 'Stream to Weechat camera'}</Button>}
+        {on && <span className="text-sm text-primary">● {fr ? 'En direct' : 'Live'}</span>}
+      </div>
+      <p className="text-sm text-muted-foreground" role="status">
+        {msg || (!companion
+          ? (fr ? 'Disponible uniquement dans l’application Windows Weechat : le navigateur ne peut pas créer de caméra.' : 'Only available in the Weechat Windows app: a browser cannot create a camera.')
+          : !active ? (fr ? 'Activez d’abord la caméra pour diffuser.' : 'Turn the camera on first to stream.') : '')}
+      </p>
+    </div>
   );
 }
