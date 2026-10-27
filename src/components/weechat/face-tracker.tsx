@@ -24,6 +24,7 @@ export function FaceTracker() {
   const stream = useRef<MediaStream | null>(null); const raf = useRef(0); const lm = useRef<{ close(): void } | null>(null);
   const img = useRef<HTMLImageElement | null>(null); const meshRef = useRef(mesh); meshRef.current = mesh;
   const geo = useRef<{ src: string; g: FaceGeometry | null; skin: string }>({ src: '', g: null, skin: '' });
+  const [sens, setSens] = useState(DEFAULT_SENS); const sensRef = useRef(sens); sensRef.current = sens;
 
   useEffect(() => { const i = new Image(); i.src = target; img.current = i; }, [target]);
   useEffect(() => () => { if (own) URL.revokeObjectURL(own); }, [own]);
@@ -75,6 +76,9 @@ export function FaceTracker() {
             } catch { /* portrait sans visage lisible : rendu simple */ }
           }
           if (prev && im?.complete && im.naturalWidth) {
+            const S = sensRef.current, cl = (v: number) => Math.max(-1, Math.min(1, v));
+            const hy = cl(prev.yaw * S.head), hp = cl(prev.pitch * S.head), hr = prev.roll * S.head;
+            const hm = Math.min(1, prev.mouth * S.mouth), bt = blinkThreshold(S.blink);
             const W = c.width, H = c.height, sz = prev.size * W * 1.25;
             const nw = im.naturalWidth, nh = im.naturalHeight, g = geo.current.g;
             ctx.save(); ctx.translate(W - prev.cx * W, prev.cy * H); ctx.rotate(-hr);
@@ -158,6 +162,15 @@ export function FaceTracker() {
             : <Button onClick={start} disabled={!agree}><Camera className="mr-2 h-4 w-4" />{fr ? 'Activer la caméra' : 'Turn camera on'}</Button>}
           <Button variant="outline" disabled={status !== 'on'} onClick={() => cv.current?.requestFullscreen?.()}><Maximize2 className="mr-2 h-4 w-4" />{fr ? 'Plein écran' : 'Full screen'}</Button>
           <label className="flex items-center gap-2 text-sm"><Checkbox checked={mesh} onCheckedChange={v => setMesh(v === true)} />{fr ? 'Afficher le maillage' : 'Show mesh'}</label>
+        </div>
+        <div className="grid gap-3 rounded-lg border border-border p-3 sm:grid-cols-3">
+          {([['head', fr ? 'Mouvements de tête' : 'Head movement'], ['blink', fr ? 'Clignements' : 'Blinks'], ['mouth', fr ? 'Bouche' : 'Mouth']] as const).map(([k, label]) => (
+            <div key={k} className="grid gap-2">
+              <div className="flex justify-between text-sm"><span>{label}</span><span className="text-muted-foreground">{Math.round(sens[k] * 100)} %</span></div>
+              <Slider min={SENS_MIN} max={SENS_MAX} step={0.1} value={[sens[k]]} aria-label={label} onValueChange={v => setSens(s => ({ ...s, [k]: v[0] ?? 1 }))} />
+            </div>
+          ))}
+          <Button variant="ghost" size="sm" className="sm:col-span-3 justify-self-start" onClick={() => setSens(DEFAULT_SENS)}>{fr ? 'Réinitialiser les réglages' : 'Reset settings'}</Button>
         </div>
         <p role="status" className="text-sm text-muted-foreground">
           {status === 'loading' && (fr ? 'Chargement du suivi facial…' : 'Loading face tracking…')}
