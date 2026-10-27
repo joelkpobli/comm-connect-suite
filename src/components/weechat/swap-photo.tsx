@@ -12,7 +12,7 @@ export function SwapPhotoPage() {
   const [face, setFace] = useState<string | null>(null);
   const [faceErr, setFaceErr] = useState<string | null>(null);
   const [rights, setRights] = useState(false);
-  const [target, setTarget] = useState<string>(personas[0].id);
+  const [target, setTarget] = useState<string>(personas[0]?.id ?? 'f1');
   const [bg, setBg] = useState<string>(backgrounds[0].id);
   const [tried, setTried] = useState(false);
   useEffect(() => () => { if (face) URL.revokeObjectURL(face); }, [face]);
