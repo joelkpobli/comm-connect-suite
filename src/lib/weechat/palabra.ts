@@ -55,7 +55,7 @@ export type PalabraEvent =
 export function parsePalabraMessage(raw: string): PalabraEvent | null {
   let m: { message_type?: string; data?: unknown };
   try { m = JSON.parse(raw); } catch { return null; }
-  const d = (typeof m.data === 'string' ? safe(m.data) : m.data) as Record<string, any> | undefined;
+  const d = (typeof m.data === 'string' ? safe(m.data) : m.data) as { data?: unknown; task_status?: string; desc?: string; message?: string; transcription?: { text?: unknown; transcription_id?: unknown } } | undefined;
   switch (m.message_type) {
     case 'output_audio_data': return typeof d?.data === 'string' ? { kind: 'audio', b64: d.data } : null;
     case 'task_status': return d?.task_status === 'running' ? { kind: 'started' } : null;
