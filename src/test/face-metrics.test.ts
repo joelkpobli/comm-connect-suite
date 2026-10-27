@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { faceState, smooth } from '@/lib/weechat/face-metrics';
+import { faceState, smooth, faceGeometry } from '@/lib/weechat/face-metrics';
 
 const pts = () => Array.from({ length: 478 }, () => ({ x: 0.5, y: 0.5 }));
 function face(noseX: number) {
@@ -18,7 +18,6 @@ describe('face metrics', () => {
   });
 });
 
-import { faceGeometry } from '@/lib/weechat/face-metrics';
 describe('faceGeometry', () => {
   it('returns null without a full face mesh', () => { expect(faceGeometry([])).toBeNull(); });
   it('places the jaw below the lips and above the chin', () => {

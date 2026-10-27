@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
 import { faces, checkImage } from '@/lib/weechat/persona-catalog';
-import { faceState, smooth, type FaceState } from '@/lib/weechat/face-metrics';
+import { faceState, smooth, faceGeometry, type FaceState, type FaceGeometry } from '@/lib/weechat/face-metrics';
 
 const WASM = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.1.1/wasm';
 const MODEL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
