@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
 import { PersonaStudio } from './persona-studio';
-import { LocalMediaPanel } from './local-media';
+import { FaceTracker } from './face-tracker';
 
 export function SwapLivePage() {
   const { locale } = useDemo(); const fr = locale === 'fr';
