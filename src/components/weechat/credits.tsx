@@ -31,6 +31,7 @@ export function CreditsPage() {
   const { data: real } = useSuspenseQuery(creditsQuery);
   const [cur, setCur] = useState<Currency>('XOF');
   const [selected, setSelected] = useState<Plan>(swapPlans[2]!);
+  const [kind, setKind] = useState<'swap' | 'audio'>('swap');
   const [confirm, setConfirm] = useState(false);
   const [done, setDone] = useState(false);
   const isAudio = selected.audioMin != null;
@@ -55,10 +56,9 @@ export function CreditsPage() {
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><AudioLines size={26} /></span><div><span>{en ? 'Audio translation minutes' : 'Minutes de traduction audio'}</span><strong>{AUDIO_MINUTES_AVAILABLE} <small>min</small></strong></div></div><span className="demo-badge"><span />{en ? 'Not yet connected' : 'Pas encore relié'}</span></div>
     </div>
     <div className="lp-currow"><span>{en ? 'Show prices in' : 'Afficher les prix en'}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} type="button" className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
-    <div className="dashboard-section-header"><h2>Swap Live</h2><span className="subtle-label">{en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE'}</span></div>
-    <div className="credit-packs">{swapPlans.map(card)}</div>
-    <div className="dashboard-section-header" id="audio"><h2>{en ? 'Audio translation' : 'Traduction audio'}</h2><span className="subtle-label">{en ? 'MINUTES' : 'MINUTES'}</span></div>
-    <div className="credit-packs">{audioPlans.map(card)}</div>
+    <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio'] as const).map(k => <button key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); setSelected(k === 'swap' ? swapPlans[2]! : audioPlans[1]!); setDone(false); }}>{k === 'swap' ? 'Swap Live' : (en ? 'Audio translation' : 'Traduction audio')}</button>)}</div></div>
+    <div className="dashboard-section-header" id="audio"><h2>{kind === 'swap' ? 'Swap Live' : (en ? 'Audio translation' : 'Traduction audio')}</h2><span className="subtle-label">{kind === 'swap' ? (en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE') : 'MINUTES'}</span></div>
+    <div className="credit-packs">{(kind === 'swap' ? swapPlans : audioPlans).map(card)}</div>
     <div className="purchase-summary"><div><strong>{en ? 'Simulation:' : 'Simulation :'} {selected.name}</strong><p>{qty} · {selected.price[cur]} {sym(cur)}</p></div><Button size="lg" onClick={() => { setDone(false); setConfirm(true); }}>{en ? 'Simulate purchase' : 'Simuler l’achat'}<ArrowRight /></Button></div>
     {done && <Notice>{en ? `Simulation complete: ${qty}. No payment made, your real balance is unchanged.` : `Simulation réussie : ${qty}. Aucun paiement effectué, votre solde réel est inchangé.`}</Notice>}
     <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Payments are not active yet.' : 'Les paiements ne sont pas encore actifs.'}<span>{en ? 'Mobile Money and cards will open once the merchant account is ready.' : 'Mobile Money et cartes seront ouverts dès que le compte marchand sera prêt.'}</span></p></div>
