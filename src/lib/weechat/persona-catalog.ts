@@ -10,6 +10,34 @@ import piscine2 from '@/assets/backgrounds/piscine2.jpg';
 import jardin from '@/assets/backgrounds/jardin.jpg';
 
 export type Gender = 'f' | 'm';
+// Target faces (facEvo-style preset grid): real photos from Pexels, free licence.
+import face1 from '@/assets/faces/face1.webp';
+import face2 from '@/assets/faces/face2.webp';
+import face3 from '@/assets/faces/face3.webp';
+import face4 from '@/assets/faces/face4.webp';
+import face5 from '@/assets/faces/face5.webp';
+import face6 from '@/assets/faces/face6.webp';
+import face7 from '@/assets/faces/face7.webp';
+import face8 from '@/assets/faces/face8.webp';
+import face9 from '@/assets/faces/face9.webp';
+import face10 from '@/assets/faces/face10.webp';
+import face11 from '@/assets/faces/face11.webp';
+import face12 from '@/assets/faces/face12.webp';
+export const faces = [
+  { id: 'face1', src: face1, g: 'f' as Gender, credit: 'Pexels · photo 15361970 · Licence Pexels' },
+  { id: 'face2', src: face2, g: 'm' as Gender, credit: 'Pexels · photo 20249686 · Licence Pexels' },
+  { id: 'face3', src: face3, g: 'm' as Gender, credit: 'Pexels · photo 29690107 · Licence Pexels' },
+  { id: 'face4', src: face4, g: 'm' as Gender, credit: 'Pexels · photo 18032391 · Licence Pexels' },
+  { id: 'face5', src: face5, g: 'm' as Gender, credit: 'Pexels · photo 19456417 · Licence Pexels' },
+  { id: 'face6', src: face6, g: 'f' as Gender, credit: 'Pexels · photo 2520446 · Licence Pexels' },
+  { id: 'face7', src: face7, g: 'f' as Gender, credit: 'Pexels · photo 1586335 · Licence Pexels' },
+  { id: 'face8', src: face8, g: 'f' as Gender, credit: 'Pexels · photo 35555305 · Licence Pexels' },
+  { id: 'face9', src: face9, g: 'f' as Gender, credit: 'Pexels · photo 29491346 · Licence Pexels' },
+  { id: 'face10', src: face10, g: 'm' as Gender, credit: 'Pexels · photo 17910791 · Licence Pexels' },
+  { id: 'face11', src: face11, g: 'm' as Gender, credit: 'Pexels · photo 13375591 · Licence Pexels' },
+  { id: 'face12', src: face12, g: 'm' as Gender, credit: 'Pexels · photo 17555243 · Licence Pexels' },
+];
+
 export type Pose = 'stand' | 'sit';
 export const personas = [
   { id: 'f1', src: f1, g: 'f' as Gender, credit: 'Wikimedia Commons · « Kubanino apud spegulo (Vieno) » · CC BY-SA 4.0' },
