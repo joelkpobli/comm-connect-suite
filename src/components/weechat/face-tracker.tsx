@@ -18,7 +18,7 @@ export function FaceTracker() {
   const [target, setTarget] = useState<string>(faces[0]!.src);
   const [own, setOwn] = useState(''); const [ownRights, setOwnRights] = useState(false);
   const [err, setErr] = useState('');
-  const [mesh, setMesh] = useState(true);
+  const [mesh, setMesh] = useState(false);
   const [st, setSt] = useState<FaceState | null>(null);
   const video = useRef<HTMLVideoElement>(null); const cv = useRef<HTMLCanvasElement>(null);
   const stream = useRef<MediaStream | null>(null); const raf = useRef(0); const lm = useRef<{ close(): void } | null>(null);
@@ -128,7 +128,7 @@ export function FaceTracker() {
     <section className="panel grid gap-5">
       <div>
         <h2 className="text-lg font-semibold">{fr ? 'Suivi facial en direct' : 'Live face tracking'}</h2>
-        <p className="text-sm text-muted-foreground">{fr ? 'Votre webcam est analysée sur cet appareil (MediaPipe). Rien n’est envoyé ni enregistré. Le visage choisi suit votre tête ; le rendu photoréaliste par IA viendra ensuite.' : 'Your webcam is analysed on this device (MediaPipe). Nothing is sent or recorded. The chosen face follows your head; photoreal AI rendering comes next.'}</p>
+        <p className="text-sm text-muted-foreground">{fr ? 'Votre webcam est analysée sur cet appareil (MediaPipe). Rien n’est envoyé ni enregistré. Le visage choisi suit votre tête, ouvre la bouche et cligne des yeux avec vous. Le rendu photoréaliste par IA viendra ensuite.' : 'Your webcam is analysed on this device (MediaPipe). Nothing is sent or recorded. The chosen face follows your head, opens its mouth and blinks with you. Photoreal AI rendering comes next.'}</p>
       </div>
 
       <div>
