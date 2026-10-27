@@ -24,6 +24,7 @@
     "active": true,
     "targets": ["nsis"],
     "icon": ["icons/icon.ico"],
+    "resources": { "weechat-vcam.dll": "weechat-vcam.dll" },
     "windows": {
       "webviewInstallMode": { "type": "downloadBootstrapper" },
       "nsis": { "installMode": "currentUser", "languages": ["French", "English"] }
