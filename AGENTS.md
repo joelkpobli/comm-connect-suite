@@ -30,3 +30,4 @@
 - Persona catalogue images and upload rules live in src/lib/weechat/persona-catalog; uploads stay as browser object URLs, never sent or stored.
 - The Windows companion lives in desktop/ as a Tauri v2 app loading the published web app; native status commands must report unavailable features truthfully, never fake success.
 - Live speech translation uses Palabra streaming: the API key stays server-side and the browser only receives a short-lived session token; Deepgram+DeepL remains the sentence-by-sentence fallback.
+- Live usage is debited per started minute by the authenticated chargeUsageMinute server function with server-fixed rates and per-minute unique references; the browser never chooses amounts.
