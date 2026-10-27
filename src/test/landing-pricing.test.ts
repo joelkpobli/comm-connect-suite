@@ -26,7 +26,7 @@ describe('Grille tarifaire en points (présentation)', () => {
   it('couvre exactement 24 pays Mobile Money avec drapeaux', () => {
     expect(momoCountries).toHaveLength(24);
     for (const [flag, name] of momoCountries) {
-      expect(flag).toBeTruthy();
+      expect(flag).toMatch(/^[a-z]{2}$/);
       expect(name.length).toBeGreaterThan(2);
     }
   });

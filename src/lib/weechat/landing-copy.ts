@@ -64,15 +64,15 @@ export const audioPlans: Plan[] = [
 
 export const consumption = { live: 2, restyle: 2, photo: 2 }; // pts per second / per photo
 
-// Mobile Money coverage: 24 African countries (flag emoji + name).
+// Mobile Money coverage: 24 African countries (ISO 3166 code for the official flag + name).
 export const momoCountries: [string, string][] = [
-  ['🇨🇮', 'Côte d’Ivoire'], ['🇸🇳', 'Sénégal'], ['🇧🇯', 'Bénin'], ['🇹🇬', 'Togo'], ['🇲🇱', 'Mali'],
-  ['🇧🇫', 'Burkina Faso'], ['🇳🇪', 'Niger'], ['🇬🇳', 'Guinée'], ['🇬🇼', 'Guinée-Bissau'], ['🇬🇭', 'Ghana'],
-  ['🇳🇬', 'Nigeria'], ['🇸🇱', 'Sierra Leone'], ['🇨🇲', 'Cameroun'], ['🇨🇬', 'Congo-Brazzaville'], ['🇨🇩', 'Congo-Kinshasa'],
-  ['🇬🇦', 'Gabon'], ['🇰🇪', 'Kenya'], ['🇷🇼', 'Rwanda'], ['🇺🇬', 'Ouganda'], ['🇹🇿', 'Tanzanie'],
-  ['🇿🇲', 'Zambie'], ['🇲🇼', 'Malawi'], ['🇲🇿', 'Mozambique'], ['🇹🇩', 'Tchad'],
+  ['ci', 'Côte d’Ivoire'], ['sn', 'Sénégal'], ['bj', 'Bénin'], ['tg', 'Togo'], ['ml', 'Mali'],
+  ['bf', 'Burkina Faso'], ['ne', 'Niger'], ['gn', 'Guinée'], ['gw', 'Guinée-Bissau'], ['gh', 'Ghana'],
+  ['ng', 'Nigeria'], ['sl', 'Sierra Leone'], ['cm', 'Cameroun'], ['cg', 'Congo-Brazzaville'], ['cd', 'Congo-Kinshasa'],
+  ['ga', 'Gabon'], ['ke', 'Kenya'], ['rw', 'Rwanda'], ['ug', 'Ouganda'], ['tz', 'Tanzanie'],
+  ['zm', 'Zambie'], ['mw', 'Malawi'], ['mz', 'Mozambique'], ['td', 'Tchad'],
 ];
-export const momoOperators = ['Wave', 'Orange Money', 'MTN MoMo', 'Moov', 'Airtel Money'];
+export const momoOperators = ['Wave', 'Orange Money', 'MTN MoMo', 'Moov Money', 'Airtel Money'];
 
 type L = 'fr' | 'en';
 const fr = {
