@@ -52,7 +52,7 @@ export function LiveTranslator() {
   async function start() {
     setMsg(''); setLines([]); setPhase('connecting');
     const paid = await meter.begin();
-    if (paid !== 'ok') { setMsg(paid === 'insufficient' ? (locale === 'fr' ? 'Solde de points insuffisant pour démarrer.' : 'Not enough points to start.') : c.failed); setPhase('idle'); return; }
+    if (paid !== 'ok') { setMsg(paid === 'insufficient' ? (locale === 'fr' ? 'Minutes de traduction insuffisantes pour démarrer.' : 'Not enough translation minutes to start.') : c.failed); setPhase('idle'); return; }
     let stream: MediaStream;
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } }); }
     catch { setMsg(c.denied); setPhase('idle'); return; }
