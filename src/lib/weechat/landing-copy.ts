@@ -50,15 +50,15 @@ export const swapPlans: Plan[] = [
 export const audioPlans: Plan[] = [
   {
     id: 'audio-flash', name: 'Audio Flash', price: { XOF: '4 999', EUR: '7,60', USD: '8,30' }, audioMin: 10, validity: 30,
-    lines: { fr: ['10 min de traduction vocale', '70+ langues', 'Traduction dans les deux sens', 'Valable 30 jours'], en: ['10 min of voice translation', '70+ languages', 'Two-way translation', 'Valid 30 days'] },
+    lines: { fr: ['10 min de traduction vocale', '60+ langues', 'Traduction dans les deux sens', 'Valable 30 jours'], en: ['10 min of voice translation', '60+ languages', 'Two-way translation', 'Valid 30 days'] },
   },
   {
     id: 'audio-pro', name: 'Audio Pro', popular: true, price: { XOF: '22 900', EUR: '35', USD: '38' }, audioMin: 60, validity: 30,
-    lines: { fr: ['1 h de traduction vocale', '70+ langues', 'Traduction dans les deux sens', 'Voix ultra-rapide', 'Valable 30 jours'], en: ['1 h of voice translation', '70+ languages', 'Two-way translation', 'Ultra-fast voice', 'Valid 30 days'] },
+    lines: { fr: ['1 h de traduction vocale', '60+ langues', 'Traduction dans les deux sens', 'Voix ultra-rapide', 'Valable 30 jours'], en: ['1 h of voice translation', '60+ languages', 'Two-way translation', 'Ultra-fast voice', 'Valid 30 days'] },
   },
   {
     id: 'audio-marathon', name: 'Audio Marathon', price: { XOF: '39 900', EUR: '61', USD: '66' }, audioMin: 120, validity: 60,
-    lines: { fr: ['2 h de traduction vocale', '70+ langues', 'Traduction dans les deux sens', 'Voix ultra-rapide', 'Support prioritaire', 'Valable 60 jours'], en: ['2 h of voice translation', '70+ languages', 'Two-way translation', 'Ultra-fast voice', 'Priority support', 'Valid 60 days'] },
+    lines: { fr: ['2 h de traduction vocale', '60+ langues', 'Traduction dans les deux sens', 'Voix ultra-rapide', 'Support prioritaire', 'Valable 60 jours'], en: ['2 h of voice translation', '60+ languages', 'Two-way translation', 'Ultra-fast voice', 'Priority support', 'Valid 60 days'] },
   },
 ];
 
