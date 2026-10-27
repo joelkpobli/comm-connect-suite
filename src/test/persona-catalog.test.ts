@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { backgrounds, checkImage, checkVoiceSample, personas } from '@/lib/weechat/persona-catalog';
 
 describe('persona catalogue rules', () => {
-  it('offers both genders and six backgrounds', () => {
+  it('offers both genders and real backgrounds without offices', () => {
     expect(personas.some(p => p.g === 'f') && personas.some(p => p.g === 'm')).toBe(true);
     expect(backgrounds.map(b => b.id)).toContain('piscine');
+    expect(backgrounds.map(b => b.id)).not.toContain('bureau');
+    expect([...personas, ...backgrounds].every(x => x.credit.includes('Wikimedia'))).toBe(true);
   });
   it('accepts jpg/png/webp up to 8 MB only', () => {
     expect(checkImage({ type: 'image/png', size: 1000 })).toBe('ok');
