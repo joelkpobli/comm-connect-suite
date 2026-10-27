@@ -28,7 +28,7 @@ export function BalanceChips() {
 export function CreditsPage() {
   const { purchase, locale } = useDemo();
   const en = locale === 'en';
-  const { data: real } = useSuspenseQuery(creditsQuery);
+  const { data: real } = useSuspenseQuery(creditsQuery); const { data: audio } = useQuery(audioQuery);
   const [cur, setCur] = useState<Currency>('XOF');
   const [selected, setSelected] = useState<Plan>(swapPlans[2]!);
   const [kind, setKind] = useState<'swap' | 'audio'>('swap');
