@@ -22,3 +22,9 @@ export const canStart = (balance: number, service: UsageService) => balance >= b
 /** Seconds of use left with the current balance (in that service's unit). */
 export const secondsLeft = (balance: number, service: UsageService) =>
   service === 'audio' ? Math.max(0, balance) : Math.max(0, Math.floor(balance / SWAP_POINTS_PER_SECOND));
+
+/** Pure local debit step used by the demo simulator (same rules as the server). */
+export function simulateBlock(balance: number, service: UsageService): { ok: boolean; balance: number } {
+  const cost = blockCost(service);
+  return balance >= cost ? { ok: true, balance: balance - cost } : { ok: false, balance };
+}
