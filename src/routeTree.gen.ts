@@ -15,6 +15,7 @@ import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as RecuperationRouteImport } from './routes/recuperation'
 import { Route as ReinitialisationRouteImport } from './routes/reinitialisation'
+import { Route as TelechargerRouteImport } from './routes/telecharger'
 import { Route as AuthenticatedCreditsRouteImport } from './routes/_authenticated/credits'
 import { Route as AuthenticatedHistoriqueRouteImport } from './routes/_authenticated/historique'
 import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
@@ -50,6 +51,11 @@ const ReinitialisationRoute = ReinitialisationRouteImport.update({
   path: '/reinitialisation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TelechargerRoute = TelechargerRouteImport.update({
+  id: '/telecharger',
+  path: '/telecharger',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedCreditsRoute = AuthenticatedCreditsRouteImport.update({
   id: '/credits',
   path: '/credits',
@@ -83,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/inscription': typeof InscriptionRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
+  '/telecharger': typeof TelechargerRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/parametres': typeof AuthenticatedParametresRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByTo {
   '/inscription': typeof InscriptionRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
+  '/telecharger': typeof TelechargerRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/parametres': typeof AuthenticatedParametresRoute
@@ -109,6 +117,7 @@ export interface FileRoutesById {
   '/inscription': typeof InscriptionRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
+  '/telecharger': typeof TelechargerRoute
   '/_authenticated/credits': typeof AuthenticatedCreditsRoute
   '/_authenticated/historique': typeof AuthenticatedHistoriqueRoute
   '/_authenticated/parametres': typeof AuthenticatedParametresRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/inscription'
     | '/recuperation'
     | '/reinitialisation'
+    | '/telecharger'
     | '/credits'
     | '/historique'
     | '/parametres'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/inscription'
     | '/recuperation'
     | '/reinitialisation'
+    | '/telecharger'
     | '/credits'
     | '/historique'
     | '/parametres'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/inscription'
     | '/recuperation'
     | '/reinitialisation'
+    | '/telecharger'
     | '/_authenticated/credits'
     | '/_authenticated/historique'
     | '/_authenticated/parametres'
@@ -162,6 +174,7 @@ export interface RootRouteChildren {
   InscriptionRoute: typeof InscriptionRoute
   RecuperationRoute: typeof RecuperationRoute
   ReinitialisationRoute: typeof ReinitialisationRoute
+  TelechargerRoute: typeof TelechargerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -206,6 +219,13 @@ declare module '@tanstack/react-router' {
       path: '/reinitialisation'
       fullPath: '/reinitialisation'
       preLoaderRoute: typeof ReinitialisationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/telecharger': {
+      id: '/telecharger'
+      path: '/telecharger'
+      fullPath: '/telecharger'
+      preLoaderRoute: typeof TelechargerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/credits': {
@@ -272,6 +292,7 @@ const rootRouteChildren: RootRouteChildren = {
   InscriptionRoute: InscriptionRoute,
   RecuperationRoute: RecuperationRoute,
   ReinitialisationRoute: ReinitialisationRoute,
+  TelechargerRoute: TelechargerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
