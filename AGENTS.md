@@ -28,3 +28,4 @@
 - Keep future payment contracts provider-neutral and fail-closed with no executable adapter; fulfillment requires a verified server event, durable order matching and unique ledger reference before any enablement.
 
 - Persona catalogue images and upload rules live in src/lib/weechat/persona-catalog; uploads stay as browser object URLs, never sent or stored.
+- The Windows companion lives in desktop/ as a Tauri v2 app loading the published web app; native status commands must report unavailable features truthfully, never fake success.

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Weechat",
+  "version": "0.1.0",
+  "identifier": "app.weechat.companion",
+  "build": {
+    "frontendDist": "https://comm-connect-suite.lovable.app/swap-live"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Weechat",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 960,
+        "minHeight": 640
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "icon": ["icons/icon.ico"],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" },
+      "nsis": { "installMode": "currentUser", "languages": ["French", "English"] }
+    }
+  }
+}
