@@ -77,28 +77,28 @@ export function FaceTracker() {
           if (prev && im?.complete && im.naturalWidth) {
             const W = c.width, H = c.height, sz = prev.size * W * 1.25;
             const nw = im.naturalWidth, nh = im.naturalHeight, g = geo.current.g;
-            ctx.save(); ctx.translate(W - prev.cx * W, prev.cy * H); ctx.rotate(-prev.roll);
-            ctx.scale(1 - Math.abs(prev.yaw) * 0.25, 1 - Math.abs(prev.pitch) * 0.15);
+            ctx.save(); ctx.translate(W - prev.cx * W, prev.cy * H); ctx.rotate(-hr);
+            ctx.scale(1 - Math.abs(hy) * 0.25, 1 - Math.abs(hp) * 0.15);
             ctx.beginPath(); ctx.ellipse(0, 0, sz * 0.4, sz * 0.52, 0, 0, Math.PI * 2); ctx.clip();
             // Cadre le visage détecté du portrait au centre de l'ellipse.
             const k = g ? (sz * 0.8) / (g.face.w * nw) : Math.max((sz * 0.8) / nw, (sz * 1.04) / nh);
             const fx = g ? g.face.x + g.face.w / 2 : 0.5, fy = g ? g.face.y + g.face.h / 2 : 0.5;
-            const dx = -fx * nw * k - prev.yaw * sz * 0.08, dy = -fy * nh * k + prev.pitch * sz * 0.05;
+            const dx = -fx * nw * k - hy * sz * 0.08, dy = -fy * nh * k + hp * sz * 0.05;
             const X = (u: number) => dx + u * nw * k, Y = (v: number) => dy + v * nh * k;
             ctx.drawImage(im, dx, dy, nw * k, nh * k);
             if (g) {
               // Bouche : la mâchoire du portrait descend avec la vôtre.
-              const open = Math.min(1, prev.mouth) * g.mouth.h * nh * k * 2.2;
+              const open = Math.min(1, hm) * g.mouth.h * nh * k * 2.2;
               if (open > 0.5) {
                 ctx.fillStyle = 'rgb(40,12,16)';
                 ctx.beginPath(); ctx.ellipse(X(g.mouth.x + g.mouth.w / 2), Y(g.jaw.y) + open / 2, (g.mouth.w * nw * k) / 2.1, open / 2 + 1, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.drawImage(im, g.jaw.x * nw, g.jaw.y * nh, g.jaw.w * nw, g.jaw.h * nh, X(g.jaw.x), Y(g.jaw.y) + open, g.jaw.w * nw * k, g.jaw.h * nh * k);
               }
               // Yeux : paupières qui se ferment avec les vôtres.
-              if (prev.blink > 0.35 && geo.current.skin) {
+              if (prev.blink > bt && geo.current.skin) {
                 ctx.fillStyle = geo.current.skin;
                 for (const e of g.eyes) {
-                  const eh = e.h * nh * k * Math.min(1, (prev.blink - 0.35) / 0.4);
+                  const eh = e.h * nh * k * Math.min(1, (prev.blink - bt) / 0.4);
                   ctx.beginPath(); ctx.ellipse(X(e.x + e.w / 2), Y(e.y) + eh / 2, (e.w * nw * k) / 2, eh / 2, 0, 0, Math.PI * 2); ctx.fill();
                 }
               }
