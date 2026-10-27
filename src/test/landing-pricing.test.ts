@@ -48,3 +48,14 @@ describe('Grille tarifaire en points (présentation)', () => {
     expect(landingCopy('fr').payText).toContain('Aucun paiement');
   });
 });
+
+import { classifyLine } from '@/lib/weechat/landing-copy';
+describe('présentation des lignes de pack', () => {
+  it('sépare les bonus et attribue une icône à chaque fonctionnalité', () => {
+    expect(classifyLine('Live : 33 min')).toEqual({ kind: 'live', bonus: false });
+    expect(classifyLine('Photos : 1 980')).toEqual({ kind: 'photo', bonus: false });
+    expect(classifyLine('Bonus : Traduction 30 min')).toEqual({ kind: 'translate', bonus: true });
+    expect(classifyLine('Caméra virtuelle à vie')).toEqual({ kind: 'vcam', bonus: true });
+    expect(classifyLine('Valable 90 jours').kind).toBe('validity');
+  });
+});

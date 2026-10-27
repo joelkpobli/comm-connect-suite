@@ -187,3 +187,21 @@ const en: typeof fr = {
 };
 export const landingCopy = (l: L) => (l === 'en' ? en : fr);
 export const EUR_TO_XOF = 655.957; // fixed official parity
+
+// Plan line presentation: each line gets an icon kind; bonuses and validity are shown apart.
+export type LineKind = 'live' | 'restyle' | 'photo' | 'translate' | 'vcam' | 'languages' | 'speed' | 'support' | 'points' | 'validity';
+export function classifyLine(line: string): { kind: LineKind; bonus: boolean } {
+  const l = line.toLowerCase();
+  const bonus = l.startsWith('bonus') || l.includes('virtuelle') || l.includes('virtual camera') || l.includes('prioritaire') || l.includes('priority');
+  const kind: LineKind = l.includes('valable') || l.includes('valid') ? 'validity'
+    : l.includes('virtuel') || l.includes('virtual') ? 'vcam'
+    : l.includes('restyle') ? 'restyle'
+    : l.includes('photo') ? 'photo'
+    : l.includes('point') ? 'points'
+    : l.startsWith('live') || l.includes('en direct') || l.includes('live face') ? 'live'
+    : l.includes('langue') || l.includes('language') ? 'languages'
+    : l.includes('rapide') || l.includes('fast') ? 'speed'
+    : l.includes('support') ? 'support'
+    : 'translate';
+  return { kind, bonus };
+}
