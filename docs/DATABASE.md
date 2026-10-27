@@ -24,3 +24,5 @@ Aucun catalogue commercial ou prix définitif créé. Les packs visibles restent
 
 ## Retour arrière
 Ne pas supprimer le registre. Revenir à une version frontend précédente pour désactiver les lectures; conserver migrations et données. Corriger via migration additive révisée. Une opération créditée à tort exige un mouvement compensateur identifié, pas la modification du passé.
+## Décompte en direct (usage)
+`chargeUsageMinute` (fonction serveur authentifiée) débite chaque minute commencée : Traduction en direct 1 pt/min, Swap Live 3 pts/min. Le tarif est fixé côté serveur ; référence unique `usage:<service>:<user>:<session>:<minute>` (aucun double débit). Démarrage refusé et session coupée si le solde est insuffisant. Limite : le rythme est piloté par le navigateur ; un compteur côté serveur sera nécessaire pour l'application Windows.
