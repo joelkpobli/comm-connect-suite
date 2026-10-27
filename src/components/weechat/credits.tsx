@@ -30,7 +30,7 @@ export function CreditsPage() {
   const en = locale === 'en';
   const { data: real } = useSuspenseQuery(creditsQuery);
   const [cur, setCur] = useState<Currency>('XOF');
-  const [selected, setSelected] = useState<Plan>(swapPlans[2]);
+  const [selected, setSelected] = useState<Plan>(swapPlans[2]!);
   const [confirm, setConfirm] = useState(false);
   const [done, setDone] = useState(false);
   const isAudio = selected.audioMin != null;
