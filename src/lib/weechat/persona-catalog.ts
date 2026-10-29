@@ -23,7 +23,19 @@ import face9 from '@/assets/faces/face9.webp';
 import face10 from '@/assets/faces/face10.webp';
 import face11 from '@/assets/faces/face11.webp';
 import face12 from '@/assets/faces/face12.webp';
+import body1 from '@/assets/faces/body1.webp';
+import body2 from '@/assets/faces/body2.webp';
+import body3 from '@/assets/faces/body3.webp';
+import body4 from '@/assets/faces/body4.webp';
+import body5 from '@/assets/faces/body5.webp';
+import body6 from '@/assets/faces/body6.webp';
 export const faces = [
+  { id: 'body1', src: body1, g: 'f' as Gender, credit: 'Pexels · photo 10745026 · Licence Pexels' },
+  { id: 'body2', src: body2, g: 'f' as Gender, credit: 'Pexels · photo 7928896 · Licence Pexels' },
+  { id: 'body3', src: body3, g: 'f' as Gender, credit: 'Pexels · photo 6109145 · Licence Pexels' },
+  { id: 'body4', src: body4, g: 'f' as Gender, credit: 'Pexels · photo 9805731 · Licence Pexels' },
+  { id: 'body5', src: body5, g: 'm' as Gender, credit: 'Pexels · photo 6608637 · Licence Pexels' },
+  { id: 'body6', src: body6, g: 'm' as Gender, credit: 'Pexels · photo 32612443 · Licence Pexels' },
   { id: 'face1', src: face1, g: 'f' as Gender, credit: 'Pexels · photo 15361970 · Licence Pexels' },
   { id: 'face2', src: face2, g: 'm' as Gender, credit: 'Pexels · photo 20249686 · Licence Pexels' },
   { id: 'face3', src: face3, g: 'm' as Gender, credit: 'Pexels · photo 29690107 · Licence Pexels' },
