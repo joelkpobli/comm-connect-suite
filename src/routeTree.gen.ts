@@ -20,6 +20,7 @@ import { Route as AuthenticatedAvatarsRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCreditsRouteImport } from './routes/_authenticated/credits'
 import { Route as AuthenticatedHistoriqueRouteImport } from './routes/_authenticated/historique'
 import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
+import { Route as AuthenticatedRestyleLiveRouteImport } from './routes/_authenticated/restyle-live'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as AuthenticatedSwapLiveRouteImport } from './routes/_authenticated/swap-live'
 import { Route as AuthenticatedSwapPhotoRouteImport } from './routes/_authenticated/swap-photo'
@@ -80,6 +81,12 @@ const AuthenticatedParametresRoute = AuthenticatedParametresRouteImport.update({
   path: '/parametres',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRestyleLiveRoute =
+  AuthenticatedRestyleLiveRouteImport.update({
+    id: '/restyle-live',
+    path: '/restyle-live',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
   id: '/studio',
   path: '/studio',
@@ -118,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/parametres': typeof AuthenticatedParametresRoute
+  '/restyle-live': typeof AuthenticatedRestyleLiveRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/swap-live': typeof AuthenticatedSwapLiveRoute
   '/swap-photo': typeof AuthenticatedSwapPhotoRoute
@@ -135,6 +143,7 @@ export interface FileRoutesByTo {
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/parametres': typeof AuthenticatedParametresRoute
+  '/restyle-live': typeof AuthenticatedRestyleLiveRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/swap-live': typeof AuthenticatedSwapLiveRoute
   '/swap-photo': typeof AuthenticatedSwapPhotoRoute
@@ -154,6 +163,7 @@ export interface FileRoutesById {
   '/_authenticated/credits': typeof AuthenticatedCreditsRoute
   '/_authenticated/historique': typeof AuthenticatedHistoriqueRoute
   '/_authenticated/parametres': typeof AuthenticatedParametresRoute
+  '/_authenticated/restyle-live': typeof AuthenticatedRestyleLiveRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/_authenticated/swap-live': typeof AuthenticatedSwapLiveRoute
   '/_authenticated/swap-photo': typeof AuthenticatedSwapPhotoRoute
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/credits'
     | '/historique'
     | '/parametres'
+    | '/restyle-live'
     | '/studio'
     | '/swap-live'
     | '/swap-photo'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/credits'
     | '/historique'
     | '/parametres'
+    | '/restyle-live'
     | '/studio'
     | '/swap-live'
     | '/swap-photo'
@@ -208,6 +220,7 @@ export interface FileRouteTypes {
     | '/_authenticated/credits'
     | '/_authenticated/historique'
     | '/_authenticated/parametres'
+    | '/_authenticated/restyle-live'
     | '/_authenticated/studio'
     | '/_authenticated/swap-live'
     | '/_authenticated/swap-photo'
@@ -304,6 +317,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedParametresRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/restyle-live': {
+      id: '/_authenticated/restyle-live'
+      path: '/restyle-live'
+      fullPath: '/restyle-live'
+      preLoaderRoute: typeof AuthenticatedRestyleLiveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/studio': {
       id: '/_authenticated/studio'
       path: '/studio'
@@ -347,6 +367,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCreditsRoute: typeof AuthenticatedCreditsRoute
   AuthenticatedHistoriqueRoute: typeof AuthenticatedHistoriqueRoute
   AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
+  AuthenticatedRestyleLiveRoute: typeof AuthenticatedRestyleLiveRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedSwapLiveRoute: typeof AuthenticatedSwapLiveRoute
   AuthenticatedSwapPhotoRoute: typeof AuthenticatedSwapPhotoRoute
@@ -359,6 +380,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCreditsRoute: AuthenticatedCreditsRoute,
   AuthenticatedHistoriqueRoute: AuthenticatedHistoriqueRoute,
   AuthenticatedParametresRoute: AuthenticatedParametresRoute,
+  AuthenticatedRestyleLiveRoute: AuthenticatedRestyleLiveRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedSwapLiveRoute: AuthenticatedSwapLiveRoute,
   AuthenticatedSwapPhotoRoute: AuthenticatedSwapPhotoRoute,
