@@ -55,7 +55,7 @@ export function LiveTranslator() {
     if (paid !== 'ok') { setMsg(paid === 'insufficient' ? (locale === 'fr' ? 'Minutes de traduction insuffisantes pour démarrer.' : 'Not enough translation minutes to start.') : c.failed); setPhase('idle'); return; }
     let stream: MediaStream;
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } }); }
-    catch { setMsg(c.denied); setPhase('idle'); return; }
+    catch { setMsg(c.denied); stop(); return; }
     r.current.stream = stream; void loadOuts();
     const res = await session().catch(() => ({ ok: false as const, error: 'provider_unreachable' }));
     if (!res.ok) { setMsg(res.error === 'missing_provider_key' ? c.missing : c.failed); stop(); return; }
