@@ -179,7 +179,7 @@ export function FaceTracker() {
             ? <Button variant="outline" onClick={stop}><CameraOff className="mr-2 h-4 w-4" />{fr ? 'Couper la caméra' : 'Turn camera off'}</Button>
             : <Button onClick={start} disabled={!agree}><Camera className="mr-2 h-4 w-4" />{fr ? 'Activer la caméra' : 'Turn camera on'}</Button>}
           <Button variant="outline" disabled={status !== 'on'} onClick={() => cv.current?.requestFullscreen?.()}><Maximize2 className="mr-2 h-4 w-4" />{fr ? 'Plein écran' : 'Full screen'}</Button>
-          <label className="flex items-center gap-2 text-sm"><Checkbox checked={mesh} onCheckedChange={v => setMesh(v === true)} />{fr ? 'Afficher le maillage' : 'Show mesh'}</label>
+          
         </div>
         <UsageBadge service="swap_live" meter={meter} fr={fr} />
         <VcamControl canvas={cv} active={status === 'on'} fr={fr} />
@@ -211,9 +211,9 @@ export function FaceTracker() {
         <figure className="grid gap-1">
           <figcaption className="text-sm font-medium">{fr ? 'Caméra Weechat · rendu envoyé' : 'Weechat camera · output'}</figcaption>
           <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-            <canvas ref={cv} className={`h-full w-full object-contain ${status === 'on' ? '' : 'hidden'}`} aria-label={fr ? 'Aperçu du suivi facial' : 'Face tracking preview'} />
+            <canvas ref={cv} className={`h-full w-full object-cover ${status === 'on' ? '' : 'hidden'}`} aria-label={fr ? 'Aperçu du suivi facial' : 'Face tracking preview'} />
             {status !== 'on' && <div className="absolute inset-0 grid place-items-center gap-2 p-3 text-center">
-              <img src={target} alt={fr ? 'Avatar choisi' : 'Chosen avatar'} className="h-3/4 max-h-56 rounded-lg object-contain" />
+              <img src={target} alt={fr ? 'Avatar choisi' : 'Chosen avatar'} className="absolute inset-0 h-full w-full object-cover" />
               <span className="text-xs text-muted-foreground">{fr ? 'Avatar choisi · activez la caméra pour l’animer' : 'Chosen avatar · turn the camera on to animate it'}</span>
             </div>}
           </div>
