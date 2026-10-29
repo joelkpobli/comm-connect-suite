@@ -23,8 +23,8 @@ describe('persona catalogue rules', () => {
 
 import { faces } from '@/lib/weechat/persona-catalog';
 describe('face presets', () => {
-  it('offers 12 real Pexels faces of both genders', () => {
-    expect(faces).toHaveLength(12);
+  it('offers 18 real Pexels photos (6 full-body) of both genders', () => {
+    expect(faces).toHaveLength(18);
     expect(faces.some(f => f.g === 'f') && faces.some(f => f.g === 'm')).toBe(true);
     expect(faces.every(f => f.credit.includes('Pexels'))).toBe(true);
   });
