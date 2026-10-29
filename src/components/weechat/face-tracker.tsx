@@ -145,7 +145,8 @@ export function FaceTracker() {
 
       <div>
         <p className="mb-2 text-sm font-medium">{fr ? '1. Visage cible' : '1. Target face'}</p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          <span className="sr-only">{fr ? 'Mes avatars' : 'My avatars'}</span>
           {faces.map(f => (
             <button key={f.id} type="button" onClick={() => setTarget(f.src)} aria-pressed={target === f.src} aria-label={f.credit}
               className={`h-14 w-14 overflow-hidden rounded-full border-2 ${target === f.src ? 'border-primary' : 'border-transparent'}`}>
@@ -190,9 +191,20 @@ export function FaceTracker() {
         </p>
       </div>
 
-      <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-        <video ref={video} playsInline muted className="hidden" />
-        <canvas ref={cv} className="h-full w-full object-contain" aria-label={fr ? 'Aperçu du suivi facial' : 'Face tracking preview'} />
+      <div className="grid gap-3 md:grid-cols-2">
+        <figure className="grid gap-1">
+          <figcaption className="text-sm font-medium">{fr ? 'Source du swap · votre caméra' : 'Swap source · your camera'}</figcaption>
+          <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+            <video ref={video} playsInline muted className="h-full w-full -scale-x-100 object-cover" />
+            {status !== 'on' && <span className="absolute inset-0 grid place-items-center text-sm text-muted-foreground">{fr ? 'Caméra éteinte' : 'Camera off'}</span>}
+          </div>
+        </figure>
+        <figure className="grid gap-1">
+          <figcaption className="text-sm font-medium">{fr ? 'Caméra Weechat · rendu envoyé' : 'Weechat camera · output'}</figcaption>
+          <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
+            <canvas ref={cv} className="h-full w-full object-contain" aria-label={fr ? 'Aperçu du suivi facial' : 'Face tracking preview'} />
+          </div>
+        </figure>
       </div>
 
       {st && (
