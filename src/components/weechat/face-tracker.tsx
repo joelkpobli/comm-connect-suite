@@ -149,11 +149,11 @@ export function FaceTracker() {
           <span className="sr-only">{fr ? 'Mes avatars' : 'My avatars'}</span>
           {faces.map(f => (
             <button key={f.id} type="button" onClick={() => setTarget(f.src)} aria-pressed={target === f.src} aria-label={f.credit}
-              className={`h-14 w-14 overflow-hidden rounded-full border-2 ${target === f.src ? 'border-primary' : 'border-transparent'}`}>
+              className={`h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 ${target === f.src ? 'border-primary' : 'border-transparent'}`}>
               <img src={f.src} alt="" className="h-full w-full object-cover" loading="lazy" />
             </button>
           ))}
-          <label className={`flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-2 border-dashed ${own && target === own ? 'border-primary' : 'border-border'} ${ownRights ? '' : 'pointer-events-none opacity-50'}`} title={fr ? 'Importer un visage' : 'Upload a face'}>
+          <label className={`flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-dashed ${own && target === own ? 'border-primary' : 'border-border'} ${ownRights ? '' : 'pointer-events-none opacity-50'}`} title={fr ? 'Importer un visage' : 'Upload a face'}>
             {own ? <img src={own} alt="" className="h-full w-full rounded-full object-cover" /> : <Upload className="h-5 w-5" />}
             <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={!ownRights} onChange={e => pick(e.target.files?.[0])} />
           </label>
