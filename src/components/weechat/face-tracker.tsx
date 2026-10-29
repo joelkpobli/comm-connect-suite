@@ -65,13 +65,12 @@ export function FaceTracker() {
         if (v.currentTime !== last) {
           last = v.currentTime;
           const r = fl.detectForVideo(v, performance.now());
-          c.width = v.videoWidth; c.height = v.videoHeight;
-          ctx.save(); ctx.translate(c.width, 0); ctx.scale(-1, 1); ctx.drawImage(v, 0, 0);
+          // Sortie 16:9 : uniquement l'avatar complet, jamais la webcam.
+          if (c.width !== 1280) { c.width = 1280; c.height = 720; }
+          const W = c.width, H = c.height;
           const pts = r.faceLandmarks[0];
           const s0 = pts ? faceState(pts, r.faceBlendshapes[0]?.categories ?? []) : null;
-          prev = s0 ? smooth(prev, s0, 0.45) : null;
-          if (pts && meshRef.current) draw.drawConnectors(pts, FaceLandmarker.FACE_LANDMARKS_TESSELATION, { color: 'rgba(25,181,254,0.35)', lineWidth: 0.6 });
-          ctx.restore();
+          prev = s0 ? smooth(prev, s0, 0.45) : prev;
           const im = img.current;
           if (im?.complete && im.naturalWidth && geo.current.src !== im.src) {
             geo.current = { src: im.src, g: null, skin: '' };
@@ -83,30 +82,31 @@ export function FaceTracker() {
               geo.current = { src: im.src, g, skin: p ? `rgb(${p[0]},${p[1]},${p[2]})` : '' };
             } catch { /* portrait sans visage lisible : rendu simple */ }
           }
-          if (prev && im?.complete && im.naturalWidth) {
-            const S = sensRef.current, cl = (v: number) => Math.max(-1, Math.min(1, v));
-            const hy = cl(prev.yaw * S.head), hp = cl(prev.pitch * S.head), hr = prev.roll * S.head;
-            const hm = Math.min(1, prev.mouth * S.mouth), bt = blinkThreshold(S.blink);
-            const W = c.width, H = c.height, sz = prev.size * W * 1.25;
+          ctx.fillStyle = '#070B12'; ctx.fillRect(0, 0, W, H);
+          if (im?.complete && im.naturalWidth) {
+            const S = sensRef.current, cl = (x: number) => Math.max(-1, Math.min(1, x));
+            const hy = prev ? cl(prev.yaw * S.head) : 0, hp = prev ? cl(prev.pitch * S.head) : 0, hr = prev ? prev.roll * S.head : 0;
+            const hm = prev ? Math.min(1, prev.mouth * S.mouth) : 0, bt = blinkThreshold(S.blink);
             const nw = im.naturalWidth, nh = im.naturalHeight, g = geo.current.g;
-            ctx.save(); ctx.translate(W - prev.cx * W, prev.cy * H); ctx.rotate(-hr);
-            ctx.scale(1 - Math.abs(hy) * 0.25, 1 - Math.abs(hp) * 0.15);
-            ctx.beginPath(); ctx.ellipse(0, 0, sz * 0.4, sz * 0.52, 0, 0, Math.PI * 2); ctx.clip();
-            // Cadre le visage détecté du portrait au centre de l'ellipse.
-            const k = g ? (sz * 0.8) / (g.face.w * nw) : Math.max((sz * 0.8) / nw, (sz * 1.04) / nh);
-            const fx = g ? g.face.x + g.face.w / 2 : 0.5, fy = g ? g.face.y + g.face.h / 2 : 0.5;
-            const dx = -fx * nw * k - hy * sz * 0.08, dy = -fy * nh * k + hp * sz * 0.05;
-            const X = (u: number) => dx + u * nw * k, Y = (v: number) => dy + v * nh * k;
-            ctx.drawImage(im, dx, dy, nw * k, nh * k);
-            if (g) {
-              // Bouche : la mâchoire du portrait descend avec la vôtre.
-              const open = Math.min(1, hm) * g.mouth.h * nh * k * 2.2;
+            // Image entière en "cover" avec marge pour les rotations.
+            const k = Math.max(W / nw, H / nh) * 1.12;
+            const fx = g ? g.face.x + g.face.w / 2 : 0.5, fy = g ? g.face.y + g.face.h / 2 : 0.35;
+            const ox = Math.max(W - nw * k, Math.min(0, W / 2 - fx * nw * k));
+            const oy = Math.max(H - nh * k, Math.min(0, H * 0.42 - fy * nh * k));
+            const px = ox + fx * nw * k, py = oy + fy * nh * k; // centre du visage à l'écran
+            ctx.save();
+            ctx.translate(px - hy * 18, py + hp * 12); ctx.rotate(-hr * 0.6);
+            ctx.scale(1 - Math.abs(hy) * 0.04, 1 - Math.abs(hp) * 0.03);
+            ctx.translate(-px, -py);
+            const X = (u: number) => ox + u * nw * k, Y = (y: number) => oy + y * nh * k;
+            ctx.drawImage(im, ox, oy, nw * k, nh * k);
+            if (g && prev) {
+              const open = hm * g.mouth.h * nh * k * 2.2;
               if (open > 0.5) {
                 ctx.fillStyle = 'rgb(40,12,16)';
                 ctx.beginPath(); ctx.ellipse(X(g.mouth.x + g.mouth.w / 2), Y(g.jaw.y) + open / 2, (g.mouth.w * nw * k) / 2.1, open / 2 + 1, 0, 0, Math.PI * 2); ctx.fill();
                 ctx.drawImage(im, g.jaw.x * nw, g.jaw.y * nh, g.jaw.w * nw, g.jaw.h * nh, X(g.jaw.x), Y(g.jaw.y) + open, g.jaw.w * nw * k, g.jaw.h * nh * k);
               }
-              // Yeux : paupières qui se ferment avec les vôtres.
               if (prev.blink > bt && geo.current.skin) {
                 ctx.fillStyle = geo.current.skin;
                 for (const e of g.eyes) {
@@ -117,6 +117,8 @@ export function FaceTracker() {
             }
             ctx.restore();
           }
+          void draw; void meshRef;
+          if (!s0) prev = null;
           if (++tick % 6 === 0) setSt(prev);
         }
         raf.current = requestAnimationFrame(loop);
@@ -177,7 +179,7 @@ export function FaceTracker() {
             ? <Button variant="outline" onClick={stop}><CameraOff className="mr-2 h-4 w-4" />{fr ? 'Couper la caméra' : 'Turn camera off'}</Button>
             : <Button onClick={start} disabled={!agree}><Camera className="mr-2 h-4 w-4" />{fr ? 'Activer la caméra' : 'Turn camera on'}</Button>}
           <Button variant="outline" disabled={status !== 'on'} onClick={() => cv.current?.requestFullscreen?.()}><Maximize2 className="mr-2 h-4 w-4" />{fr ? 'Plein écran' : 'Full screen'}</Button>
-          <label className="flex items-center gap-2 text-sm"><Checkbox checked={mesh} onCheckedChange={v => setMesh(v === true)} />{fr ? 'Afficher le maillage' : 'Show mesh'}</label>
+          
         </div>
         <UsageBadge service="swap_live" meter={meter} fr={fr} />
         <VcamControl canvas={cv} active={status === 'on'} fr={fr} />
@@ -209,9 +211,9 @@ export function FaceTracker() {
         <figure className="grid gap-1">
           <figcaption className="text-sm font-medium">{fr ? 'Caméra Weechat · rendu envoyé' : 'Weechat camera · output'}</figcaption>
           <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-            <canvas ref={cv} className={`h-full w-full object-contain ${status === 'on' ? '' : 'hidden'}`} aria-label={fr ? 'Aperçu du suivi facial' : 'Face tracking preview'} />
+            <canvas ref={cv} className={`h-full w-full object-cover ${status === 'on' ? '' : 'hidden'}`} aria-label={fr ? 'Aperçu du suivi facial' : 'Face tracking preview'} />
             {status !== 'on' && <div className="absolute inset-0 grid place-items-center gap-2 p-3 text-center">
-              <img src={target} alt={fr ? 'Avatar choisi' : 'Chosen avatar'} className="h-3/4 max-h-56 rounded-lg object-contain" />
+              <img src={target} alt={fr ? 'Avatar choisi' : 'Chosen avatar'} className="absolute inset-0 h-full w-full object-cover" />
               <span className="text-xs text-muted-foreground">{fr ? 'Avatar choisi · activez la caméra pour l’animer' : 'Chosen avatar · turn the camera on to animate it'}</span>
             </div>}
           </div>
