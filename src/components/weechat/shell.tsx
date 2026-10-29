@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSessionUser, displayName, initials } from '@/hooks/use-session';
 import { useEffect, useState, type ReactNode } from 'react';
-import { LayoutDashboard, Coins, History, Settings, Video, Sparkles, Languages, Image as ImageIcon, Users, ArrowUpRight, Menu, LogOut, PanelLeftClose, PanelLeftOpen, Globe2, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Coins, History, Settings, Video, Sparkles, Languages, Image as ImageIcon, Users, ArrowUpRight, Menu, LogOut, PanelLeftClose, PanelLeftOpen, Globe2, ChevronRight, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Brand, LanguageSelect, DemoBadge } from './shared';
 import { useDemo } from './provider';
