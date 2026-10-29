@@ -89,10 +89,12 @@ export function FaceTracker() {
             const hm = prev ? Math.min(1, prev.mouth * S.mouth) : 0, bt = blinkThreshold(S.blink);
             const nw = im.naturalWidth, nh = im.naturalHeight, g = geo.current.g;
             // Image entière en "cover" avec marge pour les rotations.
-            const k = Math.max(W / nw, H / nh) * 1.12;
-            const fx = g ? g.face.x + g.face.w / 2 : 0.5, fy = g ? g.face.y + g.face.h / 2 : 0.35;
-            const ox = Math.max(W - nw * k, Math.min(0, W / 2 - fx * nw * k));
-            const oy = Math.max(H - nh * k, Math.min(0, H * 0.42 - fy * nh * k));
+            // Fond : même photo agrandie et floutée ; personne entière visible (tête aux pieds).
+            const kb = Math.max(W / nw, H / nh) * 1.1;
+            ctx.save(); ctx.filter = 'blur(24px) brightness(0.7)'; ctx.drawImage(im, (W - nw * kb) / 2, (H - nh * kb) / 2, nw * kb, nh * kb); ctx.restore();
+            const k = Math.min(W / nw, H / nh);
+            const fx = g ? g.face.x + g.face.w / 2 : 0.5, fy = g ? g.face.y + g.face.h / 2 : 0.2;
+            const ox = (W - nw * k) / 2, oy = (H - nh * k) / 2;
             const px = ox + fx * nw * k, py = oy + fy * nh * k; // centre du visage à l'écran
             ctx.save();
             ctx.translate(px - hy * 18, py + hp * 12); ctx.rotate(-hr * 0.6);
