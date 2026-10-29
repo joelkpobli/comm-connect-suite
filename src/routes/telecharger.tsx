@@ -6,9 +6,9 @@ import { whatsappLink, WHATSAPP_DISPLAY } from '@/lib/weechat/contact';
 export const Route = createFileRoute('/telecharger')({
   head: () => ({
     meta: [
-      { title: 'Guide d’installation Windows · Weechat' },
-      { name: 'description', content: 'Utilisez Weechat dans WhatsApp, Zoom, Teams et Meet avec OBS Virtual Camera et VB-Cable, gratuitement.' },
-      { property: 'og:title', content: 'Guide d’installation Windows · Weechat' },
+      { title: 'Tutoriel Weechat Swap Live · Windows' },
+      { name: 'description', content: 'Utilisez Weechat dans WhatsApp, Zoom, Teams et Meet avec le moteur Weechat Swap Live et la traduction en direct.' },
+      { property: 'og:title', content: 'Tutoriel Weechat Swap Live · Windows' },
       { property: 'og:description', content: 'Pas à pas pour envoyer votre image et votre voix Weechat dans vos applis d’appel.' },
       { property: 'og:type', content: 'website' },
       { name: 'twitter:card', content: 'summary' },
@@ -18,17 +18,19 @@ export const Route = createFileRoute('/telecharger')({
 });
 
 const apps: Record<string, string[]> = {
-  WhatsApp: ['Ouvrez WhatsApp Desktop.', 'Réglages → Vidéo et voix : caméra « OBS Virtual Camera », micro « CABLE Output ».', 'Déjà en appel ? Utilisez la flèche à côté du bouton caméra.'],
-  Zoom: ['Paramètres → Vidéo : choisissez « OBS Virtual Camera ».', 'Paramètres → Audio : micro « CABLE Output ».', 'Décochez « Mettre en miroir ma vidéo » si le texte apparaît inversé.'],
+  WhatsApp: ['Ouvrez WhatsApp Desktop.', 'Réglages → Vidéo et voix : caméra « OBS Virtual Camera » (utilisée par le moteur Weechat), micro « CABLE Output ».', 'Déjà en appel ? Utilisez la flèche à côté du bouton caméra.'],
+  Zoom: ['Paramètres → Vidéo : choisissez « OBS Virtual Camera ».', 'Paramètres → Audio : micro « CABLE Output ».', 'Décochez « Mettre en miroir ma vidéo » si besoin.'],
   Teams: ['Paramètres → Appareils.', 'Caméra « OBS Virtual Camera », micro « CABLE Output ».', 'Relancez Teams si les périphériques n’apparaissent pas.'],
-  'Google Meet': ['Dans Meet, cliquez sur ⋮ → Paramètres.', 'Vidéo : « OBS Virtual Camera » ; Audio : « CABLE Output ».', 'Autorisez la caméra et le micro dans le navigateur.'],
+  'TikTok Live Studio': ['Ajoutez une source « Caméra ».', 'Choisissez « OBS Virtual Camera ».', 'Micro : « CABLE Output » pour la voix traduite.'],
 };
 
 const fixes = [
-  ['« OBS Virtual Camera » n’apparaît pas', 'Dans OBS, cliquez sur « Démarrer la caméra virtuelle », puis rouvrez votre appli d’appel.'],
-  ['Mon interlocuteur voit un écran noir', 'Utilisez « Capture de fenêtre » sur le navigateur et désactivez l’accélération matérielle du navigateur si besoin.'],
-  ['Mon interlocuteur n’entend pas la voix traduite', 'Dans le Studio Weechat, choisissez « CABLE Input » comme sortie audio, et « CABLE Output » comme micro dans l’appli.'],
-  ['« Caméra déjà utilisée »', 'Weechat utilise votre vraie webcam : dans l’appli d’appel, choisissez « OBS Virtual Camera » et non la webcam.'],
+  ['installer.bat affiche « Python introuvable »', 'Réinstallez Python 3.10 en cochant « Add Python to PATH », puis relancez installer.bat.'],
+  ['Erreur pendant l’installation d’insightface', 'Installez « Microsoft C++ Build Tools » (option « Développement desktop en C++ »), redémarrez, relancez installer.bat.'],
+  ['La caméra « OBS Virtual Camera » n’apparaît pas', 'Le moteur Weechat utilise ce pilote gratuit : installez OBS Studio une seule fois (inutile de l’ouvrir), puis relancez demarrer.bat.'],
+  ['L’image est lente', 'Fermez les autres applis, éclairez votre visage de face, utilisez une photo cible nette et de face. Sans carte NVIDIA, 8 à 15 images/s est normal.'],
+  ['Mon interlocuteur n’entend pas la voix traduite', 'Dans Traduction en direct, choisissez « CABLE Input » comme sortie audio, et « CABLE Output » comme micro dans l’appli.'],
+  ['« Caméra déjà utilisée »', 'Le moteur utilise votre vraie webcam : dans l’appli d’appel, choisissez « OBS Virtual Camera », pas la webcam.'],
 ];
 
 function DownloadPage() {
@@ -36,27 +38,33 @@ function DownloadPage() {
   const [open, setOpen] = useState<number | null>(null);
   return <div className="dl">
     <section>
-      <h1>Weechat dans WhatsApp, Zoom et Teams.<br /><span>Gratuit, sous Windows.</span></h1>
-      <p className="dl-lead">L’application Windows Weechat est en préparation. En attendant, deux outils gratuits envoient votre image et votre voix Weechat vers vos applis d’appel.</p>
+      <h1>Tutoriel Weechat<br /><span>Swap Live et traduction dans toutes vos applis.</span></h1>
+      <p className="dl-lead">Le vrai changement de visage tourne sur votre PC Windows avec le moteur Weechat Swap Live (la même technologie que les logiciels de swap en direct : InsightFace + inswapper). Aucune image n’est envoyée sur Internet.</p>
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button asChild><a href="https://obsproject.com/download" target="_blank" rel="noreferrer">Télécharger OBS Studio</a></Button>
-        <Button asChild variant="outline"><a href="https://vb-audio.com/Cable/" target="_blank" rel="noreferrer">Télécharger VB-Cable</a></Button>
+        <Button asChild><a href="/downloads/weechat-swap-engine.zip" download="weechat-swap-engine.zip">Télécharger le moteur Swap Live (ZIP)</a></Button>
+        <Button asChild variant="outline"><a href="https://www.python.org/downloads/release/python-31011/" target="_blank" rel="noreferrer">Python 3.10</a></Button>
+        <Button asChild variant="outline"><a href="https://obsproject.com/download" target="_blank" rel="noreferrer">Pilote caméra (OBS)</a></Button>
+        <Button asChild variant="outline"><a href="https://vb-audio.com/Cable/" target="_blank" rel="noreferrer">VB-Cable (voix)</a></Button>
       </div>
-      <p className="dl-note">Windows 10 ou 11 · Outils tiers gratuits, non édités par Weechat.</p>
+      <p className="dl-note">Windows 10 ou 11 · Carte NVIDIA conseillée mais non obligatoire · Version d’essai, pas encore validée sur tous les PC.</p>
     </section>
 
     <section id="moteur">
-      <h2>Moteur Swap Live (version d’essai)</h2>
-      <p className="dl-lead">Vrai changement de visage par IA, calculé sur votre PC, sans carte NVIDIA obligatoire. Version d’essai à valider : installez Python 3.10, puis lancez installer.bat et demarrer.bat.</p>
-      <div className="mt-6"><Button asChild><a href="/downloads/weechat-swap-engine.zip" download="weechat-swap-engine.zip">Télécharger le moteur (ZIP)</a></Button></div>
+      <h2>Swap Live : changer de visage en direct</h2>
+      <div className="dl-steps">
+        <div className="dl-card"><b>1</b><h3>Préparer le PC</h3><p>Installez Python 3.10 (cochez « Add Python to PATH »), Microsoft C++ Build Tools, et OBS Studio (seulement pour son pilote de caméra, inutile de l’ouvrir).</p></div>
+        <div className="dl-card"><b>2</b><h3>Installer le moteur</h3><p>Décompressez le ZIP et double-cliquez sur installer.bat. Au premier lancement, le modèle IA (~530 Mo) se télécharge une seule fois.</p></div>
+        <div className="dl-card"><b>3</b><h3>Choisir le visage</h3><p>Lancez demarrer.bat et glissez une photo nette, de face, dont vous avez les droits (par exemple depuis le <Link to="/avatars" className="underline">Catalogue d’avatars</Link>).</p></div>
+        <div className="dl-card"><b>4</b><h3>Appeler</h3><p>La fenêtre d’aperçu montre votre nouveau visage. Dans WhatsApp, Zoom ou TikTok, choisissez la caméra « OBS Virtual Camera ».</p></div>
+      </div>
     </section>
 
     <section id="guide">
-      <h2>Après le téléchargement</h2>
+      <h2>Traduction en direct : votre voix dans l’autre langue</h2>
       <div className="dl-steps">
-        <div className="dl-card"><b>1</b><h3>Installer</h3><p>Installez OBS, puis VB-Cable (clic droit → « Exécuter en tant qu’administrateur »), et redémarrez.</p></div>
-        <div className="dl-card"><b>2</b><h3>Préparer le Studio</h3><p>Ouvrez le <Link to="/traduction" className="underline">Traduction en direct</Link>, sortie audio « CABLE Input », puis le mode plein écran.</p></div>
-        <div className="dl-card"><b>3</b><h3>Démarrer OBS</h3><p>Ajoutez une « Capture de fenêtre » du navigateur, puis « Démarrer la caméra virtuelle ».</p></div>
+        <div className="dl-card"><b>1</b><h3>Installer VB-Cable</h3><p>Clic droit sur l’installateur → « Exécuter en tant qu’administrateur », puis redémarrez.</p></div>
+        <div className="dl-card"><b>2</b><h3>Ouvrir Weechat</h3><p>Allez dans <Link to="/traduction" className="underline">Traduction en direct</Link>, choisissez vos langues et la sortie audio « CABLE Input ».</p></div>
+        <div className="dl-card"><b>3</b><h3>Dans l’appli d’appel</h3><p>Micro : « CABLE Output ». Votre interlocuteur entend la voix traduite.</p></div>
       </div>
     </section>
 
