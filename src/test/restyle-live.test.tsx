@@ -9,6 +9,7 @@ const stop = vi.fn();
 const stream = { getTracks: () => [{ stop, addEventListener: vi.fn(), readyState: 'live' }] } as unknown as MediaStream;
 const open = () => render(<DemoProvider><RestyleLivePage /></DemoProvider>);
 beforeEach(() => {
+  vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} });
   localStorage.clear(); getUserMedia.mockReset(); stop.mockReset(); getUserMedia.mockResolvedValue(stream);
   Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: { getUserMedia, enumerateDevices: vi.fn().mockResolvedValue([]) } });
   vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue(undefined);
