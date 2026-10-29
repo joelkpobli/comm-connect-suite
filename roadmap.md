@@ -4,6 +4,7 @@
 - [x] Pack Découverte horizontal, icônes par fonctionnalité, bonus séparés
 - [x] Plan de construction par module (docs/BUILD_PLAN.md)
 - [ ] Test réel OBS + VB-Cable sur WhatsApp — attend un test sur le PC Windows de l'utilisateur
-- [ ] Tableau de bord recentré sur 5 tuiles (une par module) — après validation du plan
+- [ ] Ajouter Restyle Live et les accès directs aux modules du tableau de bord
+- [ ] Auditer les obstacles au lancement et exécuter les tests audio/vidéo réalisables sans dépenses
 - [x] Espace membre découpé en onglets : Swap Live, Traduction, Swap Photo, Avatars, Recharge, Historique
-- [ ] Comparaison détaillée avec facevo.live — attend le lien de l'utilisateur
+- [x] Comparaison détaillée avec facevo.live — audits précédents conservés dans docs

@@ -31,3 +31,4 @@
 - The Windows companion lives in desktop/ as a Tauri v2 app loading the published web app; native status commands must report unavailable features truthfully, never fake success.
 - Live speech translation uses Palabra streaming: the API key stays server-side and the browser only receives a short-lived session token; Deepgram+DeepL remains the sentence-by-sentence fallback.
 - Live usage is prepaid in short blocks by the authenticated chargeUsageBlock server function: Swap Live debits points, live translation debits the separate audio-time ledger (post_audio_operation); rates are server-fixed and references unique per block.
+- Restyle Live uses LocalMediaSession and browser-local canvas filters without billing; keep AI restyling unavailable until a validated provider exists, and share virtual-camera controls across live video modules to keep lifecycle behavior consistent.
