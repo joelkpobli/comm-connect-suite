@@ -45,6 +45,12 @@ function DownloadPage() {
       <p className="dl-note">Windows 10 ou 11 · Outils tiers gratuits, non édités par Weechat.</p>
     </section>
 
+    <section id="moteur">
+      <h2>Moteur Swap Live (version d’essai)</h2>
+      <p className="dl-lead">Vrai changement de visage par IA, calculé sur votre PC, sans carte NVIDIA obligatoire. Version d’essai à valider : installez Python 3.10, puis lancez installer.bat et demarrer.bat.</p>
+      <div className="mt-6"><Button asChild><a href="/downloads/weechat-swap-engine.zip" download="weechat-swap-engine.zip">Télécharger le moteur (ZIP)</a></Button></div>
+    </section>
+
     <section id="guide">
       <h2>Après le téléchargement</h2>
       <div className="dl-steps">
