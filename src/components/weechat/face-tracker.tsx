@@ -153,12 +153,19 @@ export function FaceTracker() {
               <img src={f.src} alt="" className="h-full w-full object-cover" loading="lazy" />
             </button>
           ))}
-          <label className={`flex h-14 w-14 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-dashed ${own && target === own ? 'border-primary' : 'border-border'} ${ownRights ? '' : 'pointer-events-none opacity-50'}`} title={fr ? 'Importer un visage' : 'Upload a face'}>
-            {own ? <img src={own} alt="" className="h-full w-full rounded-full object-cover" /> : <Upload className="h-5 w-5" />}
+          {own && <button type="button" onClick={() => setTarget(own)} aria-pressed={target === own} aria-label={fr ? 'Ma photo' : 'My photo'}
+            className={`h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 ${target === own ? 'border-primary' : 'border-transparent'}`}>
+            <img src={own} alt="" className="h-full w-full object-cover" />
+          </button>}
+        </div>
+        <div className="mt-3 grid gap-2 rounded-lg border border-dashed border-border p-3">
+          <label className="flex items-start gap-2 text-xs text-muted-foreground"><Checkbox checked={ownRights} onCheckedChange={v => setOwnRights(v === true)} />{fr ? 'Je détiens les droits sur cette photo et l’accord de la personne.' : 'I hold the rights to this photo and the person’s consent.'}</label>
+          <label className={`inline-flex w-fit items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium ${ownRights ? 'cursor-pointer hover:border-primary' : 'cursor-not-allowed opacity-50'}`}>
+            <Upload className="h-4 w-4" />{fr ? 'Importer ma photo' : 'Upload my photo'}
             <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={!ownRights} onChange={e => pick(e.target.files?.[0])} />
           </label>
+          {!ownRights && <span className="text-xs text-muted-foreground">{fr ? 'Cochez la case ci-dessus pour activer l’import.' : 'Tick the box above to enable upload.'}</span>}
         </div>
-        <label className="mt-2 flex items-start gap-2 text-xs text-muted-foreground"><Checkbox checked={ownRights} onCheckedChange={v => setOwnRights(v === true)} />{fr ? 'Pour importer : je détiens les droits sur cette photo et l’accord de la personne.' : 'To upload: I hold the rights to this photo and the person’s consent.'}</label>
         {err && <p role="alert" className="mt-1 text-sm text-destructive">{err}</p>}
       </div>
 
@@ -202,7 +209,11 @@ export function FaceTracker() {
         <figure className="grid gap-1">
           <figcaption className="text-sm font-medium">{fr ? 'Caméra Weechat · rendu envoyé' : 'Weechat camera · output'}</figcaption>
           <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-muted">
-            <canvas ref={cv} className="h-full w-full object-contain" aria-label={fr ? 'Aperçu du suivi facial' : 'Face tracking preview'} />
+            <canvas ref={cv} className={`h-full w-full object-contain ${status === 'on' ? '' : 'hidden'}`} aria-label={fr ? 'Aperçu du suivi facial' : 'Face tracking preview'} />
+            {status !== 'on' && <div className="absolute inset-0 grid place-items-center gap-2 p-3 text-center">
+              <img src={target} alt={fr ? 'Avatar choisi' : 'Chosen avatar'} className="h-3/4 max-h-56 rounded-lg object-contain" />
+              <span className="text-xs text-muted-foreground">{fr ? 'Avatar choisi · activez la caméra pour l’animer' : 'Chosen avatar · turn the camera on to animate it'}</span>
+            </div>}
           </div>
         </figure>
       </div>
