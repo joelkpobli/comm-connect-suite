@@ -47,4 +47,5 @@ jobs:
           name: Weechat pour Windows
           body: Installateur Weechat pour Windows 10/11.
           make_latest: true
-          files: desktop/engine/dist-installer/Weechat-Setup.exe
+          files: dist-installer/Weechat-Setup.exe
+          fail_on_unmatched_files: true
