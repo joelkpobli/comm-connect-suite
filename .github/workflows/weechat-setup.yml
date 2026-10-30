@@ -4,6 +4,9 @@ on:
   push:
     paths: ["desktop/engine/**", ".github/workflows/weechat-setup.yml"]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: windows-latest
@@ -37,3 +40,11 @@ jobs:
         with:
           name: Weechat-Setup
           path: dist-installer/Weechat-Setup.exe
+      - name: Publier en Release publique
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: weechat-latest
+          name: Weechat pour Windows
+          body: Installateur Weechat pour Windows 10/11.
+          make_latest: true
+          files: desktop/engine/dist-installer/Weechat-Setup.exe
