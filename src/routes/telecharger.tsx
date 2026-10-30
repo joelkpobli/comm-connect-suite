@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { whatsappLink, WHATSAPP_DISPLAY } from '@/lib/weechat/contact';
 
+const Tag = ({ children }: { children: string }) => <span className="dl-tag">{children}</span>;
+
 export const Route = createFileRoute('/telecharger')({
   head: () => ({
     meta: [
@@ -18,11 +20,17 @@ export const Route = createFileRoute('/telecharger')({
 });
 
 const apps: Record<string, string[]> = {
-  WhatsApp: ['Ouvrez WhatsApp Desktop.', 'Réglages → Vidéo et voix : caméra « Unity Video Capture », micro « CABLE Output » pour la voix traduite.', 'Déjà en appel ? Utilisez la flèche à côté du bouton caméra.'],
-  Zoom: ['Paramètres → Vidéo : choisissez « Unity Video Capture ».', 'Paramètres → Audio : micro « CABLE Output ».', 'Décochez « Mettre en miroir ma vidéo » si besoin.'],
-  Teams: ['Paramètres → Appareils.', 'Caméra « Unity Video Capture », micro « CABLE Output ».', 'Relancez Teams si les périphériques n’apparaissent pas.'],
-  'TikTok Live Studio': ['Ajoutez une source « Caméra ».', 'Choisissez « Unity Video Capture ».', 'Micro : « CABLE Output » pour la voix traduite.'],
+  WhatsApp: ['Ouvrez WhatsApp Desktop.', 'Réglages → Vidéo et voix.', 'Caméra : Unity Video Capture.', 'Micro (voix traduite) : CABLE Output.', 'Déjà en appel ? Flèche à côté du bouton caméra.'],
+  Zoom: ['Paramètres → Vidéo.', 'Caméra : Unity Video Capture.', 'Paramètres → Audio : micro CABLE Output.', 'Décochez « Mettre en miroir ma vidéo » si besoin.'],
+  Teams: ['Paramètres → Appareils.', 'Caméra : Unity Video Capture.', 'Micro : CABLE Output.', 'Relancez Teams si les périphériques n’apparaissent pas.'],
+  'TikTok Live Studio': ['Ajoutez une source « Caméra ».', 'Source : Unity Video Capture.', 'Micro : CABLE Output (voix traduite).'],
 };
+
+const flow = [
+  ['Télécharger', 'Un clic sur le bouton bleu. Fichier : Weechat-Setup.exe (environ 900 Mo).'],
+  ['Installer', 'Double-clic sur le .exe → Suivant → Installer. Moteur IA + caméra virtuelle inclus.'],
+  ['Appeler', 'Dans votre appli d’appel, caméra : Unity Video Capture.'],
+];
 
 const fixes = [
   ['Windows affiche « Windows a protégé votre ordinateur »', 'Cliquez sur « Informations complémentaires » puis « Exécuter quand même ». L’installateur n’est pas encore signé numériquement.'],
@@ -40,29 +48,32 @@ function DownloadPage() {
     <section>
       <h1>Tutoriel Weechat<br /><span>Swap Live et traduction dans toutes vos applis.</span></h1>
       <p className="dl-lead">Le vrai changement de visage tourne sur votre PC Windows avec le moteur Weechat Swap Live (la même technologie que les logiciels de swap en direct : InsightFace + inswapper). Aucune image n’est envoyée sur Internet.</p>
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Button asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases/latest/download/Weechat-Setup.exe">Télécharger Weechat pour Windows (.exe)</a></Button>
+      <div className="mt-6 flex flex-wrap items-center gap-3">
+        <Button asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases/latest/download/Weechat-Setup.exe">⬇ Télécharger Weechat pour Windows (.exe)</a></Button>
         <Button asChild variant="outline"><a href="https://vb-audio.com/Cable/" target="_blank" rel="noreferrer">VB-Cable (voix traduite, gratuit)</a></Button>
       </div>
       <p className="dl-note">Windows 10 ou 11 · Aucun Python, aucun OBS à installer · Carte NVIDIA conseillée mais non obligatoire · Version d’essai.</p>
+      <div className="dl-flow">
+        {flow.map(([t, d], i) => <div key={t} className="dl-flowstep"><Tag>{`Étape ${i + 1}`}</Tag><h3>{t}</h3><p>{d}</p></div>)}
+      </div>
     </section>
 
     <section id="moteur">
       <h2>Swap Live : changer de visage en direct</h2>
       <div className="dl-steps">
-        <div className="dl-card"><b>1</b><h3>Installer Weechat</h3><p>Double-cliquez sur Weechat-Setup.exe, puis Suivant → Installer. Le moteur IA et la caméra virtuelle sont inclus.</p></div>
-        <div className="dl-card"><b>2</b><h3>Choisir le visage</h3><p>Ouvrez Weechat et choisissez une photo nette, de face, dont vous avez les droits (par exemple depuis le <Link to="/avatars" className="underline">Catalogue d’avatars</Link>).</p></div>
-        <div className="dl-card"><b>3</b><h3>Démarrer</h3><p>Cliquez sur Démarrer : l’aperçu montre votre nouveau visage qui suit vos mouvements, votre bouche et vos yeux.</p></div>
-        <div className="dl-card"><b>4</b><h3>Appeler</h3><p>Dans WhatsApp, Zoom, Teams ou TikTok, choisissez la caméra « Unity Video Capture ».</p></div>
+        <div className="dl-card"><Tag>Installation</Tag><h3>1 · Installer Weechat</h3><p>Double-cliquez sur <span className="dl-kbd">Weechat-Setup.exe</span> → Suivant → Installer. Le moteur IA et la caméra virtuelle sont inclus.</p></div>
+        <div className="dl-card"><Tag>Réglage</Tag><h3>2 · Choisir le visage</h3><p>Ouvrez Weechat, choisissez une photo nette, de face, dont vous avez les droits (par exemple depuis le <Link to="/avatars" className="underline">Catalogue d’avatars</Link>).</p></div>
+        <div className="dl-card"><Tag>Réglage</Tag><h3>3 · Démarrer</h3><p>Cliquez sur Démarrer : l’aperçu montre votre nouveau visage qui suit vos mouvements, votre bouche et vos yeux.</p></div>
+        <div className="dl-card"><Tag>Dans l’appli d’appel</Tag><h3>4 · Appeler</h3><p>Dans WhatsApp, Zoom, Teams ou TikTok, caméra : <span className="dl-kbd">Unity Video Capture</span>.</p></div>
       </div>
     </section>
 
     <section id="guide">
       <h2>Traduction en direct : votre voix dans l’autre langue</h2>
       <div className="dl-steps">
-        <div className="dl-card"><b>1</b><h3>Installer VB-Cable</h3><p>Clic droit sur l’installateur → « Exécuter en tant qu’administrateur », puis redémarrez.</p></div>
-        <div className="dl-card"><b>2</b><h3>Ouvrir Weechat</h3><p>Allez dans <Link to="/traduction" className="underline">Traduction en direct</Link>, choisissez vos langues et la sortie audio « CABLE Input ».</p></div>
-        <div className="dl-card"><b>3</b><h3>Dans l’appli d’appel</h3><p>Micro : « CABLE Output ». Votre interlocuteur entend la voix traduite.</p></div>
+        <div className="dl-card"><Tag>Installation</Tag><h3>1 · Installer VB-Cable</h3><p>Clic droit sur l’installateur → « Exécuter en tant qu’administrateur », puis redémarrez.</p></div>
+        <div className="dl-card"><Tag>Réglage</Tag><h3>2 · Ouvrir Weechat</h3><p>Allez dans <Link to="/traduction" className="underline">Traduction en direct</Link>, choisissez vos langues et la sortie audio <span className="dl-kbd">CABLE Input</span>.</p></div>
+        <div className="dl-card"><Tag>Dans l’appli d’appel</Tag><h3>3 · Appeler</h3><p>Micro : <span className="dl-kbd">CABLE Output</span>. Votre interlocuteur entend la voix traduite.</p></div>
       </div>
     </section>
 
