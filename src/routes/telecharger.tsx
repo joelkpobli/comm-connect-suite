@@ -41,7 +41,7 @@ function DownloadPage() {
       <h1>Tutoriel Weechat<br /><span>Swap Live et traduction dans toutes vos applis.</span></h1>
       <p className="dl-lead">Le vrai changement de visage tourne sur votre PC Windows avec le moteur Weechat Swap Live (la même technologie que les logiciels de swap en direct : InsightFace + inswapper). Aucune image n’est envoyée sur Internet.</p>
       <div className="mt-6 flex flex-wrap gap-3">
-        <Button asChild><a href="/downloads/weechat-swap-engine.zip" download="weechat-swap-engine.zip">Télécharger le moteur Swap Live (ZIP)</a></Button>
+        <Button asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases/latest/download/Weechat-Setup.exe">Télécharger Weechat pour Windows (.exe)</a></Button>
         <Button asChild variant="outline"><a href="https://www.python.org/downloads/release/python-31011/" target="_blank" rel="noreferrer">Python 3.10</a></Button>
         <Button asChild variant="outline"><a href="https://obsproject.com/download" target="_blank" rel="noreferrer">Pilote caméra (OBS)</a></Button>
         <Button asChild variant="outline"><a href="https://vb-audio.com/Cable/" target="_blank" rel="noreferrer">VB-Cable (voix)</a></Button>
