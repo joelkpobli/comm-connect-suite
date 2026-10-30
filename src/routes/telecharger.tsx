@@ -84,6 +84,19 @@ function DownloadPage() {
     </section>
 
     <section>
+      <h2>« Unity Video Capture » n’apparaît pas ?</h2>
+      <p className="dl-lead">Vérifiez ces points dans l’ordre. Dans 9 cas sur 10, le point 1 ou 2 suffit.</p>
+      <div className="dl-check">
+        <div className="dl-card"><Tag>1 · Le plus fréquent</Tag><h3>Weechat est-il ouvert et démarré ?</h3><p>La caméra n’apparaît que si Weechat tourne. Ouvrez Weechat, choisissez un visage, cliquez sur Démarrer, puis regardez à nouveau la liste des caméras.</p></div>
+        <div className="dl-card"><Tag>2 · Redémarrage</Tag><h3>Fermez puis rouvrez l’appli d’appel</h3><p>WhatsApp, Zoom, Teams et TikTok lisent la liste des caméras à leur ouverture. Fermez complètement l’appli (pas juste la fenêtre), puis relancez-la.</p></div>
+        <div className="dl-card"><Tag>3 · Installation</Tag><h3>L’installation est-elle terminée ?</h3><p>Si vous venez d’installer Weechat-Setup.exe, redémarrez le PC une fois. La caméra virtuelle s’active au démarrage suivant.</p></div>
+        <div className="dl-card"><Tag>4 · Bonne caméra</Tag><h3>Ne confondez pas avec votre webcam</h3><p>Dans la liste, choisissez <span className="dl-kbd">Unity Video Capture</span>, pas le nom de votre webcam intégrée. Si vous voyez votre vrai visage, vous êtes sur la mauvaise caméra.</p></div>
+        <div className="dl-card"><Tag>5 · Dernier recours</Tag><h3>Réinstallez Weechat</h3><p>Désinstallez Weechat depuis Paramètres Windows → Applications, redémarrez, puis relancez Weechat-Setup.exe.</p></div>
+      </div>
+      <p className="dl-note">Toujours absent ? Envoyez une capture de la liste des caméras sur <a className="underline" href={whatsappLink('fr')} target="_blank" rel="noreferrer">WhatsApp {WHATSAPP_DISPLAY}</a>.</p>
+    </section>
+
+    <section>
       <h2>Corrections rapides</h2>
       <div className="grid gap-3">{fixes.map(([q, a], i) => <div key={q} className="dl-card"><button type="button" className="w-full text-left font-semibold" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>{q}</button>{open === i && <p className="mt-2">{a}</p>}</div>)}</div>
     </section>
