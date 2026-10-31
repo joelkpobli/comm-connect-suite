@@ -11,9 +11,9 @@
 
 ## Weechat architecture
 - Keep the eight screens as independent TanStack content routes wrapped by AppShell; this provides transferable presentation modules and coherent URLs.
-- Keep fictional data and UI translations in src/lib/weechat, with shared in-memory DemoProvider state; simulated actions must never use persistence or network services.
+- Keep UI translations and verified capability descriptions in src/lib/weechat; the shared provider is locale-only, and member screens never expose fictional purchases or simulated billing.
 - Use semantic CSS tokens and existing UI Button/Input components across Weechat screens; this keeps the visual identity consistent.
-- Keep UI locale separate from simulated vocal-language selection; the concepts must not share state.
+- Keep UI locale separate from vocal-language selection; the concepts must not share state.
 - Use the public NASA Earth photograph through a Lovable asset pointer; no paid generated assets are necessary for this prototype.
 - Backend target is an external user-owned Supabase project reached via VITE_SUPABASE_URL / VITE_SUPABASE_PUBLISHABLE_KEY through the single generated client in src/integrations/supabase (one client avoids duplicate sessions); never enable Lovable Cloud and never place secret keys in frontend code.
 - Private screens live under src/routes/_authenticated (client-only gate redirecting to /connexion); auth uses Supabase email/password from the browser client, roles only in user_roles — keeps sessions in one place and prevents privilege escalation.
@@ -33,3 +33,5 @@
 - Live usage is prepaid in short blocks by the authenticated chargeUsageBlock server function: Swap Live debits points, live translation debits the separate audio-time ledger (post_audio_operation); rates are server-fixed and references unique per block.
 - Restyle Live uses LocalMediaSession and browser-local canvas filters without billing; keep AI restyling unavailable until a validated provider exists, and share virtual-camera controls across live video modules to keep lifecycle behavior consistent.
 - Weechat-Setup.exe is built by .github/workflows/weechat-setup.yml on a free Windows runner (PyInstaller + Inno Setup, models and Unity Capture virtual camera bundled); end users never install Python or OBS.
+
+- Keep feature-status as the browser-safe source of current capability boundaries; the standalone Python engine remains unlinked to accounts and billing until a validated desktop entitlement protocol exists, so UI must not imply metered access.
