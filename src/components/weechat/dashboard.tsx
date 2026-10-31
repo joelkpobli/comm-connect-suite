@@ -1,25 +1,29 @@
-import { useState } from 'react';
 import { useSuspenseQuery } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
+import { ArrowRight, Coins, Languages, Video, Sparkles, Image, BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { creditsQuery } from '@/lib/weechat/credits-query';
 import { profileQuery } from '@/lib/weechat/profile-query';
-import { Link } from '@tanstack/react-router';
-import { ArrowUpRight, ArrowRight, Coins, AudioLines, Languages, Video, ShieldCheck, Globe2, Plus, Sparkles, Image as ImageIcon, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { PageTitle, TransactionRows, DemoModal } from './shared';
+import { featureCards } from '@/lib/weechat/feature-status';
+import { formatCredits } from '@/lib/weechat/demo-data';
+import { PageTitle, TransactionRows } from './shared';
 import { useDemo } from './provider';
-import { uiCopy } from '@/lib/weechat/ui-copy';
-import { formatCredits, languages, platforms } from '@/lib/weechat/demo-data';
-export function DashboardPage() { const { t, locale } = useDemo(); const { data: credits } = useSuspenseQuery(creditsQuery); const { data: profile } = useSuspenseQuery(profileQuery); const balance = credits.totals.balance; const transactions = credits.entries.map(r => ({ id: r.id, date: new Date(r.created_at).toLocaleString(locale), title: r.reason, amount: r.amount, type: r.amount < 0 ? 'usage' as const : 'purchase' as const })); const [session, setSession] = useState(false); const [prepared, setPrepared] = useState(false); const tr = (text: string) => uiCopy(text, locale); return <><PageTitle title={`${locale === 'fr' ? 'Bonjour' : 'Hello'}, ${profile.display_name || profile.email}`}  subtitle={t('dashboardSub')} action={<span className="subtle-label">WEECHAT</span>} /><DashboardModules /><div className="dashboard-top"><section className="balance-panel"><div className="flex items-center gap-2 text-muted-foreground"><Coins size={18} /><span>{t('balance')}</span></div><div className="balance-number">{formatCredits(balance)}<span>{t('creditUnit')}</span></div><div className="balance-bottom"><span><span className="status-dot" />{tr('Solde réel')}</span><Button asChild><Link to="/credits"><Plus />{t('add')}</Link></Button></div><Coins className="balance-art" strokeWidth={.7} /></section><section className="session-panel"><span className="eyebrow">{tr('VOTRE PROCHAINE CONVERSATION')}</span><h2>{tr('Un échange.')}<br />{tr('De nouveaux horizons.')}</h2><p>{tr('Choisissez vos langues pour découvrir l’aperçu.')}</p><Button onClick={() => { setSession(true); setPrepared(false); }} variant="outline">{t('session')}<ArrowUpRight /></Button><Globe2 className="session-art" strokeWidth={.6} /></section></div><div className="dashboard-section-header"><h2>{tr('Votre espace multilingue')}</h2><span className="subtle-label">{tr('CONCEPT · NON OPÉRATIONNEL')}</span></div><div className="capability-grid">{[{ icon: AudioLines, title: 'Traduction vocale', text: 'Votre voix, dans une autre langue' }, { icon: Languages, title: '5 langues cibles', text: 'FR · EN · ES · DE · PT' }, { icon: Video, title: 'Caméra virtuelle', text: 'Une vision à développer' }, { icon: ShieldCheck, title: 'Confidentialité', text: 'Aucun média enregistré' }].map(f => <article className="capability-card" key={tr(f.title)}><f.icon size={23} /><h3>{tr(f.title)}</h3><p>{tr(f.text)}</p></article>)}</div><div className="dashboard-lower"><section><div className="dashboard-section-header"><h2>{t('recent')}</h2><Link to="/historique">{t('viewAll')}<ArrowRight size={15} /></Link></div>{transactions.length ? <TransactionRows rows={transactions.slice(0, 3)} /> : <div className="empty-state"><Coins /><h3>{tr('Aucun mouvement')}</h3></div>}</section><section className="platform-panel"><div className="dashboard-section-header"><h2>{tr('Vos applications d’appel')}</h2><LayersIcon /></div><p>{tr('Weechat accompagne vos outils, sans les remplacer.')}</p><div className="target-platforms">{platforms.map((p, i) => <span key={p}><span className={`platform-symbol platform-${i}`}>{p === 'Google Meet' ? 'M' : p.slice(0, 1)}</span>{p}</span>)}</div><small>{tr('Plateformes cibles. Aucun appel réel ni compatibilité validée.')}</small></section></div>{session && <DemoModal title={tr('Préparer un échange')} onClose={() => setSession(false)}><p className="text-sm text-muted-foreground">{tr('Aperçu local uniquement. Aucun microphone ni caméra activé.')}</p><label className="field"><span>{tr('Votre langue vocale')}</span><select className="form-select">{languages.map(l => <option key={l}>{l}</option>)}</select></label><label className="field"><span>{tr('Langue de votre interlocuteur')}</span><select className="form-select" defaultValue="English">{languages.map(l => <option key={l}>{l}</option>)}</select></label><Button onClick={() => setPrepared(true)}>{tr('Afficher l’aperçu')} <ArrowRight /></Button>{prepared && <div className="notice" role="status">{tr('Aperçu prêt : Bonjour → Hello. Aucun appel ni traduction en direct.')}</div>}</DemoModal>}</>; }
-function LayersIcon() { return <Globe2 size={18} className="text-muted-foreground" />; }
 
-function DashboardModules() {
- const { locale } = useDemo(); const fr = locale === 'fr';
- const modules = [
-  { to: '/swap-live', title: 'Swap Live', icon: Video, status: fr ? 'Suivi facial local · Expérimental' : 'Local face tracking · Experimental' },
-  { to: '/traduction', title: fr ? 'Traduction en direct' : 'Live translation', icon: Languages, status: fr ? 'Palabra · Essai réel à valider' : 'Palabra · Real call to validate' },
-  { to: '/restyle-live', title: 'Restyle Live', icon: Sparkles, status: fr ? 'Effets locaux · IA non connectée' : 'Local effects · AI not connected' },
-  { to: '/swap-photo', title: 'Swap Photo', icon: ImageIcon, status: fr ? 'Import prêt · Moteur non connecté' : 'Upload ready · Engine not connected' },
-  { to: '/avatars', title: fr ? 'Catalogue d’avatars' : 'Avatar catalogue', icon: Users, status: fr ? 'Portraits et imports autorisés' : 'Licensed portraits and uploads' },
- ] as const;
- return <section className="mb-8 grid gap-3"><h2 className="text-sm font-semibold">{fr ? 'Vos modules' : 'Your modules'}</h2><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">{modules.map(m => <article key={m.to} className="grid gap-3 rounded-md border border-border bg-card p-4"><m.icon className="text-primary" size={23} /><h3 className="font-semibold">{m.title}</h3><p className="text-xs text-muted-foreground">{m.status}</p><Button asChild variant="outline" className="justify-between"><Link to={m.to}>{fr ? 'Ouvrir' : 'Open'} <ArrowRight size={16} /></Link></Button></article>)}</div></section>;
+export function DashboardPage() {
+  const { locale } = useDemo(); const fr = locale === 'fr';
+  const { data: credits } = useSuspenseQuery(creditsQuery);
+  const { data: profile } = useSuspenseQuery(profileQuery);
+  const icons = { swap: Video, translation: Languages, restyle: Sparkles, photo: Image };
+  const rows = credits.entries.slice(0, 3).map(r => ({ id: r.id, date: new Date(r.created_at).toLocaleString(locale), title: r.reason, amount: r.amount, type: r.amount < 0 ? 'usage' as const : 'purchase' as const }));
+  return <>
+    <PageTitle title={`${fr ? 'Bonjour' : 'Hello'}, ${profile.display_name || profile.email}`} subtitle={fr ? 'Vos fonctions, leurs limites et vos soldes réels.' : 'Your features, their limits and actual balances.'} action={<Button asChild variant="outline"><Link to="/telecharger"><BookOpen />{fr ? 'Guides par fonction' : 'Feature guides'}</Link></Button>} />
+    <section className="mb-8 flex flex-wrap items-center justify-between gap-4 border-y border-border py-5">
+      <div><span className="text-sm text-muted-foreground">{fr ? 'Solde de points' : 'Point balance'}</span><p className="mt-2 text-3xl font-semibold">{formatCredits(credits.totals.balance)} <span className="text-sm text-muted-foreground">pts</span></p></div>
+      <Button asChild variant="outline"><Link to="/credits"><Coins />{fr ? 'Soldes et tarifs' : 'Balances and pricing'}</Link></Button>
+    </section>
+    <section><h2 className="mb-4 text-lg font-semibold">{fr ? 'Fonctions de communication' : 'Communication features'}</h2>
+      <div className="grid gap-4 md:grid-cols-2">{featureCards(fr).map(f => { const Icon = icons[f.id]; return <article key={f.id} className="flex flex-col gap-3 rounded-md border border-border bg-card p-5"><div className="flex items-center gap-3"><Icon className="text-primary" size={24} /><h3 className="text-lg font-semibold">{f.title}</h3></div><span className="text-sm font-medium text-primary">{f.status}</span><p className="flex-1 text-sm leading-relaxed text-muted-foreground">{f.detail}</p><div className="flex flex-wrap gap-2"><Button asChild variant="outline"><Link to={f.to}>{f.action}<ArrowRight size={16} /></Link></Button><Button asChild variant="ghost"><Link to="/telecharger" hash={f.id}>{fr ? 'Guide' : 'Guide'}<BookOpen size={16} /></Link></Button></div></article>; })}</div>
+    </section>
+    <section className="mt-8"><div className="dashboard-section-header"><h2>{fr ? 'Derniers mouvements de points' : 'Latest point transactions'}</h2><Link to="/historique">{fr ? 'Historique' : 'History'}<ArrowRight size={15} /></Link></div>{rows.length ? <TransactionRows rows={rows} /> : <p className="text-sm text-muted-foreground">{fr ? 'Aucun mouvement.' : 'No transactions.'}</p>}</section>
+  </>;
 }
