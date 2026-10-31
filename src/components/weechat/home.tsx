@@ -124,7 +124,7 @@ export function HomePage() {
     <section id="features" className="lp-section"><h2>{c.featTitle}</h2>
       <div className="lp-tabs" role="tablist">{(c.tabs ?? []).map((t, n) => <button key={t} role="tab" aria-selected={tab === n} className={tab === n ? 'active' : ''} onClick={() => setTab(n)}>{t}</button>)}</div>
       <div className="lp-panel">
-        <div><span className="lp-status">{panel.status}</span><h3>{panel.title}</h3><p>{panel.text}</p><ul>{(panel.points ?? []).map(p => <li key={p}><Check size={16} />{p}</li>)}</ul><Button asChild variant="outline"><Link to="/telecharger" hash={['swap', 'translation', 'restyle', 'photo'][tab]}>{c.try} <ArrowRight /></Link></Button></div>
+        <div><span className="lp-status">{panel.status}</span><h3>{panel.title}</h3><p>{panel.text}</p><ul>{(panel.points ?? []).map(p => <li key={p}><Check size={16} />{p}</li>)}</ul><Button asChild variant="outline"><Link to="/telecharger" hash={['swap', 'translation', 'restyle', 'photo'][tab] ?? 'swap'}>{c.try} <ArrowRight /></Link></Button></div>
         <div className="lp-visual">{tab === 1
           ? <div className="lp-bubbles"><p><b>FR</b>{c.bubbles[0]}</p><p className="out"><b>EN</b>{c.bubbles[1]}</p></div>
           : panelVideo

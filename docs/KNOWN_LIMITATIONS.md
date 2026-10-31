@@ -1,5 +1,8 @@
 # Limites et prochaine reprise
 
+## Mise à jour du 31 octobre 2026 — état faisant autorité
+Les paragraphes historiques ci-dessous sont conservés mais ne décrivent plus tous les modules actuels. Voir `docs/FEATURE_AUDIT_2026-10-31.md` : Palabra est intégré, le moteur Windows fonctionne indépendamment du compte, Restyle propose seulement des filtres locaux et Swap Photo n’a pas de moteur. Les simulations ont été retirées de l’espace membre. La commercialisation complète reste non validée.
+
 ## Verdict
 **Pas prêt pour une commercialisation complète.** Authentification, paramètres/lectures crédits et représentation locale sont construits. Audio et vidéo locaux passent avec signaux de test; capture matérielle reste à vérifier. Traduction, avatar animé, caméra virtuelle et achats restent non opérationnels.
 
