@@ -167,3 +167,16 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 .balance-chip svg{color:var(--primary)}.balance-chip span{color:var(--muted-foreground)}
 .dual-balance{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-bottom:1rem}
 @media(max-width:640px){.balance-chip span{display:none}}
+
+/* Guides and member navigation: explicit sections, stable readable layouts. */
+.dl h1 { font-size:36px; line-height:1.2; overflow-wrap:anywhere; }
+.dl h2 { font-size:24px; line-height:1.35; }
+.dl-card,.dl-flowstep { border-radius:8px; }
+.dl-card p,.dl-flowstep p,.dl-lead { line-height:1.7; }
+.dl-steps,.dl-flow,.dl-check { grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); }
+.dl section[id] { scroll-margin-top:24px; }
+.app-sidebar { overflow-y:auto; }
+.app-sidebar .sidebar-caption { margin-top:24px; }
+.app-sidebar nav a { white-space:normal; }
+.nav-group-label { color:var(--muted-foreground); font-size:10px; padding:14px 12px 5px; }
+@media(max-width:640px) { .dl { padding:28px 16px 60px; gap:36px; } .dl h1 { font-size:30px; } .dl h2 { font-size:22px; } .dl .dl-card { padding:18px; } .workspace-header { padding-inline:12px; } .breadcrumb { display:none; } }

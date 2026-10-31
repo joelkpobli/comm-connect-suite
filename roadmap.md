@@ -9,7 +9,8 @@
 - [ ] Valider appel audio/vidéo réel et caméra virtuelle sans OBS — PC Windows, session et deuxième participant requis
 - [x] Espace membre découpé en onglets : Swap Live, Traduction, Swap Photo, Avatars, Recharge, Historique
 - [x] Comparaison détaillée avec facevo.live — audits précédents conservés dans docs
-- [ ] Nettoyer les simulations visibles et organiser les fonctions de l’espace membre
-- [ ] Scinder le tutoriel par fonction avec prérequis, étapes et limites vérifiées
-- [ ] Auditer les promesses, les moteurs réels et le lien points / installateur Windows
-- [ ] Relier le moteur Windows au compte et à un décompte sûr — validation Windows et architecture sécurisée à établir
+- [x] Nettoyer les simulations visibles et organiser les fonctions de l’espace membre
+- [x] Scinder le tutoriel par fonction avec prérequis, étapes et limites vérifiées
+- [x] Auditer les promesses, les moteurs réels et le lien points / installateur Windows — docs/FEATURE_AUDIT_2026-10-31.md
+- [ ] Relier et valider le moteur Windows au compte et au décompte — protocole d’autorisation, licence modèle et PC Windows requis ; hors nettoyage de présentation
+- [ ] Valider les fonctions IA et paiements restantes — moteurs/licences, compte marchand, budget autorisé et essais physiques requis

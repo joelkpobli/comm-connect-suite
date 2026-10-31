@@ -1,106 +1,95 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
+import { Download, BookOpen, Video, Languages, Sparkles, Image, Coins, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useDemo } from '@/components/weechat/provider';
 import { whatsappLink, WHATSAPP_DISPLAY } from '@/lib/weechat/contact';
-
-const Tag = ({ children }: { children: string }) => <span className="dl-tag">{children}</span>;
+import { pageHead } from '@/lib/weechat/metadata';
+import { featureCards, usagePolicy } from '@/lib/weechat/feature-status';
 
 export const Route = createFileRoute('/telecharger')({
-  head: () => ({
-    meta: [
-      { title: 'Tutoriel Weechat Swap Live · Windows' },
-      { name: 'description', content: 'Utilisez Weechat dans WhatsApp, Zoom, Teams et Meet avec le moteur Weechat Swap Live et la traduction en direct.' },
-      { property: 'og:title', content: 'Tutoriel Weechat Swap Live · Windows' },
-      { property: 'og:description', content: 'Pas à pas pour envoyer votre image et votre voix Weechat dans vos applis d’appel.' },
-      { property: 'og:type', content: 'website' },
-      { name: 'twitter:card', content: 'summary' },
-    ],
-  }),
+  head: () => pageHead('Tutoriels et téléchargement', 'Guides Weechat par fonction : Swap Live Windows, traduction vocale, filtres Restyle, Swap Photo et points. Prérequis et limites réelles.'),
   component: DownloadPage,
 });
-
-const apps: Record<string, string[]> = {
-  WhatsApp: ['Ouvrez WhatsApp Desktop.', 'Réglages → Vidéo et voix.', 'Caméra : Unity Video Capture.', 'Micro (voix traduite) : CABLE Output.', 'Déjà en appel ? Flèche à côté du bouton caméra.'],
-  Zoom: ['Paramètres → Vidéo.', 'Caméra : Unity Video Capture.', 'Paramètres → Audio : micro CABLE Output.', 'Décochez « Mettre en miroir ma vidéo » si besoin.'],
-  Teams: ['Paramètres → Appareils.', 'Caméra : Unity Video Capture.', 'Micro : CABLE Output.', 'Relancez Teams si les périphériques n’apparaissent pas.'],
-  'TikTok Live Studio': ['Ajoutez une source « Caméra ».', 'Source : Unity Video Capture.', 'Micro : CABLE Output (voix traduite).'],
-};
-
-const flow = [
-  ['Télécharger', 'Un clic sur le bouton bleu. Fichier : Weechat-Setup.exe (environ 900 Mo).'],
-  ['Installer', 'Double-clic sur le .exe → Suivant → Installer. Moteur IA + caméra virtuelle inclus.'],
-  ['Appeler', 'Dans votre appli d’appel, caméra : Unity Video Capture.'],
+const K = ({ children }: { children: string }) => <span className="dl-kbd">{children}</span>;
+const apps = ['WhatsApp', 'Zoom', 'Teams', 'TikTok Live Studio'] as const;
+const checks = (fr: boolean) => fr ? [
+  ['Installation terminée ?', 'Vérifiez que l’installateur s’est terminé sans erreur. Cette page ne détecte pas l’installation sur votre PC.'],
+  ['Application d’appel relancée ?', 'Fermez complètement WhatsApp, Zoom, Teams ou TikTok Live Studio, puis rouvrez-le pour actualiser les périphériques.'],
+  ['PC redémarré ?', 'Redémarrez après l’installation si la caméra n’est pas proposée. Ce n’est pas une garantie : un pilote absent ou mal enregistré reste possible.'],
+  ['Caméra absente ou image noire ?', 'Absente : vérifiez l’installation du pilote. Présente mais noire : démarrez le moteur Weechat et vérifiez son aperçu. L’ouverture de Weechat ne prouve pas que le pilote est installé.'],
+  ['Toujours absente ?', 'Conservez le message de l’installateur et une capture de la liste des caméras. Réinstallez uniquement depuis le téléchargement officiel si nécessaire. Ne désactivez pas les protections Windows.'],
+] : [
+  ['Setup completed?', 'Check that setup finished without errors. This page does not detect installation on your PC.'],
+  ['Calling app reopened?', 'Fully close WhatsApp, Zoom, Teams or TikTok Live Studio and reopen it to refresh devices.'],
+  ['PC restarted?', 'Restart after setup if the camera is missing. This is not a guarantee: the driver may be absent or incorrectly registered.'],
+  ['Missing camera or black image?', 'Missing: check driver installation. Present but black: start the Weechat engine and check its preview. Opening Weechat does not prove the driver is installed.'],
+  ['Still missing?', 'Keep the installer message and a screenshot of the camera list. Reinstall only from the official download if needed. Do not disable Windows protections.'],
 ];
-
-const fixes = [
-  ['Windows affiche « Windows a protégé votre ordinateur »', 'Cliquez sur « Informations complémentaires » puis « Exécuter quand même ». L’installateur n’est pas encore signé numériquement.'],
-  ['La caméra « Unity Video Capture » n’apparaît pas', 'Fermez complètement l’appli d’appel, lancez Weechat, puis rouvrez l’appli. Si besoin, redémarrez le PC après l’installation.'],
-  ['L’image est lente', 'Fermez les autres applis, éclairez votre visage de face, utilisez une photo cible nette et de face. Sans carte NVIDIA, 8 à 15 images/s est normal.'],
-  ['« Aucun visage détecté »', 'Choisissez une photo où le visage est net, de face, bien éclairé et sans masque.'],
-  ['Mon interlocuteur n’entend pas la voix traduite', 'Installez VB-Cable, choisissez « CABLE Input » comme sortie dans Traduction en direct, et « CABLE Output » comme micro dans l’appli.'],
-  ['« Caméra déjà utilisée »', 'Dans l’appli d’appel, choisissez « Unity Video Capture », pas votre vraie webcam (Weechat l’utilise déjà).'],
-];
-
 function DownloadPage() {
-  const [app, setApp] = useState('WhatsApp');
-  const [open, setOpen] = useState<number | null>(null);
+  const { locale } = useDemo(); const fr = locale === 'fr';
+  const [app, setApp] = useState<typeof apps[number]>('WhatsApp'); const [open, setOpen] = useState<number | null>(null);
+  const cards = featureCards(fr); const icons = { swap: Video, translation: Languages, restyle: Sparkles, photo: Image };
+  const fix = checks(fr);
+  const menu = app === 'Zoom' ? 'Paramètres → Vidéo / Audio' : app === 'Teams' ? 'Paramètres → Appareils' : app === 'TikTok Live Studio' ? (fr ? 'Sources → Caméra / Microphone' : 'Sources → Camera / Microphone') : (fr ? 'Réglages → Vidéo et voix (selon version)' : 'Settings → Video and voice (version dependent)');
   return <div className="dl">
-    <section>
-      <h1>Tutoriel Weechat<br /><span>Swap Live et traduction dans toutes vos applis.</span></h1>
-      <p className="dl-lead">Le vrai changement de visage tourne sur votre PC Windows avec le moteur Weechat Swap Live (la même technologie que les logiciels de swap en direct : InsightFace + inswapper). Aucune image n’est envoyée sur Internet.</p>
-      <div className="mt-6 flex flex-wrap items-center gap-3">
-        <Button asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases/latest/download/Weechat-Setup.exe">⬇ Télécharger Weechat pour Windows (.exe)</a></Button>
-        <Button asChild variant="outline"><a href="https://vb-audio.com/Cable/" target="_blank" rel="noreferrer">VB-Cable (voix traduite, gratuit)</a></Button>
-      </div>
-      <p className="dl-note">Windows 10 ou 11 · Aucun Python, aucun OBS à installer · Carte NVIDIA conseillée mais non obligatoire · Version d’essai.</p>
-      <div className="dl-flow">
-        {flow.map(([t, d], i) => <div key={t} className="dl-flowstep"><Tag>{`Étape ${i + 1}`}</Tag><h3>{t}</h3><p>{d}</p></div>)}
-      </div>
+    <header><span className="dl-tag">Weechat · {fr ? 'Centre de guides' : 'Guide centre'}</span><h1 className="mt-4">{fr ? 'Tutoriels et téléchargement' : 'Guides and download'}</h1><p className="dl-lead">{fr ? 'Une fonction, un guide. Le logiciel Windows sert au Swap Live ; il ne remplace pas la traduction du site et ne couvre pas tous les modules.' : 'One feature, one guide. The Windows app handles Swap Live; it does not replace website translation or cover every module.'}</p>
+      <nav className="mt-6 flex flex-wrap gap-2" aria-label={fr ? 'Sommaire des guides' : 'Guide contents'}>{cards.map(c => <Button asChild key={c.id} variant="outline"><a href={`#${c.id}`}>{c.title}</a></Button>)}<Button asChild variant="outline"><a href="#points"><Coins />{fr ? 'Points et minutes' : 'Points and minutes'}</a></Button><Button asChild variant="outline"><a href="#depannage">{fr ? 'Dépannage' : 'Troubleshooting'}</a></Button></nav>
+    </header>
+    <section aria-label={fr ? 'État des fonctions' : 'Feature status'} className="grid gap-3 sm:grid-cols-2">{cards.map(c => { const Icon = icons[c.id]; return <article key={c.id} className="dl-card"><Icon className="text-primary" size={24} /><h3>{c.title}</h3><p>{c.status}</p><a href={`#${c.id}`} className="mt-3 inline-flex items-center gap-2 text-sm text-primary"><BookOpen size={16} />{fr ? 'Lire le guide' : 'Read guide'}</a></article>; })}</section>
+    <section id="swap"><h2>01 · Swap Live</h2><p className="dl-lead">{fr ? 'Remplace un visage dans le flux de la webcam. Votre corps, vos vêtements et votre environnement restent ceux de la webcam : ce moteur ne crée pas une nouvelle personne de la tête aux pieds.' : 'Replaces a webcam face. Your body, clothes and surroundings remain from the webcam: this engine does not create a new full-body person.'}</p>
+      <p className="dl-note">{fr ? 'Outils : moteur Windows InsightFace / ONNX Runtime, webcam, photo autorisée et pilote Unity Capture. Performances sur votre PC et droits commerciaux des modèles restent à vérifier.' : 'Tools: Windows InsightFace / ONNX Runtime engine, webcam, authorised photo and Unity Capture driver. Your PC performance and commercial model rights still require verification.'}</p>
+      <div className="mt-5"><Button asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases/latest/download/Weechat-Setup.exe"><Download />{fr ? 'Télécharger Weechat pour Windows (.exe)' : 'Download Weechat for Windows (.exe)'}</a></Button></div>
+      <p className="dl-note">{fr ? 'Installateur d’essai Windows 10/11 64 bits. Python et OBS ne sont pas des étapes d’installation utilisateur. Le lien de téléchargement n’atteste pas une installation réussie.' : 'Windows 10/11 64-bit trial installer. Python and OBS are not user installation steps. The download link does not prove successful installation.'}</p>
+      <div className="dl-flow">{(fr ? [
+        ['Télécharger', 'Enregistrez Weechat-Setup.exe. Attendez la fin du téléchargement.'],
+        ['Installer', 'Ouvrez le fichier officiel et suivez l’installateur. Vérifiez les éventuelles erreurs.'],
+        ['Démarrer le moteur', 'Dans Weechat Windows, choisissez une photo autorisée puis démarrez. Vérifiez le résultat dans l’aperçu.'],
+        ['Sélectionner la caméra', 'Dans votre appli d’appel, choisissez Unity Video Capture. Testez avec une personne consentante.'],
+      ] : [
+        ['Download', 'Save Weechat-Setup.exe. Wait for the download to finish.'],
+        ['Install', 'Open the official file and follow setup. Check any error messages.'],
+        ['Start the engine', 'In Weechat Windows, choose an authorised photo and start. Check the result in the preview.'],
+        ['Select the camera', 'In your calling app, choose Unity Video Capture. Test with a consenting participant.'],
+      ]).map(([t,d],i) => <article className="dl-flowstep" key={t}><span className="dl-tag">{fr ? 'Étape' : 'Step'} {i+1}</span><h3>{t}</h3><p>{d}</p></article>)}</div>
+      <p className="dl-warn mt-5">{fr ? 'Important : cet essai Windows n’est pas connecté à votre compte et ne débite pas de points. La caméra virtuelle et les appels externes doivent encore être validés sur Windows. Ce n’est pas une version commerciale prête.' : 'Important: this Windows trial is not linked to your account and charges no points. Virtual camera and external calls still require Windows validation. This is not a commercially ready release.'}</p>
     </section>
-
-    <section id="moteur">
-      <h2>Swap Live : changer de visage en direct</h2>
-      <div className="dl-steps">
-        <div className="dl-card"><Tag>Installation</Tag><h3>1 · Installer Weechat</h3><p>Double-cliquez sur <span className="dl-kbd">Weechat-Setup.exe</span> → Suivant → Installer. Le moteur IA et la caméra virtuelle sont inclus.</p></div>
-        <div className="dl-card"><Tag>Réglage</Tag><h3>2 · Choisir le visage</h3><p>Ouvrez Weechat, choisissez une photo nette, de face, dont vous avez les droits (par exemple depuis le <Link to="/avatars" className="underline">Catalogue d’avatars</Link>).</p></div>
-        <div className="dl-card"><Tag>Réglage</Tag><h3>3 · Démarrer</h3><p>Cliquez sur Démarrer : l’aperçu montre votre nouveau visage qui suit vos mouvements, votre bouche et vos yeux.</p></div>
-        <div className="dl-card"><Tag>Dans l’appli d’appel</Tag><h3>4 · Appeler</h3><p>Dans WhatsApp, Zoom, Teams ou TikTok, caméra : <span className="dl-kbd">Unity Video Capture</span>.</p></div>
-      </div>
+    <section id="translation"><span id="guide" /><h2>02 · {fr ? 'Traduction en direct' : 'Live translation'}</h2><p className="dl-lead">{fr ? 'Vous parlez dans le micro ; Palabra renvoie la voix traduite et des sous-titres. Le service est intégré au site avec 48 langues configurées. Cela ne signifie pas que toutes les paires ont été testées en appel réel.' : 'Speak into your microphone; Palabra returns translated speech and subtitles. The service is integrated into the website with 48 configured languages. This does not mean all pairs have been tested in real calls.'}</p>
+      <p className="dl-note">{fr ? 'Outils : compte Weechat, solde audio suffisant, service Palabra configuré, Internet, micro, casque et navigateur permettant de choisir la sortie audio. VB-Cable est nécessaire pour tester l’envoi vers une autre appli sous Windows.' : 'Tools: Weechat account, sufficient audio balance, configured Palabra service, Internet, microphone, headphones and a browser supporting audio output selection. VB-Cable is needed to test output to another Windows app.'}</p>
+      <div className="mt-5 flex flex-wrap gap-3"><Button asChild><Link to="/traduction"><Languages />{fr ? 'Ouvrir la traduction' : 'Open translation'}</Link></Button><Button asChild variant="outline"><a href="https://vb-audio.com/Cable/" target="_blank" rel="noreferrer">VB-Cable · {fr ? 'Site officiel' : 'Official website'}</a></Button></div>
+      <div className="dl-flow">{(fr ? [
+        ['Choisir les langues', 'Dans Traduction en direct : « Je parle » puis « L’autre entend ». Commencez par français → anglais.'],
+        ['Choisir la sortie', 'Pour écouter : sortie habituelle et casque. Pour l’appel Windows : CABLE Input comme sortie Weechat.'],
+        ['Autoriser et démarrer', 'Acceptez l’envoi de la voix à Palabra et autorisez le micro. Parlez, vérifiez les sous-titres et le son.'],
+        ['Régler l’appel et arrêter', 'Micro de l’appli : CABLE Output. Faites un essai court, puis arrêtez la traduction.'],
+      ] : [
+        ['Choose languages', 'In Live translation: “I speak” and “They hear”. Start with French → English.'],
+        ['Choose output', 'For listening: normal output and headphones. For Windows calls: CABLE Input as Weechat output.'],
+        ['Consent and start', 'Consent to sending speech to Palabra and allow the microphone. Speak, check subtitles and sound.'],
+        ['Configure call and stop', 'Calling app microphone: CABLE Output. Make a short test, then stop translation.'],
+      ]).map(([t,d],i) => <article key={t} className="dl-flowstep"><span className="dl-tag">{i+1}</span><h3>{t}</h3><p>{d}</p></article>)}</div>
+      <p className="dl-warn mt-5">{fr ? 'Appels audio ou vidéo : le principe de sortie est le même, mais le routage réel reste à valider. Une session traduit votre micro vers une langue. Elle ne capture pas automatiquement la voix de l’interlocuteur ; la traduction bidirectionnelle d’un appel n’est pas encore validée. Les sous-titres sont visibles dans Weechat, pas automatiquement dans l’appli d’appel.' : 'Audio and video calls use the same output principle, but real routing remains to be validated. One session translates your microphone to one language. It does not automatically capture your contact’s voice; two-way call translation is not yet validated. Subtitles appear in Weechat, not automatically inside the calling app.'}</p>
+      <p className="dl-note">{fr ? 'Le son est envoyé à Palabra avec votre consentement. Weechat n’enregistre pas le flux ; les conditions du fournisseur s’appliquent. Les sorties non compatibles ou absentes empêchent l’envoi vers l’appel.' : 'Audio is sent to Palabra with your consent. Weechat does not record the stream; provider terms apply. Unsupported or missing outputs prevent routing to the call.'}</p>
     </section>
-
-    <section id="guide">
-      <h2>Traduction en direct : votre voix dans l’autre langue</h2>
-      <div className="dl-steps">
-        <div className="dl-card"><Tag>Installation</Tag><h3>1 · Installer VB-Cable</h3><p>Clic droit sur l’installateur → « Exécuter en tant qu’administrateur », puis redémarrez.</p></div>
-        <div className="dl-card"><Tag>Réglage</Tag><h3>2 · Ouvrir Weechat</h3><p>Allez dans <Link to="/traduction" className="underline">Traduction en direct</Link>, choisissez vos langues et la sortie audio <span className="dl-kbd">CABLE Input</span>.</p></div>
-        <div className="dl-card"><Tag>Dans l’appli d’appel</Tag><h3>3 · Appeler</h3><p>Micro : <span className="dl-kbd">CABLE Output</span>. Votre interlocuteur entend la voix traduite.</p></div>
-      </div>
+    <section id="restyle"><h2>03 · Restyle Live</h2><p className="dl-lead">{fr ? 'Restyle signifie changer le style visuel d’une vidéo. Aujourd’hui, Weechat propose seulement des filtres webcam locaux : noir et blanc, couleurs vives et contraste.' : 'Restyle means changing a video’s visual style. Currently Weechat only offers local webcam filters: monochrome, vivid colours and contrast.'}</p>
+      <div className="dl-steps mt-5"><article className="dl-card"><span className="dl-tag">{fr ? 'Disponible sans points' : 'Available without points'}</span><h3>{fr ? 'Utiliser les filtres locaux' : 'Use local filters'}</h3><ol className="list-decimal space-y-2 pl-5"><li>{fr ? 'Ouvrez Restyle Live, acceptez la caméra et activez-la.' : 'Open Restyle Live, consent to camera use and enable it.'}</li><li>{fr ? 'Choisissez un style puis ajustez intensité et contraste.' : 'Pick a style, then adjust intensity and contrast.'}</li><li>{fr ? 'Vérifiez l’aperçu puis coupez la caméra.' : 'Check the preview, then turn the camera off.'}</li></ol></article><article className="dl-card"><span className="dl-tag">{fr ? 'IA indisponible' : 'AI unavailable'}</span><h3>{fr ? 'Ce qui n’est pas construit' : 'What is not built'}</h3><p>{fr ? 'Pas de tenue, de corps ou de décor redessiné par une phrase ; pas de moteur de restylisation IA connecté. L’installateur Swap Live ne rend pas ces fonctions disponibles.' : 'No prompt-driven clothing, body or scenery redraw; no connected AI restyling engine. The Swap Live installer does not enable these features.'}</p></article></div>
+      <Button asChild variant="outline" className="mt-4"><Link to="/restyle-live"><Sparkles />{fr ? 'Ouvrir les filtres locaux' : 'Open local filters'}</Link></Button>
     </section>
-
-    <section>
-      <h2>Choisissez les bons périphériques dans votre appli</h2>
-      <div className="dl-tabs" role="tablist">{Object.keys(apps).map(a => <Button key={a} role="tab" aria-selected={a === app} variant={a === app ? 'default' : 'outline'} size="sm" onClick={() => setApp(a)}>{a}</Button>)}</div>
-      <ol className="dl-card list-decimal space-y-2 pl-10">{apps[app]!.map(s => <li key={s}>{s}</li>)}</ol>
-    </section>
-
-    <section>
-      <h2>« Unity Video Capture » n’apparaît pas ?</h2>
-      <p className="dl-lead">Vérifiez ces points dans l’ordre. Dans 9 cas sur 10, le point 1 ou 2 suffit.</p>
-      <div className="dl-check">
-        <div className="dl-card"><Tag>1 · Le plus fréquent</Tag><h3>Weechat est-il ouvert et démarré ?</h3><p>La caméra n’apparaît que si Weechat tourne. Ouvrez Weechat, choisissez un visage, cliquez sur Démarrer, puis regardez à nouveau la liste des caméras.</p></div>
-        <div className="dl-card"><Tag>2 · Redémarrage</Tag><h3>Fermez puis rouvrez l’appli d’appel</h3><p>WhatsApp, Zoom, Teams et TikTok lisent la liste des caméras à leur ouverture. Fermez complètement l’appli (pas juste la fenêtre), puis relancez-la.</p></div>
-        <div className="dl-card"><Tag>3 · Installation</Tag><h3>L’installation est-elle terminée ?</h3><p>Si vous venez d’installer Weechat-Setup.exe, redémarrez le PC une fois. La caméra virtuelle s’active au démarrage suivant.</p></div>
-        <div className="dl-card"><Tag>4 · Bonne caméra</Tag><h3>Ne confondez pas avec votre webcam</h3><p>Dans la liste, choisissez <span className="dl-kbd">Unity Video Capture</span>, pas le nom de votre webcam intégrée. Si vous voyez votre vrai visage, vous êtes sur la mauvaise caméra.</p></div>
-        <div className="dl-card"><Tag>5 · Dernier recours</Tag><h3>Réinstallez Weechat</h3><p>Désinstallez Weechat depuis Paramètres Windows → Applications, redémarrez, puis relancez Weechat-Setup.exe.</p></div>
-      </div>
-      <p className="dl-note">Toujours absent ? Envoyez une capture de la liste des caméras sur <a className="underline" href={whatsappLink('fr')} target="_blank" rel="noreferrer">WhatsApp {WHATSAPP_DISPLAY}</a>.</p>
-    </section>
-
-    <section>
-      <h2>Corrections rapides</h2>
-      <div className="grid gap-3">{fixes.map(([q, a], i) => <div key={q} className="dl-card"><button type="button" className="w-full text-left font-semibold" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>{q}</button>{open === i && <p className="mt-2">{a}</p>}</div>)}</div>
-    </section>
-
-    <p className="dl-warn">Sur mobile et macOS, l’envoi vers les applis d’appel n’est pas encore pris en charge. Besoin d’aide ? <a className="underline" href={whatsappLink('fr')} target="_blank" rel="noreferrer">WhatsApp {WHATSAPP_DISPLAY}</a></p>
+    <section id="photo"><h2>04 · Swap Photo</h2><p className="dl-lead">{fr ? 'Remplacer le visage d’une personne dans une photo fixe, en conservant la pose et le décor de cette photo. Ce n’est ni un appel ni une animation de tout le corps.' : 'Replace a person’s face in a still image while preserving its pose and background. This is neither a call nor full-body animation.'}</p><p className="dl-warn mt-4">{fr ? 'Indisponible : le moteur photo n’est pas connecté. Aucun import inutile, aucun faux résultat, aucun débit. Il faut un moteur sous licence autorisée, un traitement validé, un export et un décompte lié au résultat avant activation.' : 'Unavailable: the photo engine is not connected. No unnecessary upload, fake result or debit. An authorised engine license, validated processing, export and result-linked billing are required before activation.'}</p><p className="dl-note">{fr ? 'Les images du catalogue sont des photos, pas des avatars capables de bouger seuls. Utilisez uniquement des visages dont les droits et le consentement couvrent votre usage ; une licence photo ne garantit pas tous les usages d’identité.' : 'Catalogue images are photos, not avatars that move by themselves. Only use faces whose rights and consent cover your use; a photo licence does not guarantee every identity-related use.'}</p></section>
+    <section id="points"><h2><Coins className="mr-2 inline" />{fr ? 'Points, minutes et compte Weechat' : 'Points, minutes and Weechat account'}</h2><div className="dl-steps"><article className="dl-card"><h3>{fr ? 'Swap Live Windows' : 'Windows Swap Live'}</h3><p>{fr ? `Tarif prévu : ${usagePolicy.swapPointsPerSecond} pts/s, soit 20 points par tranche de ${usagePolicy.blockSeconds} s. Le moteur téléchargé ne l’applique pas encore. À relier : connexion, autorisation serveur avant démarrage, renouvellement des tranches et arrêt si solde insuffisant.` : `Planned rate: ${usagePolicy.swapPointsPerSecond} pts/s, or 20 points per ${usagePolicy.blockSeconds}-second block. The downloaded engine does not enforce it yet. Missing: sign-in, server authorisation before start, block renewal and stopping on insufficient balance.`}</p></article><article className="dl-card"><h3>{fr ? 'Traduction' : 'Translation'}</h3><p>{fr ? 'Solde audio séparé : 10 secondes prépayées par tranche. Les points vidéo ne le remplacent pas. Une tranche commencée est débitée même si le micro ou la connexion échoue ; ce comportement doit être corrigé avant commercialisation.' : 'Separate audio balance: prepaid 10-second blocks. Video points do not replace it. A started block is charged even if the microphone or connection fails; this needs correction before commercialisation.'}</p></article><article className="dl-card"><h3>Restyle · Swap Photo</h3><p>{fr ? 'Tarifs IA présentés : 2 pts/s pour Restyle et 2 pts/photo. Non appliqués actuellement : filtres locaux gratuits et moteur photo absent.' : 'Displayed AI rates: 2 pts/s for Restyle and 2 pts/photo. Not currently applied: local filters are free and the photo engine is absent.'}</p></article></div><p className="dl-note">{fr ? 'Les soldes du compte et l’historique de points sont réels. L’historique actuel affiche les points, pas les mouvements détaillés du solde audio. Les paiements, bonus et validités des packs ne sont pas activés ; aucun achat simulé n’est proposé.' : 'Account balances and point history are real. Current history shows points, not detailed audio-balance movements. Payments, bonuses and pack validity are not enabled; no simulated purchase is offered.'}</p><Button asChild variant="outline" className="mt-4"><Link to="/credits">{fr ? 'Voir mes soldes et les tarifs' : 'View my balances and pricing'}</Link></Button></section>
+    <section><h2>{fr ? 'Choisir les périphériques dans l’appli d’appel' : 'Choose devices in your calling app'}</h2><div className="dl-tabs" role="tablist">{apps.map(a => <Button key={a} role="tab" aria-selected={a === app} variant={a === app ? 'default' : 'outline'} onClick={() => setApp(a)}>{a}</Button>)}</div><div className="border-y border-border py-4"><p className="mb-3">{app} · {menu}</p><ol className="list-decimal space-y-3 pl-5"><li>{fr ? 'Vidéo : caméra' : 'Video: camera'} <K>Unity Video Capture</K>.</li><li>{fr ? 'Voix traduite : micro' : 'Translated speech: microphone'} <K>CABLE Output</K>.</li><li>{fr ? 'Dans Weechat Traduction : sortie' : 'In Weechat Translation: output'} <K>CABLE Input</K>.</li><li>{fr ? 'Testez l’image et le son avant l’appel. Les menus varient selon les versions ; compatibilité non encore validée.' : 'Test video and audio before the call. Menus vary by version; compatibility is not yet validated.'}</li></ol></div></section>
+    <section id="depannage"><h2>{fr ? '« Unity Video Capture » n’apparaît pas ?' : '“Unity Video Capture” not listed?'}</h2><p className="dl-lead">{fr ? 'Vérifications manuelles, dans l’ordre. Aucune détection automatique ni taux de réussite annoncé.' : 'Manual checks, in order. No automatic detection or claimed success rate.'}</p><div className="dl-check mt-5">{fix.map(([t,d],i) => <article key={t} className="dl-card"><span className="dl-tag">{i+1}</span><h3>{t}</h3><p>{d}</p></article>)}</div></section>
+    <section><h2>{fr ? 'Questions avant de demander de l’aide' : 'Questions before contacting support'}</h2>{(fr ? [
+      ['L’installateur fait-il tout ?', 'Non. Il vise le Swap Live Windows. La traduction reste sur le site ; Restyle IA et Swap Photo n’ont pas leur moteur connecté.'],
+      ['Pourquoi je n’entends pas de traduction ?', 'Vérifiez le solde audio, l’autorisation micro, l’état Palabra et la sortie audio. Pour une autre appli, testez CABLE Input puis CABLE Output avec un casque.'],
+      ['Windows bloque le fichier ?', 'Vérifiez sa provenance officielle. Un avertissement SmartScreen est différent d’un blocage du contrôle intelligent des applications. Ne désactivez pas une protection pour forcer l’installation ; conservez le message exact.'],
+      ['Mon ordinateur est-il assez rapide ?', 'Le calcul Swap Live se fait localement. DirectML peut utiliser un GPU compatible, mais aucun débit d’images n’est garanti sur votre PC. Vérifiez le rendu lors d’un essai court.'],
+    ] : [
+      ['Does setup cover everything?', 'No. It targets Windows Swap Live. Translation stays on the website; Restyle AI and Swap Photo lack connected engines.'],
+      ['Why is no translation audible?', 'Check audio balance, microphone permission, Palabra status and audio output. For another app, test CABLE Input then CABLE Output with headphones.'],
+      ['Windows blocks the file?', 'Verify its official source. A SmartScreen warning differs from a Smart App Control block. Do not disable protection to force installation; keep the exact message.'],
+      ['Is my computer fast enough?', 'Swap Live processing is local. DirectML may use a compatible GPU, but no frame rate is guaranteed on your PC. Check the result in a short trial.'],
+    ]).map(([q,a],i) => <div className="border-b border-border py-3" key={q}><Button variant="ghost" className="h-auto w-full justify-between whitespace-normal text-left" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>{q}<ChevronDown className="shrink-0" /></Button>{open === i && <p className="px-4 pb-3 text-sm leading-relaxed text-muted-foreground">{a}</p>}</div>)}</section>
+    <p className="dl-warn">{fr ? 'L’envoi vers les appels mobile et macOS n’est pas pris en charge. Usage autorisé et consenti uniquement, sans usurpation ni fraude. Besoin d’aide ? Envoyez l’étape, le message exact et une capture sans données privées sur' : 'Routing to mobile and macOS calls is not supported. Authorised, consensual use only; no impersonation or fraud. Need help? Send the step, exact message and a screenshot without private information to'} <a href={whatsappLink(locale)} target="_blank" rel="noreferrer" className="underline">WhatsApp {WHATSAPP_DISPLAY}</a>.</p>
   </div>;
 }
