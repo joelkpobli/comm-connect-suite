@@ -1,5 +1,7 @@
 """Weechat Swap Live — application de bureau (fenêtre graphique, aucun terminal)."""
+import os
 import threading
+import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -20,7 +22,7 @@ class App:
         self.frame = None
         root.title("Weechat Swap Live")
         root.configure(bg=BG)
-        root.geometry("760x680")
+        root.geometry("760x760")
 
         tk.Label(root, text="Weechat Swap Live", bg=BG, fg=FG, font=("Segoe UI", 18, "bold")).pack(pady=10)
         bar = tk.Frame(root, bg=BG)
@@ -74,7 +76,7 @@ class App:
             img, fps = self.frame
             rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             photo = ImageTk.PhotoImage(Image.fromarray(rgb))
-            self.view.config(image=photo, width=rgb.shape[1], height=rgb.shape[0])
+            self.view.config(image=photo)
             self.view.image = photo
             self.root.title(f"Weechat Swap Live — {fps:.1f} img/s")
         self.root.after(40, self.refresh)
