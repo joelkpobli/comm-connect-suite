@@ -140,7 +140,7 @@ export function HomePage() {
           <ul>{(panel.points ?? []).map(p => <li key={p}><Check size={16} />{p}</li>)}</ul>
           <div className="lp-actions">
             <Button asChild><Link to={featureRoutes[n]!}>{c.ctas[n]} <ArrowRight /></Link></Button>
-            <Button asChild variant="ghost"><Link to="/telecharger" hash={featureIds[n]}>{c.guide}</Link></Button>
+            <Button asChild variant="ghost"><Link to="/telecharger" hash={featureIds[n] ?? "swap"}>{c.guide}</Link></Button>
           </div>
         </div>
         <div className="lp-visual">{n === 0 ? <SwapMock /> : n === 1 ? <TranslateMock bubbles={c.bubbles} /> : n === 2 ? <RestyleMock /> : <PhotoMock />}</div>
