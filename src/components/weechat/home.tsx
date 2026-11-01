@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Coins, CalendarClock, Gift, type LucideIcon } from 'lucide-react';
 import 'flag-icons/css/flag-icons.min.css';
