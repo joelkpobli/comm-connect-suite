@@ -205,3 +205,7 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 .lp-ab.l { left:14px; } .lp-ab.r { right:14px; }
 .lp-ref { position:absolute; right:14px; bottom:14px; z-index:3; width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); }
 @media (max-width:820px){ .lp-hero-photo { width:100%; opacity:.45; } #features .lp-panel.rev > .lp-visual { order:0; } }
+#features .lp-visual { aspect-ratio:auto; max-height:none; border:0; background:none; overflow:visible; display:block; }
+#features .lp-mock { width:100%; }
+#features .lp-mock-strip img, #features .lp-ref { width:44px; height:44px; }
+#features .lp-ref { width:56px; height:56px; }

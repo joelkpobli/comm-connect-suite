@@ -15,9 +15,9 @@ import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOp
 import { whatsappLink } from '@/lib/weechat/contact';
 
 import heroPortrait from '@/assets/hero-portrait.jpg';
-import personaF1 from '@/assets/personas/f1.webp';
-import personaF2 from '@/assets/personas/f2.webp';
-import personaM1 from '@/assets/personas/m1.webp';
+import personaF1 from '@/assets/faces/face1.webp';
+import personaF2 from '@/assets/faces/face2.webp';
+import personaM1 from '@/assets/faces/face3.webp';
 
 // Official-style platform marks (simplified inline SVG, brand colors).
 const platformLogos: { name: string; svg: React.ReactNode }[] = [
