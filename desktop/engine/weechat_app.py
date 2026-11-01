@@ -1,5 +1,7 @@
 """Weechat Swap Live — application de bureau (fenêtre graphique, aucun terminal)."""
+import os
 import threading
+import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -20,7 +22,7 @@ class App:
         self.frame = None
         root.title("Weechat Swap Live")
         root.configure(bg=BG)
-        root.geometry("760x680")
+        root.geometry("760x760")
 
         tk.Label(root, text="Weechat Swap Live", bg=BG, fg=FG, font=("Segoe UI", 18, "bold")).pack(pady=10)
         bar = tk.Frame(root, bg=BG)
@@ -37,17 +39,27 @@ class App:
 
         self.face_lbl = tk.Label(root, text="Aucune photo choisie", bg=BG, fg=FG)
         self.face_lbl.pack()
-        self.view = tk.Label(root, bg="black", width=640, height=480)
-        self.view.pack(pady=8)
         self.status = tk.Label(root, text="Prêt. Utilisez uniquement une photo dont vous avez les droits.",
-                               bg=BG, fg=FG, wraplength=700)
-        self.status.pack()
+                               bg=BG, fg="#ffd27a", wraplength=700, font=("Segoe UI", 11, "bold"))
+        self.status.pack(pady=4)
         tk.Label(root, text="3. Dans WhatsApp / Zoom / TikTok, choisissez la caméra « Unity Video Capture ».",
                  bg=BG, fg="#9fb3e6").pack(pady=4)
+        # Fixed pixel-size box: a text Label's width/height are in characters, which pushed status off-screen.
+        box = tk.Frame(root, bg="black", width=640, height=480)
+        box.pack(pady=8)
+        box.pack_propagate(False)
+        self.view = tk.Label(box, bg="black")
+        self.view.pack(fill="both", expand=True)
         root.protocol("WM_DELETE_WINDOW", self.close)
         self.refresh()
 
     def log(self, msg):
+        try:
+            with open(os.path.join(os.path.expanduser("~"), "Desktop", "weechat_log.txt"), "a",
+                      encoding="utf-8") as fh:
+                fh.write(time.strftime("%H:%M:%S ") + str(msg) + "\n")
+        except OSError:
+            pass
         self.root.after(0, lambda: self.status.config(text=msg))
 
     def pick(self):
@@ -64,7 +76,7 @@ class App:
             img, fps = self.frame
             rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             photo = ImageTk.PhotoImage(Image.fromarray(rgb))
-            self.view.config(image=photo, width=rgb.shape[1], height=rgb.shape[0])
+            self.view.config(image=photo)
             self.view.image = photo
             self.root.title(f"Weechat Swap Live — {fps:.1f} img/s")
         self.root.after(40, self.refresh)
