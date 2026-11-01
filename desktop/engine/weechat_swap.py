@@ -23,6 +23,10 @@ MODEL_URL = "https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/ins
 
 
 def providers():
+    # DirectML rejects inswapper's Reshape node on some GPUs (80070057), so CPU is the
+    # default; set WEECHAT_GPU=1 to opt into GPU acceleration.
+    if os.environ.get("WEECHAT_GPU") != "1":
+        return ["CPUExecutionProvider"]
     available = ort.get_available_providers()
     order = [p for p in ("CUDAExecutionProvider", "DmlExecutionProvider") if p in available]
     return order + ["CPUExecutionProvider"]
