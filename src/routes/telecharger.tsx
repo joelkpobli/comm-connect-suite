@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { useState } from 'react';
-import { Download, BookOpen, Video, Languages, Sparkles, Image, Coins, ChevronDown } from 'lucide-react';
+import { Download, BookOpen, Video, Languages, Sparkles, Image, Coins, ChevronDown, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDemo } from '@/components/weechat/provider';
 import { whatsappLink, WHATSAPP_DISPLAY } from '@/lib/weechat/contact';
@@ -33,9 +33,38 @@ function DownloadPage() {
   const fix = checks(fr);
   const menu = app === 'Zoom' ? 'Paramètres → Vidéo / Audio' : app === 'Teams' ? 'Paramètres → Appareils' : app === 'TikTok Live Studio' ? (fr ? 'Sources → Caméra / Microphone' : 'Sources → Camera / Microphone') : (fr ? 'Réglages → Vidéo et voix (selon version)' : 'Settings → Video and voice (version dependent)');
   return <div className="dl">
-    <header><span className="dl-tag">Weechat · {fr ? 'Centre de guides' : 'Guide centre'}</span><h1 className="mt-4">{fr ? 'Tutoriels et téléchargement' : 'Guides and download'}</h1><p className="dl-lead">{fr ? 'Une fonction, un guide. Le logiciel Windows sert au Swap Live ; il ne remplace pas la traduction du site et ne couvre pas tous les modules.' : 'One feature, one guide. The Windows app handles Swap Live; it does not replace website translation or cover every module.'}</p>
-      <nav className="mt-6 flex flex-wrap gap-2" aria-label={fr ? 'Sommaire des guides' : 'Guide contents'}>{cards.map(c => <Button asChild key={c.id} variant="outline"><a href={`#${c.id}`}>{c.title}</a></Button>)}<Button asChild variant="outline"><a href="#points"><Coins />{fr ? 'Points et minutes' : 'Points and minutes'}</a></Button><Button asChild variant="outline"><a href="#depannage">{fr ? 'Dépannage' : 'Troubleshooting'}</a></Button></nav>
+    <header className="dl-hero">
+      <div>
+        <span className="dl-tag">Weechat · Windows 10/11</span>
+        <h1 className="mt-4">{fr ? <>Changez de visage sur WhatsApp, Zoom et Teams. <span>Sans OBS.</span></> : <>Swap your face on WhatsApp, Zoom and Teams. <span>No OBS.</span></>}</h1>
+        <p className="dl-lead">{fr ? 'Installez Weechat, choisissez une photo autorisée, puis sélectionnez la caméra « Unity Video Capture » dans votre appli d’appel.' : 'Install Weechat, choose an authorised photo, then select the “Unity Video Capture” camera in your calling app.'}</p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button size="lg" asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases/latest/download/Weechat-Setup.exe" target="_blank" rel="noreferrer"><Download />{fr ? 'Télécharger pour Windows' : 'Download for Windows'}</a></Button>
+          <Button size="lg" variant="outline" asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases" target="_blank" rel="noreferrer">{fr ? 'Page des versions' : 'Releases page'}</a></Button>
+        </div>
+        <p className="dl-meta">{fr ? 'Version d’essai · 64 bits · ~900 Mo · Gratuit pendant les tests' : 'Trial version · 64-bit · ~900 MB · Free during testing'}</p>
+      </div>
+      <div className="dl-mock" aria-hidden="true">
+        <div className="dl-mock-bar"><i /><i /><i /><span>{fr ? 'Paramètres vidéo' : 'Video settings'}</span></div>
+        <div className="dl-mock-body">
+          <p>{fr ? 'Caméra' : 'Camera'}</p>
+          <div className="dl-mock-opt">HP HD Camera</div>
+          <div className="dl-mock-opt on">Unity Video Capture <Check size={16} /></div>
+          <p className="mt-4">{fr ? 'Micro' : 'Microphone'}</p>
+          <div className="dl-mock-opt">CABLE Output (VB-Audio)</div>
+        </div>
+      </div>
     </header>
+    <section className="dl-quick" aria-label={fr ? 'Installation en 3 étapes' : '3-step setup'}>{(fr ? [
+      ['Installer', 'Lancez Weechat-Setup.exe. Si Windows affiche un écran bleu SmartScreen, vérifiez la provenance officielle.'],
+      ['Démarrer le moteur', 'Ouvrez Weechat, choisissez une photo, la bonne webcam, puis « Démarrer ».'],
+      ['Choisir la caméra', 'Dans WhatsApp, Zoom ou Teams, sélectionnez « Unity Video Capture ».'],
+    ] : [
+      ['Install', 'Run Weechat-Setup.exe. If Windows shows a blue SmartScreen screen, check the official source.'],
+      ['Start the engine', 'Open Weechat, pick a photo and the right webcam, then “Start”.'],
+      ['Pick the camera', 'In WhatsApp, Zoom or Teams, select “Unity Video Capture”.'],
+    ]).map(([t, d], i) => <article key={t} className="dl-card"><span className="dl-num">{i + 1}</span><h3>{t}</h3><p>{d}</p></article>)}</section>
+    <nav className="flex flex-wrap gap-2" aria-label={fr ? 'Sommaire des guides' : 'Guide contents'}>{cards.map(c => <Button asChild key={c.id} variant="outline"><a href={`#${c.id}`}>{c.title}</a></Button>)}<Button asChild variant="outline"><a href="#points"><Coins />{fr ? 'Points et minutes' : 'Points and minutes'}</a></Button><Button asChild variant="outline"><a href="#depannage">{fr ? 'Dépannage' : 'Troubleshooting'}</a></Button></nav>
     <section aria-label={fr ? 'État des fonctions' : 'Feature status'} className="grid gap-3 sm:grid-cols-2">{cards.map(c => { const Icon = icons[c.id]; return <article key={c.id} className="dl-card"><Icon className="text-primary" size={24} /><h3>{c.title}</h3><p>{c.status}</p><a href={`#${c.id}`} className="mt-3 inline-flex items-center gap-2 text-sm text-primary"><BookOpen size={16} />{fr ? 'Lire le guide' : 'Read guide'}</a></article>; })}</section>
     <section id="swap"><h2>01 · Swap Live</h2><p className="dl-lead">{fr ? 'Remplace un visage dans le flux de la webcam. Votre corps, vos vêtements et votre environnement restent ceux de la webcam : ce moteur ne crée pas une nouvelle personne de la tête aux pieds.' : 'Replaces a webcam face. Your body, clothes and surroundings remain from the webcam: this engine does not create a new full-body person.'}</p>
       <p className="dl-note">{fr ? 'Outils : moteur Windows InsightFace / ONNX Runtime, webcam, photo autorisée et pilote Unity Capture. Performances sur votre PC et droits commerciaux des modèles restent à vérifier.' : 'Tools: Windows InsightFace / ONNX Runtime engine, webcam, authorised photo and Unity Capture driver. Your PC performance and commercial model rights still require verification.'}</p>
