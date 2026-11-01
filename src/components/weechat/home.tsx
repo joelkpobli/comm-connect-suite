@@ -13,18 +13,11 @@ import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
 import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 import { whatsappLink } from '@/lib/weechat/contact';
-import clip1 from '@/assets/hero/hero-swap-1.mp4.asset.json';
-import clip2 from '@/assets/hero/hero-swap-2.mp4.asset.json';
-import clip3 from '@/assets/hero/hero-swap-3.mp4.asset.json';
-import poster1 from '@/assets/hero/hero-swap-1.jpg.asset.json';
-import poster2 from '@/assets/hero/hero-swap-2.jpg.asset.json';
-import poster3 from '@/assets/hero/hero-swap-3.jpg.asset.json';
 
-const heroClips = [
-  { src: clip1.url, poster: poster1.url },
-  { src: clip2.url, poster: poster2.url },
-  { src: clip3.url, poster: poster3.url },
-];
+import heroPortrait from '@/assets/hero-portrait.jpg';
+import personaF1 from '@/assets/personas/f1.webp';
+import personaF2 from '@/assets/personas/f2.webp';
+import personaM1 from '@/assets/personas/m1.webp';
 
 // Official-style platform marks (simplified inline SVG, brand colors).
 const platformLogos: { name: string; svg: React.ReactNode }[] = [
@@ -39,15 +32,34 @@ const platformLogos: { name: string; svg: React.ReactNode }[] = [
   { name: 'Discord', svg: <svg viewBox="0 0 24 24" width="18" height="18" fill="#5865F2"><path d="M19.3 5.4A16 16 0 0 0 15.4 4l-.5 1a14 14 0 0 0-5.8 0L8.6 4a16 16 0 0 0-3.9 1.4C2.2 9.3 1.5 13.1 1.8 16.8A16 16 0 0 0 6.7 20l1-1.7a10 10 0 0 1-1.6-.8l.4-.3a11.4 11.4 0 0 0 11 0l.4.3c-.5.3-1 .6-1.6.8l1 1.7a16 16 0 0 0 4.9-3.2c.4-4.2-.7-7.9-2.9-11.4ZM8.7 14.6c-1 0-1.7-.9-1.7-2s.7-2 1.7-2 1.8.9 1.7 2c0 1.1-.7 2-1.7 2Zm6.6 0c-1 0-1.7-.9-1.7-2s.7-2 1.7-2 1.8.9 1.7 2c0 1.1-.7 2-1.7 2Z"/></svg> },
 ];
 
-function VideoSwap({ live, lang, note }: { live: string; lang: string; note: string }) {
-  const [i, setI] = useState(0);
-  useEffect(() => { const id = setInterval(() => setI(v => (v + 1) % heroClips.length), 6500); return () => clearInterval(id); }, []);
-  const cur = heroClips[i]!;
-  return <div className="lp-swap" aria-label={note}>
-    <video key={cur.src} className="lp-swap-img" src={cur.src} poster={cur.poster} autoPlay muted loop playsInline ref={v => { v?.play().catch(() => {}); }} />
-    <div key={`b${i}`} className="lp-beam" aria-hidden="true" />
-    <span className="lp-live-tag"><span />{live}</span>
-    <span className="lp-lang-tag">{lang}</span>
+const featureRoutes = ['/swap-live', '/traduction', '/restyle-live', '/swap-photo'] as const;
+const featureIds = ['swap', 'translation', 'restyle', 'photo'] as const;
+
+function SwapMock() {
+  return <div className="lp-mock lp-mock-call">
+    <img src={heroPortrait} alt="" loading="lazy" width={1600} height={1008} />
+    <span className="lp-live-tag"><span />LIVE</span>
+    <div className="lp-mock-strip">{[personaF1, personaF2, personaM1].map((p, n) => <img key={n} src={p} alt="" className={n === 0 ? 'on' : ''} loading="lazy" />)}</div>
+  </div>;
+}
+function TranslateMock({ bubbles }: { bubbles: string[] }) {
+  return <div className="lp-mock lp-mock-chat">
+    <div className="lp-bubbles"><p><b>FR</b>{bubbles[0]}</p><p className="out"><b>EN</b>{bubbles[1]}</p></div>
+    <div className="lp-wave" aria-hidden="true">{Array.from({ length: 24 }, (_, n) => <i key={n} style={{ height: `${20 + ((n * 37) % 60)}%` }} />)}</div>
+  </div>;
+}
+function RestyleMock() {
+  return <div className="lp-mock lp-mock-restyle">
+    <img src={heroPortrait} alt="" loading="lazy" width={1600} height={1008} />
+    <div className="lp-pills">{['Noir & blanc', 'Vif', 'Contraste'].map(t => <span key={t}>{t}</span>)}</div>
+  </div>;
+}
+function PhotoMock() {
+  return <div className="lp-mock lp-mock-photo">
+    <img src={heroPortrait} alt="" loading="lazy" width={1600} height={1008} />
+    <div className="lp-split" aria-hidden="true" />
+    <span className="lp-ab l">Avant</span><span className="lp-ab r">Après</span>
+    <img src={personaF2} alt="" className="lp-ref" loading="lazy" />
   </div>;
 }
 
@@ -94,13 +106,11 @@ export function HomePage() {
   const [mode, setMode] = useState<'swap' | 'audio'>('swap');
   const [cur, setCur] = useState<Currency>('XOF');
   const [open, setOpen] = useState<number | null>(0);
-  const panel = c.panels[tab]!;
   const plans = mode === 'swap' ? swapPlans : audioPlans;
-  const panelVideo = tab === 0 ? heroClips[0]! : tab === 2 ? heroClips[1]! : null;
   return <div className="lp">
 
     <section className="lp-hero">
-      <VideoSwap live={c.liveTag} lang={c.langTag} note={c.heroNote} />
+      <img className="lp-hero-photo" src={heroPortrait} alt={c.heroNote} width={1600} height={1008} />
       <div className="lp-hero-shade" aria-hidden="true" />
       <div className="lp-hero-inner">
         <h1>{c.heroTitle[0]}<br /><span>{c.heroTitle[1]}</span></h1>
@@ -122,15 +132,19 @@ export function HomePage() {
     </section>
 
     <section id="features" className="lp-section"><h2>{c.featTitle}</h2>
-      <div className="lp-tabs" role="tablist">{(c.tabs ?? []).map((t, n) => <button key={t} role="tab" aria-selected={tab === n} className={tab === n ? 'active' : ''} onClick={() => setTab(n)}>{t}</button>)}</div>
-      <div className="lp-panel">
-        <div><span className="lp-status">{panel.status}</span><h3>{panel.title}</h3><p>{panel.text}</p><ul>{(panel.points ?? []).map(p => <li key={p}><Check size={16} />{p}</li>)}</ul><Button asChild variant="outline"><Link to="/telecharger" hash={['swap', 'translation', 'restyle', 'photo'][tab] ?? 'swap'}>{c.try} <ArrowRight /></Link></Button></div>
-        <div className="lp-visual">{tab === 1
-          ? <div className="lp-bubbles"><p><b>FR</b>{c.bubbles[0]}</p><p className="out"><b>EN</b>{c.bubbles[1]}</p></div>
-          : panelVideo
-            ? <video key={panelVideo.src} src={panelVideo.src} poster={panelVideo.poster} autoPlay muted loop playsInline ref={v => { v?.play().catch(() => {}); }} />
-            : <img src={landingFaces[4]!.src} alt="" />}</div>
-      </div>
+      <div className="lp-tabs">{(c.tabs ?? []).map((t, n) => <a key={t} href={`#feat-${featureIds[n]}`} className={tab === n ? 'active' : ''} onClick={() => setTab(n)}>{t}</a>)}</div>
+      {(c.panels ?? []).map((panel, n) => <div key={panel.title} id={`feat-${featureIds[n]}`} className={`lp-panel ${n % 2 ? 'rev' : ''}`}>
+        <div>
+          {n === 0 && <span className="lp-badge">{c.featured}</span>}
+          <span className="lp-status">{panel.status}</span><h3>{panel.title}</h3><p>{panel.text}</p>
+          <ul>{(panel.points ?? []).map(p => <li key={p}><Check size={16} />{p}</li>)}</ul>
+          <div className="lp-actions">
+            <Button asChild><Link to={featureRoutes[n]!}>{c.ctas[n]} <ArrowRight /></Link></Button>
+            <Button asChild variant="ghost"><Link to="/telecharger" hash={featureIds[n]}>{c.guide}</Link></Button>
+          </div>
+        </div>
+        <div className="lp-visual">{n === 0 ? <SwapMock /> : n === 1 ? <TranslateMock bubbles={c.bubbles} /> : n === 2 ? <RestyleMock /> : <PhotoMock />}</div>
+      </div>)}
     </section>
 
     <section id="security" className="lp-section"><span className="lp-eyebrow">{c.secEyebrow}</span><h2>{c.secTitle}</h2>
