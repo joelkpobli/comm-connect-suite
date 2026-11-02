@@ -1,5 +1,21 @@
 """Weechat Swap Live — application de bureau (fenêtre graphique, aucun terminal)."""
 import os
+import sys
+
+# Sans console (PyInstaller --noconsole), sys.stdout/stderr valent None :
+# toute écriture (print, barres de progression des modèles) plantait avec
+# "'NoneType' object has no attribute 'write'". On les redirige vers un log.
+if sys.stdout is None or sys.stderr is None:
+    try:
+        _log = open(os.path.join(os.path.expanduser("~"), "Desktop", "weechat_console.txt"),
+                    "a", encoding="utf-8", buffering=1)
+    except OSError:
+        _log = open(os.devnull, "w")
+    if sys.stdout is None:
+        sys.stdout = _log
+    if sys.stderr is None:
+        sys.stderr = _log
+
 import threading
 import time
 import tkinter as tk
