@@ -24,6 +24,7 @@ from tkinter import filedialog, messagebox, ttk
 import cv2
 from PIL import Image, ImageTk
 
+import weechat_models
 import weechat_swap
 
 BG, FG, ACCENT = "#0b1530", "#e6ecff", "#2f6bff"
@@ -46,8 +47,9 @@ class App:
         tk.Button(bar, text="1. Choisir la photo du visage", command=self.pick,
                   bg=ACCENT, fg="white", relief="flat", padx=12, pady=6).pack(side="left", padx=4)
         tk.Label(bar, text="Webcam :", bg=BG, fg=FG).pack(side="left", padx=(12, 2))
-        self.cam = ttk.Combobox(bar, values=["0", "1", "2", "3"], width=3, state="readonly")
-        self.cam.set("0")
+        self.cam = ttk.Combobox(bar, values=["auto", "0", "1", "2", "3"], width=5, state="readonly")
+        self.cam.set("auto")
+        self.models = None
         self.cam.pack(side="left")
         self.btn = tk.Button(bar, text="2. Démarrer", command=self.toggle,
                              bg=ACCENT, fg="white", relief="flat", padx=12, pady=6)
@@ -113,12 +115,36 @@ class App:
 
     def work(self):
         try:
-            weechat_swap.run(self.face, camera=int(self.cam.get()), stop_event=self.stop,
-                             log=self.log, preview=False, on_frame=self.on_frame)
+            weechat_swap.run(self.face, camera=self.cam.get(), stop_event=self.stop,
+                             log=self.log, preview=False, on_frame=self.on_frame, root=self.models)
         except Exception as exc:
             self.log(f"Erreur : {exc}")
         finally:
             self.root.after(0, lambda: self.btn.config(text="2. Démarrer"))
+
+    def prepare_models(self):
+        """Téléchargement unique des modèles au premier lancement, reprise automatique."""
+        self.models = weechat_models.models_root()
+        if self.models:
+            return
+        self.btn.config(state="disabled")
+        self.log("Premier lancement : téléchargement des modèles IA (une seule fois, ~830 Mo). "
+                 "Vous pouvez fermer Weechat : il reprendra où il s'est arrêté.")
+
+        def progress(label, have, total):
+            if total:
+                self.log(f"{label} : {have / 1e6:.0f} / {total / 1e6:.0f} Mo ({100 * have / total:.0f} %)")
+            else:
+                self.log(label)
+
+        def job():
+            try:
+                self.models = weechat_models.ensure(progress, self.stop)
+                self.log("Modèles prêts. Choisissez une photo puis cliquez sur Démarrer.")
+                self.root.after(0, lambda: self.btn.config(state="normal"))
+            except Exception as exc:
+                self.log(f"Erreur de téléchargement : {exc} — relancez Weechat pour reprendre.")
+        threading.Thread(target=job, daemon=True).start()
 
     def close(self):
         self.stop.set()
@@ -127,5 +153,6 @@ class App:
 
 if __name__ == "__main__":
     r = tk.Tk()
-    App(r)
+    a = App(r)
+    a.prepare_models()
     r.mainloop()
