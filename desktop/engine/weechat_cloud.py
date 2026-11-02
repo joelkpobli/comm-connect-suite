@@ -26,7 +26,7 @@ class WebcamTrack(VideoStreamTrack):
 
 
 async def run(server, token, camera="auto", log=print, stop=None):
-    cap = weechat_swap.open_camera(camera, log)
+    cap, _ = weechat_swap.open_camera(str(camera), log)
     pc = RTCPeerConnection()
     pc.addTrack(WebcamTrack(cap))
     pc.addTransceiver("video", direction="sendrecv")
