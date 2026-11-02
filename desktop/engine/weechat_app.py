@@ -98,12 +98,48 @@ class App:
             self.face = path
             self.face_lbl.config(text=path)
 
+    def pick_video(self):
+        path = filedialog.askopenfilename(filetypes=[("Vidéos", "*.mp4 *.mov *.avi *.mkv *.webm")])
+        if path:
+            self.video = path
+            self.video_lbl.config(text=path)
+
+    def busy(self):
+        return self.worker is not None and self.worker.is_alive()
+
+    def toggle_studio(self):
+        if self.busy():
+            self.stop.set()
+            self.studio_btn.config(text="Diffuser en boucle")
+            return
+        if not self.video:
+            messagebox.showwarning("Weechat", "Choisissez d'abord une vidéo dont vous avez les droits.")
+            return
+        self.stop.clear()
+        self.studio_btn.config(text="Arrêter la diffusion")
+        self.btn.config(state="disabled")
+
+        def job():
+            try:
+                weechat_studio.play(self.video, self.stop, log=self.log, on_frame=self.on_frame)
+            except Exception as exc:
+                self.log(f"Erreur : {exc}")
+            finally:
+                self.root.after(0, lambda: (self.studio_btn.config(text="Diffuser en boucle"),
+                                            self.btn.config(state="normal" if self.models else "disabled")))
+        self.worker = threading.Thread(target=job, daemon=True)
+        self.worker.start()
+
     def on_frame(self, img, fps):
         self.frame = (img, fps)
 
     def refresh(self):
         if self.frame is not None:
             img, fps = self.frame
+            h, w = img.shape[:2]
+            s = min(640 / w, 480 / h, 1.0)
+            if s < 1.0:
+                img = cv2.resize(img, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA)
             rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             photo = ImageTk.PhotoImage(Image.fromarray(rgb))
             self.view.config(image=photo)
