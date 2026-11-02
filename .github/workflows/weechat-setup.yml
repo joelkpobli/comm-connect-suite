@@ -22,16 +22,13 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt pillow pyinstaller
-      - name: Modèles IA + caméra virtuelle
+      - name: Caméra virtuelle (les modèles IA sont téléchargés une seule fois au premier lancement)
         run: |
-          New-Item -ItemType Directory -Force build-assets/models/models/buffalo_l, build-assets/vcam | Out-Null
-          curl.exe -L --retry 5 -o build-assets/models/inswapper_128.onnx https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/inswapper_128.onnx
-          curl.exe -L --retry 5 -o buffalo_l.zip https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip
-          Expand-Archive buffalo_l.zip -DestinationPath build-assets/models/models/buffalo_l -Force
+          New-Item -ItemType Directory -Force build-assets/vcam | Out-Null
           curl.exe -L --retry 5 -o build-assets/vcam/UnityCaptureFilter64.dll https://github.com/schellingb/UnityCapture/raw/master/Install/UnityCaptureFilter64.dll
           curl.exe -L --retry 5 -o build-assets/vcam/UnityCaptureFilter32.dll https://github.com/schellingb/UnityCapture/raw/master/Install/UnityCaptureFilter32.dll
       - name: Application (PyInstaller)
-        run: pyinstaller --noconfirm --windowed --name Weechat --collect-all insightface --collect-all onnxruntime --collect-all pyvirtualcam --collect-data albumentations weechat_app.py
+        run: pyinstaller --noconfirm --windowed --name Weechat --collect-all insightface --collect-all onnxruntime --collect-all pyvirtualcam --collect-data albumentations --hidden-import weechat_models weechat_app.py
       - name: Installateur (Inno Setup)
         run: |
           choco install innosetup -y --no-progress
@@ -45,7 +42,7 @@ jobs:
         with:
           tag_name: weechat-latest
           name: Weechat pour Windows
-          body: Installateur Weechat pour Windows 10/11.
+          body: Installateur léger Weechat pour Windows 10/11. Les modèles IA (~830 Mo) se téléchargent une seule fois au premier lancement, avec reprise automatique.
           make_latest: true
           files: dist-installer/Weechat-Setup.exe
           fail_on_unmatched_files: true
