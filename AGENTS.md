@@ -35,3 +35,4 @@
 - Weechat-Setup.exe is built by .github/workflows/weechat-setup.yml on a free Windows runner (PyInstaller + Inno Setup, models and Unity Capture virtual camera bundled); end users never install Python or OBS.
 
 - Keep feature-status as the browser-safe source of current capability boundaries; the standalone Python engine remains unlinked to accounts and billing until a validated desktop entitlement protocol exists, so UI must not imply metered access.
+- Cloud Live (Option 1) lives in cloud/gateway (aiortc WebRTC GPU server, Supabase-token verified, no frame storage) with the desktop client weechat_cloud.py feeding the virtual camera; the avatar engine is a pluggable module and passthrough must be labeled as network test only.
