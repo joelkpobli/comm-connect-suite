@@ -57,6 +57,18 @@ class App:
 
         self.face_lbl = tk.Label(root, text="Aucune photo choisie", bg=BG, fg=FG)
         self.face_lbl.pack()
+
+        studio = tk.Frame(root, bg=BG)
+        studio.pack(pady=4)
+        tk.Label(studio, text="Mode Studio :", bg=BG, fg=FG, font=("Segoe UI", 10, "bold")).pack(side="left", padx=4)
+        tk.Button(studio, text="Choisir une vidéo", command=self.pick_video,
+                  bg=ACCENT, fg="white", relief="flat", padx=10, pady=4).pack(side="left", padx=4)
+        self.studio_btn = tk.Button(studio, text="Diffuser en boucle", command=self.toggle_studio,
+                                    bg=ACCENT, fg="white", relief="flat", padx=10, pady=4)
+        self.studio_btn.pack(side="left", padx=4)
+        self.video = None
+        self.video_lbl = tk.Label(root, text="Aucune vidéo choisie", bg=BG, fg=FG)
+        self.video_lbl.pack()
         self.status = tk.Label(root, text="Prêt. Utilisez uniquement une photo dont vous avez les droits.",
                                bg=BG, fg="#ffd27a", wraplength=700, font=("Segoe UI", 11, "bold"))
         self.status.pack(pady=4)
@@ -86,12 +98,48 @@ class App:
             self.face = path
             self.face_lbl.config(text=path)
 
+    def pick_video(self):
+        path = filedialog.askopenfilename(filetypes=[("Vidéos", "*.mp4 *.mov *.avi *.mkv *.webm")])
+        if path:
+            self.video = path
+            self.video_lbl.config(text=path)
+
+    def busy(self):
+        return self.worker is not None and self.worker.is_alive()
+
+    def toggle_studio(self):
+        if self.busy():
+            self.stop.set()
+            self.studio_btn.config(text="Diffuser en boucle")
+            return
+        if not self.video:
+            messagebox.showwarning("Weechat", "Choisissez d'abord une vidéo dont vous avez les droits.")
+            return
+        self.stop.clear()
+        self.studio_btn.config(text="Arrêter la diffusion")
+        self.btn.config(state="disabled")
+
+        def job():
+            try:
+                weechat_studio.play(self.video, self.stop, log=self.log, on_frame=self.on_frame)
+            except Exception as exc:
+                self.log(f"Erreur : {exc}")
+            finally:
+                self.root.after(0, lambda: (self.studio_btn.config(text="Diffuser en boucle"),
+                                            self.btn.config(state="normal" if self.models else "disabled")))
+        self.worker = threading.Thread(target=job, daemon=True)
+        self.worker.start()
+
     def on_frame(self, img, fps):
         self.frame = (img, fps)
 
     def refresh(self):
         if self.frame is not None:
             img, fps = self.frame
+            h, w = img.shape[:2]
+            s = min(640 / w, 480 / h, 1.0)
+            if s < 1.0:
+                img = cv2.resize(img, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA)
             rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             photo = ImageTk.PhotoImage(Image.fromarray(rgb))
             self.view.config(image=photo)
