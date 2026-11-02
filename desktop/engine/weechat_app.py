@@ -57,6 +57,18 @@ class App:
 
         self.face_lbl = tk.Label(root, text="Aucune photo choisie", bg=BG, fg=FG)
         self.face_lbl.pack()
+
+        studio = tk.Frame(root, bg=BG)
+        studio.pack(pady=4)
+        tk.Label(studio, text="Mode Studio :", bg=BG, fg=FG, font=("Segoe UI", 10, "bold")).pack(side="left", padx=4)
+        tk.Button(studio, text="Choisir une vidéo", command=self.pick_video,
+                  bg=ACCENT, fg="white", relief="flat", padx=10, pady=4).pack(side="left", padx=4)
+        self.studio_btn = tk.Button(studio, text="Diffuser en boucle", command=self.toggle_studio,
+                                    bg=ACCENT, fg="white", relief="flat", padx=10, pady=4)
+        self.studio_btn.pack(side="left", padx=4)
+        self.video = None
+        self.video_lbl = tk.Label(root, text="Aucune vidéo choisie", bg=BG, fg=FG)
+        self.video_lbl.pack()
         self.status = tk.Label(root, text="Prêt. Utilisez uniquement une photo dont vous avez les droits.",
                                bg=BG, fg="#ffd27a", wraplength=700, font=("Segoe UI", 11, "bold"))
         self.status.pack(pady=4)
