@@ -11,7 +11,7 @@ import visaLogo from '@/assets/pay/visa.png.asset.json';
 import mcLogo from '@/assets/pay/mastercard.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
-import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
+import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, cameraLicense, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 import { whatsappLink } from '@/lib/weechat/contact';
 
 import heroPortrait from '@/assets/hero-portrait.jpg';

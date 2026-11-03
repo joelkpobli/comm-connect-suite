@@ -59,3 +59,22 @@ describe('présentation des lignes de pack', () => {
     expect(classifyLine('Valable 90 jours').kind).toBe('validity');
   });
 });
+
+import { cameraLicense, studioRates } from '@/lib/weechat/landing-copy';
+describe('Studio et licence caméra', () => {
+  it('Studio Cas 2 coûte plus que le Cas 1 (1 pt/s contre 5 pts/s)', () => {
+    expect(studioRates).toEqual({ cas1: 1, cas2: 5 });
+  });
+  it('la licence Weechat Camera coûte 10 000 FCFA une seule fois, incluse en Premium et Ultimate', () => {
+    expect(cameraLicense.priceXOF).toBe(10000);
+    expect(cameraLicense.includedIn).toEqual(['premium', 'ultimate']);
+  });
+  it('le Cas 1 arrive dès Starter, le Cas 2 dès Standard', () => {
+    const has = (id: string, t: string) => swapPlans.find(p => p.id === id)!.lines.fr.some(l => l.includes(t));
+    expect(has('decouverte', 'Studio')).toBe(false);
+    expect(has('starter', 'Cas 1')).toBe(true);
+    expect(has('starter', 'Cas 2')).toBe(false);
+    for (const id of ['standard', 'premium', 'ultimate']) expect(has(id, 'Cas 2')).toBe(true);
+    for (const id of ['premium', 'ultimate']) expect(has(id, 'voix traduite')).toBe(true);
+  });
+});
