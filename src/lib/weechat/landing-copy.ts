@@ -27,23 +27,23 @@ export type Plan = {
 export const swapPlans: Plan[] = [
   {
     id: 'decouverte', name: 'Pack Découverte', badge: 'Offre découverte', price: { XOF: '4 999', EUR: '7,60', USD: '8,30' }, points: 417, validity: 3,
-    lines: { fr: ['417 points (3 min 28 s de Swap Live)', 'Visage & apparence en direct', 'Valable 3 jours'], en: ['417 points (3 min 28 s of Swap Live)', 'Live face & appearance', 'Valid 3 days'] },
+    lines: { fr: ['417 points (3 min 28 s de Swap Live)', 'Visage en direct sur votre webcam', 'Valable 3 jours'], en: ['417 points (3 min 28 s of Swap Live)', 'Live face on your webcam', 'Valid 3 days'] },
   },
   {
     id: 'starter', name: 'Starter', price: { XOF: '19 900', EUR: '30,50', USD: '33' }, points: 1658, validity: 30,
-    lines: { fr: ['Live : 13 min 49 s', 'Restyle : 13 min 49 s', 'Photos : 829', 'Valable 30 jours'], en: ['Live: 13 min 49 s', 'Restyle: 13 min 49 s', 'Photos: 829', 'Valid 30 days'] },
+    lines: { fr: ['Live : 13 min 49 s', 'Studio Cas 1 · vidéo prête : 27 min 38 s', 'Valable 30 jours'], en: ['Live: 13 min 49 s', 'Studio Case 1 · ready video: 27 min 38 s', 'Valid 30 days'] },
   },
   {
     id: 'standard', name: 'Standard', popular: true, price: { XOF: '49 900', EUR: '76', USD: '83' }, points: 3960, validity: 90,
-    lines: { fr: ['Live : 33 min', 'Restyle : 33 min', 'Photos : 1 980', 'Bonus : Traduction 30 min', 'Valable 90 jours'], en: ['Live: 33 min', 'Restyle: 33 min', 'Photos: 1,980', 'Bonus: 30 min translation', 'Valid 90 days'] },
+    lines: { fr: ['Live : 33 min', 'Studio Cas 1 · vidéo prête : 66 min', 'Studio Cas 2 · transformation : 13 min 12 s', 'Bonus : Traduction 30 min', 'Valable 90 jours'], en: ['Live: 33 min', 'Studio Case 1 · ready video: 66 min', 'Studio Case 2 · transformation: 13 min 12 s', 'Bonus: 30 min translation', 'Valid 90 days'] },
   },
   {
     id: 'premium', name: 'Premium', price: { XOF: '84 900', EUR: '129', USD: '141' }, points: 5640, validity: 365,
-    lines: { fr: ['Live : 47 min', 'Restyle : 47 min', 'Photos : 2 820', 'Bonus : Traduction 1 h', 'Caméra virtuelle à vie', 'Valable 365 jours'], en: ['Live: 47 min', 'Restyle: 47 min', 'Photos: 2,820', 'Bonus: 1 h translation', 'Lifetime virtual camera', 'Valid 365 days'] },
+    lines: { fr: ['Live : 47 min', 'Live visage + voix traduite', 'Studio Cas 1 · vidéo prête : 94 min', 'Studio Cas 2 · transformation : 18 min 48 s', 'Bonus : Traduction 1 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 47 min', 'Live face + translated voice', 'Studio Case 1 · ready video: 94 min', 'Studio Case 2 · transformation: 18 min 48 s', 'Bonus: 1 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
   },
   {
     id: 'ultimate', name: 'Ultimate', price: { XOF: '150 000', EUR: '229', USD: '250' }, points: 11400, validity: 365,
-    lines: { fr: ['Live : 1 h 35 min', 'Restyle : 1 h 35 min', 'Photos : 5 700', 'Bonus : Traduction 2 h', 'Caméra virtuelle à vie', 'Valable 365 jours'], en: ['Live: 1 h 35 min', 'Restyle: 1 h 35 min', 'Photos: 5,700', 'Bonus: 2 h translation', 'Lifetime virtual camera', 'Valid 365 days'] },
+    lines: { fr: ['Live : 1 h 35 min', 'Live visage + voix traduite', 'Studio Cas 1 · vidéo prête : 3 h 10 min', 'Studio Cas 2 · transformation : 38 min', 'Bonus : Traduction 2 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 1 h 35 min', 'Live face + translated voice', 'Studio Case 1 · ready video: 3 h 10 min', 'Studio Case 2 · transformation: 38 min', 'Bonus: 2 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
   },
 ];
 
@@ -63,6 +63,10 @@ export const audioPlans: Plan[] = [
 ];
 
 export const consumption = { live: 2, restyle: 2, photo: 2 }; // pts per second / per photo
+// Studio points per second of video: Case 1 streams a ready video, Case 2 transforms it (costs more).
+export const studioRates = { cas1: 1, cas2: 5 };
+// Weechat Camera: one-time lifetime licence (FCFA), included in Premium and Ultimate.
+export const cameraLicense = { priceXOF: 10000, price: { XOF: '10 000', EUR: '15,25', USD: '16,70' }, includedIn: ['premium', 'ultimate'] };
 
 // Mobile Money coverage: 24 African countries (ISO 3166 code for the official flag + name).
 export const momoCountries: [string, string][] = [
@@ -114,7 +118,8 @@ const fr = {
   swapTitle: 'Swap Live', swapSub: 'Transformez votre visage et votre apparence en temps réel.',
   audioTitle: 'Traduction audio', audioSub: 'Parlez. On traduit votre voix en temps réel.',
   points: 'points', bonusLabel: 'Bonus inclus', choose: 'Choisir', popular: 'Meilleur choix', days: 'jours',
-  consumptionNote: 'Tarifs IA prévus : Live 2 pts/s · Restyle 2 pts/s · Photo 2 pts/photo. Windows non relié, filtres locaux gratuits, Swap Photo indisponible.',
+  consumptionNote: 'Tarifs prévus : Swap Live 2 pts/s · Studio Cas 1 (diffuser une vidéo prête) 1 pt/s · Studio Cas 2 (transformer votre vidéo avec une photo) 5 pts/s. Les points d’un pack servent à toutes ces fonctions. Logiciel Windows pas encore relié aux points.',
+  camTitle: 'Licence Weechat Camera', camSub: 'Paiement unique · à vie', camLines: ['Weechat apparaît comme caméra dans WhatsApp, Facebook Live, TikTok, Google Meet, Zoom', 'Aucune expiration', 'Incluse dans Premium et Ultimate'], camNote: 'Achat prévu · paiement pas encore actif. Les points restent nécessaires pour Swap Live et Studio.',
   priceDisclaimer: 'Grille de présentation · aucun paiement n’est encore actif sur Weechat.',
   faqTitle: 'Foire aux questions',
   faq: [
@@ -171,7 +176,8 @@ const en: typeof fr = {
   swapTitle: 'Swap Live', swapSub: 'Transform your face and appearance in real time.',
   audioTitle: 'Audio translation', audioSub: 'Speak. We translate your voice in real time.',
   points: 'points', bonusLabel: 'Included bonus', choose: 'Choose', popular: 'Best choice', days: 'days',
-  consumptionNote: 'Planned AI rates: Live 2 pts/s · Restyle 2 pts/s · Photo 2 pts/photo. Windows unlinked, local filters free, Swap Photo unavailable.',
+  consumptionNote: 'Planned rates: Swap Live 2 pts/s · Studio Case 1 (stream a ready video) 1 pt/s · Studio Case 2 (transform your video with a photo) 5 pts/s. A pack’s points work for all of these. Windows app not yet linked to points.',
+  camTitle: 'Weechat Camera licence', camSub: 'One-time payment · lifetime', camLines: ['Weechat appears as a camera in WhatsApp, Facebook Live, TikTok, Google Meet, Zoom', 'No expiry', 'Included in Premium and Ultimate'], camNote: 'Planned purchase · payment not active yet. Points are still needed for Swap Live and Studio.',
   priceDisclaimer: 'Presentation pricing · no payment is active on Weechat yet.',
   faqTitle: 'Frequently asked questions',
   faq: [
@@ -200,6 +206,7 @@ export function classifyLine(line: string): { kind: LineKind; bonus: boolean } {
   const kind: LineKind = l.includes('valable') || l.includes('valid') ? 'validity'
     : l.includes('virtuel') || l.includes('virtual') ? 'vcam'
     : l.includes('restyle') ? 'restyle'
+    : l.includes('studio') ? 'live'
     : l.includes('photo') ? 'photo'
     : l.includes('point') ? 'points'
     : l.startsWith('live') || l.includes('en direct') || l.includes('live face') ? 'live'

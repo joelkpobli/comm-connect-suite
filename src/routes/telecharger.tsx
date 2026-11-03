@@ -42,7 +42,7 @@ function DownloadPage() {
           <Button size="lg" asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases/latest/download/Weechat-Setup.exe" target="_blank" rel="noreferrer"><Download />{fr ? 'Télécharger pour Windows' : 'Download for Windows'}</a></Button>
           <Button size="lg" variant="outline" asChild><a href="https://github.com/joelkpobli/comm-connect-suite/releases" target="_blank" rel="noreferrer">{fr ? 'Page des versions' : 'Releases page'}</a></Button>
         </div>
-        <p className="dl-meta">{fr ? 'Version d’essai · 64 bits · ~900 Mo · Gratuit pendant les tests' : 'Trial version · 64-bit · ~900 MB · Free during testing'}</p>
+        <p className="dl-meta">{fr ? 'Version d’essai · 64 bits · ~151 Mo · Application gratuite · Licence Weechat Camera prévue : 10 000 FCFA, une seule fois (paiement pas encore actif)' : 'Trial version · 64-bit · ~151 MB · Free app · Planned Weechat Camera licence: 10,000 FCFA, one time (payment not active yet)'}</p>
       </div>
       <div className="dl-mock" aria-hidden="true">
         <div className="dl-mock-bar"><i /><i /><i /><span>{fr ? 'Paramètres vidéo' : 'Video settings'}</span></div>
