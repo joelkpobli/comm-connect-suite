@@ -11,7 +11,7 @@ import visaLogo from '@/assets/pay/visa.png.asset.json';
 import mcLogo from '@/assets/pay/mastercard.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
-import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
+import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, cameraLicense, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 import { whatsappLink } from '@/lib/weechat/contact';
 
 import heroPortrait from '@/assets/hero-portrait.jpg';
@@ -178,6 +178,7 @@ export function HomePage() {
       <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : c.audioTitle}</h3>
       <p className="lp-lead">{mode === 'swap' ? c.swapSub : c.audioSub}</p>
       {plans.filter(p => p.badge).map(p => <DiscoveryCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}
+      {mode === 'swap' && <article className="lp-discovery"><div><span className="lp-badge">{c.camSub}</span><h3>{c.camTitle}</h3></div><div className="lp-discovery-lines"><ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul><small>{c.camNote}</small></div><div className="lp-discovery-cta"><strong>{cameraLicense.price[cur]}<small>{cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$'}</small></strong></div></article>}
       <div className={`lp-prices ${mode === 'audio' ? 'three' : 'four'}`}>{(plans ?? []).filter(p => !p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
       <small className="lp-conso">{c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>
