@@ -26,6 +26,7 @@ from PIL import Image, ImageTk
 
 import weechat_models
 import weechat_studio
+import weechat_audio
 import weechat_swap
 
 BG, FG, ACCENT = "#0b1530", "#e6ecff", "#2f6bff"
@@ -70,6 +71,14 @@ class App:
         self.video = None
         self.video_lbl = tk.Label(root, text="Aucune vidéo choisie", bg=BG, fg=FG)
         self.video_lbl.pack()
+        sound = tk.Frame(root, bg=BG)
+        sound.pack(pady=2)
+        tk.Label(sound, text="Son de la vidéo :", bg=BG, fg=FG).pack(side="left", padx=4)
+        outs = weechat_audio.outputs() + ["Couper le son"]
+        self.audio_out = tk.StringVar(value=outs[0])
+        tk.OptionMenu(sound, self.audio_out, *outs).pack(side="left")
+        tk.Label(root, text="Pour vos appels : « CABLE Input » ici, puis micro « CABLE Output » dans WhatsApp / TikTok.",
+                 bg=BG, fg="#9fb3e6").pack()
         self.status = tk.Label(root, text="Prêt. Utilisez uniquement une photo dont vous avez les droits.",
                                bg=BG, fg="#ffd27a", wraplength=700, font=("Segoe UI", 11, "bold"))
         self.status.pack(pady=4)
@@ -122,7 +131,9 @@ class App:
 
         def job():
             try:
-                weechat_studio.play(self.video, self.stop, log=self.log, on_frame=self.on_frame)
+                out = self.audio_out.get()
+                weechat_studio.play(self.video, self.stop, log=self.log, on_frame=self.on_frame,
+                                    audio_out=None if out == "Couper le son" else out)
             except Exception as exc:
                 self.log(f"Erreur : {exc}")
             finally:

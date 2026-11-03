@@ -25,14 +25,26 @@ def fit(frame, w=OUT_W, h=OUT_H):
     return out
 
 
-def play(path, stop_event, log=print, on_frame=None, loop=True, vcam_on=True):
+def play(path, stop_event, log=print, on_frame=None, loop=True, vcam_on=True, audio_out=None):
     cap = cv2.VideoCapture(path)
     if not cap.isOpened():
         raise RuntimeError("Impossible d'ouvrir cette vidéo (format MP4/MOV/AVI/MKV attendu).")
     fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
     fps = fps if 1 <= fps <= 60 else 30.0
+    player = None
+    if audio_out:
+        try:
+            import weechat_audio
+            pcm = weechat_audio.decode(path)
+            if pcm is None:
+                log("Cette vidéo ne contient pas de son.")
+            else:
+                player = weechat_audio.Player(pcm, audio_out, log)
+        except Exception as exc:
+            log(f"Son indisponible : {exc}")
     vcam = weechat_swap.open_vcam(OUT_W, OUT_H, log) if vcam_on else None
-    log("Diffusion en cours" + (" dans « Unity Video Capture »." if vcam else " (aperçu seulement)."))
+    log("Diffusion en cours" + (" dans « Unity Video Capture »." if vcam else " (aperçu seulement).")
+        + (" Son actif." if player else ""))
     delay, start, n = 1.0 / fps, time.perf_counter(), 0
     try:
         while not stop_event.is_set():
@@ -44,6 +56,9 @@ def play(path, stop_event, log=print, on_frame=None, loop=True, vcam_on=True):
                 ok, frame = cap.read()
                 if not ok:
                     raise RuntimeError("La vidéo ne contient aucune image lisible.")
+                if player:
+                    player.restart()
+                start, n = time.perf_counter(), 0
             out = fit(frame)
             if vcam is not None:
                 vcam.send(cv2.cvtColor(out, cv2.COLOR_BGR2RGB))
@@ -57,6 +72,8 @@ def play(path, stop_event, log=print, on_frame=None, loop=True, vcam_on=True):
                 start, n = time.perf_counter(), 0
     finally:
         cap.release()
+        if player:
+            player.close()
         if vcam is not None:
             vcam.close()
         log("Diffusion arrêtée.")

@@ -28,7 +28,7 @@ jobs:
           curl.exe -L --retry 5 -o build-assets/vcam/UnityCaptureFilter64.dll https://github.com/schellingb/UnityCapture/raw/master/Install/UnityCaptureFilter64.dll
           curl.exe -L --retry 5 -o build-assets/vcam/UnityCaptureFilter32.dll https://github.com/schellingb/UnityCapture/raw/master/Install/UnityCaptureFilter32.dll
       - name: Application (PyInstaller)
-        run: pyinstaller --noconfirm --windowed --name Weechat --collect-all insightface --collect-all onnxruntime --collect-all pyvirtualcam --collect-data albumentations --hidden-import weechat_models --hidden-import weechat_studio weechat_app.py
+        run: pyinstaller --noconfirm --windowed --name Weechat --collect-all insightface --collect-all onnxruntime --collect-all pyvirtualcam --collect-data albumentations --hidden-import weechat_models --hidden-import weechat_studio --hidden-import weechat_audio --collect-all imageio_ffmpeg --collect-all sounddevice weechat_app.py
       - name: Installateur (Inno Setup)
         run: |
           choco install innosetup -y --no-progress
