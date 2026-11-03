@@ -25,6 +25,7 @@ import cv2
 from PIL import Image, ImageTk
 
 import weechat_models
+import weechat_studio
 import weechat_swap
 
 BG, FG, ACCENT = "#0b1530", "#e6ecff", "#2f6bff"
