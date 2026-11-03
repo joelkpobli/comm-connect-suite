@@ -26,6 +26,7 @@ from PIL import Image, ImageTk
 
 import weechat_models
 import weechat_studio
+import weechat_transform
 import weechat_audio
 import weechat_swap
 
@@ -41,7 +42,7 @@ class App:
         self.frame = None
         root.title("Weechat Swap Live")
         root.configure(bg=BG)
-        root.geometry("760x760")
+        root.geometry("900x800")
 
         tk.Label(root, text="Weechat Swap Live", bg=BG, fg=FG, font=("Segoe UI", 18, "bold")).pack(pady=10)
         bar = tk.Frame(root, bg=BG)
@@ -69,6 +70,10 @@ class App:
                                     bg=ACCENT, fg="white", relief="flat", padx=10, pady=4)
         self.studio_btn.pack(side="left", padx=4)
         self.video = None
+        self.transform_btn = tk.Button(studio, text="Transformer avec la photo (Cas 2)",
+                                       command=self.toggle_transform, bg=ACCENT, fg="white",
+                                       relief="flat", padx=10, pady=4)
+        self.transform_btn.pack(side="left", padx=4)
         self.video_lbl = tk.Label(root, text="Aucune vidéo choisie", bg=BG, fg=FG)
         self.video_lbl.pack()
         sound = tk.Frame(root, bg=BG)
@@ -138,6 +143,37 @@ class App:
                 self.log(f"Erreur : {exc}")
             finally:
                 self.root.after(0, lambda: (self.studio_btn.config(text="Diffuser en boucle"),
+                                            self.btn.config(state="normal" if self.models else "disabled")))
+        self.worker = threading.Thread(target=job, daemon=True)
+        self.worker.start()
+
+    def toggle_transform(self):
+        if self.busy():
+            self.stop.set()
+            return
+        if not self.video or not self.face:
+            messagebox.showwarning("Weechat", "Choisissez une photo de visage ET une vidéo dont vous avez les droits.")
+            return
+        if not self.models:
+            messagebox.showwarning("Weechat", "Attendez la fin du téléchargement des modèles IA.")
+            return
+        self.stop.clear()
+        self.transform_btn.config(text="Annuler la transformation")
+        self.btn.config(state="disabled")
+        self.studio_btn.config(state="disabled")
+
+        def job():
+            try:
+                result = weechat_transform.transform(self.video, self.face, self.stop, log=self.log,
+                                                     on_frame=self.on_frame, root=self.models)
+                if result:
+                    self.video = result
+                    self.root.after(0, lambda: self.video_lbl.config(text=result))
+            except Exception as exc:
+                self.log(f"Erreur : {exc}")
+            finally:
+                self.root.after(0, lambda: (self.transform_btn.config(text="Transformer avec la photo (Cas 2)"),
+                                            self.studio_btn.config(state="normal"),
                                             self.btn.config(state="normal" if self.models else "disabled")))
         self.worker = threading.Thread(target=job, daemon=True)
         self.worker.start()
