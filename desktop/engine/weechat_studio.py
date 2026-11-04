@@ -1,4 +1,4 @@
-"""Weechat Studio — Cas 1 : diffusion d'une vidéo MP4 en boucle dans la caméra virtuelle.
+"""Weechat Studio — Diffusion Vidéo : diffusion d'une vidéo MP4 en boucle dans la caméra virtuelle.
 
 Traitement 100 % local, aucune image envoyée ni enregistrée.
 Tarif prévu : 1 point par seconde de diffusion. Ce module ne débite PAS encore de points :
@@ -43,7 +43,7 @@ def play(path, stop_event, log=print, on_frame=None, loop=True, vcam_on=True, au
         except Exception as exc:
             log(f"Son indisponible : {exc}")
     vcam = weechat_swap.open_vcam(OUT_W, OUT_H, log) if vcam_on else None
-    log("Diffusion en cours" + (" dans « Unity Video Capture »." if vcam else " (aperçu seulement).")
+    log("Diffusion en cours" + (" dans « Weechat Camera »." if vcam else " (aperçu seulement).")
         + (" Son actif." if player else ""))
     delay, start, n = 1.0 / fps, time.perf_counter(), 0
     try:

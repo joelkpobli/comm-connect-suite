@@ -88,7 +88,7 @@ def open_vcam(width, height, log):
     import pyvirtualcam
     for backend in ("unitycapture", "obs", None):
         try:
-            cam = pyvirtualcam.Camera(width=width, height=height, fps=20, backend=backend) if backend \
+            cam = pyvirtualcam.Camera(width=width, height=height, fps=20, backend=backend, **({"device": "Weechat Camera"} if backend == "unitycapture" else {})) if backend \
                 else pyvirtualcam.Camera(width=width, height=height, fps=20)
             log(f"Caméra virtuelle active : {cam.device} — choisissez-la dans WhatsApp/Zoom/TikTok")
             return cam
