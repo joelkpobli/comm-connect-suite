@@ -42,7 +42,7 @@ async def run(server, token, camera="auto", log=print, stop=None):
                     img = frame.to_ndarray(format="rgb24")
                     if vcam is None:
                         vcam = weechat_swap.open_vcam(img.shape[1], img.shape[0], log)
-                        log("Cloud Live connecté : flux envoyé à Unity Video Capture.")
+                        log("Cloud Live connecté : flux envoyé à Weechat Camera.")
                     if vcam:
                         vcam.send(img)
             finally:

@@ -31,19 +31,19 @@ export const swapPlans: Plan[] = [
   },
   {
     id: 'starter', name: 'Starter', price: { XOF: '19 900', EUR: '30,50', USD: '33' }, points: 1658, validity: 30,
-    lines: { fr: ['Live : 13 min 49 s', 'Studio Cas 1 · vidéo prête : 27 min 38 s', 'Valable 30 jours'], en: ['Live: 13 min 49 s', 'Studio Case 1 · ready video: 27 min 38 s', 'Valid 30 days'] },
+    lines: { fr: ['Live : 13 min 49 s', 'Studio Diffusion Vidéo : 27 min 38 s', 'Valable 30 jours'], en: ['Live: 13 min 49 s', 'Studio Video Broadcast: 27 min 38 s', 'Valid 30 days'] },
   },
   {
     id: 'standard', name: 'Standard', popular: true, price: { XOF: '49 900', EUR: '76', USD: '83' }, points: 3960, validity: 90,
-    lines: { fr: ['Live : 33 min', 'Studio Cas 1 · vidéo prête : 66 min', 'Studio Cas 2 · transformation : 13 min 12 s', 'Bonus : Traduction 30 min', 'Valable 90 jours'], en: ['Live: 33 min', 'Studio Case 1 · ready video: 66 min', 'Studio Case 2 · transformation: 13 min 12 s', 'Bonus: 30 min translation', 'Valid 90 days'] },
+    lines: { fr: ['Live : 33 min', 'Studio Diffusion Vidéo : 66 min', 'Studio Transformation Avatar : 13 min 12 s', 'Bonus : Traduction 30 min', 'Valable 90 jours'], en: ['Live: 33 min', 'Studio Video Broadcast: 66 min', 'Studio Avatar Transformation: 13 min 12 s', 'Bonus: 30 min translation', 'Valid 90 days'] },
   },
   {
     id: 'premium', name: 'Premium', price: { XOF: '84 900', EUR: '129', USD: '141' }, points: 5640, validity: 365,
-    lines: { fr: ['Live : 47 min', 'Live visage + voix traduite', 'Studio Cas 1 · vidéo prête : 94 min', 'Studio Cas 2 · transformation : 18 min 48 s', 'Bonus : Traduction 1 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 47 min', 'Live face + translated voice', 'Studio Case 1 · ready video: 94 min', 'Studio Case 2 · transformation: 18 min 48 s', 'Bonus: 1 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
+    lines: { fr: ['Live : 47 min', 'Live visage + voix traduite', 'Studio Diffusion Vidéo : 94 min', 'Studio Transformation Avatar : 18 min 48 s', 'Bonus : Traduction 1 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 47 min', 'Live face + translated voice', 'Studio Video Broadcast: 94 min', 'Studio Avatar Transformation: 18 min 48 s', 'Bonus: 1 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
   },
   {
     id: 'ultimate', name: 'Ultimate', price: { XOF: '150 000', EUR: '229', USD: '250' }, points: 11400, validity: 365,
-    lines: { fr: ['Live : 1 h 35 min', 'Live visage + voix traduite', 'Studio Cas 1 · vidéo prête : 3 h 10 min', 'Studio Cas 2 · transformation : 38 min', 'Bonus : Traduction 2 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 1 h 35 min', 'Live face + translated voice', 'Studio Case 1 · ready video: 3 h 10 min', 'Studio Case 2 · transformation: 38 min', 'Bonus: 2 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
+    lines: { fr: ['Live : 1 h 35 min', 'Live visage + voix traduite', 'Studio Diffusion Vidéo : 3 h 10 min', 'Studio Transformation Avatar : 38 min', 'Bonus : Traduction 2 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 1 h 35 min', 'Live face + translated voice', 'Studio Video Broadcast: 3 h 10 min', 'Studio Avatar Transformation: 38 min', 'Bonus: 2 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
   },
 ];
 
@@ -118,7 +118,7 @@ const fr = {
   swapTitle: 'Swap Live', swapSub: 'Transformez votre visage et votre apparence en temps réel.',
   audioTitle: 'Traduction audio', audioSub: 'Parlez. On traduit votre voix en temps réel.',
   points: 'points', bonusLabel: 'Bonus inclus', choose: 'Choisir', popular: 'Meilleur choix', days: 'jours',
-  consumptionNote: 'Tarifs prévus : Swap Live 2 pts/s · Studio Cas 1 (diffuser une vidéo prête) 1 pt/s · Studio Cas 2 (transformer votre vidéo avec une photo) 5 pts/s. Les points d’un pack servent à toutes ces fonctions. Logiciel Windows pas encore relié aux points.',
+  consumptionNote: 'Tarifs prévus : Swap Live 2 pts/s · Studio Diffusion Vidéo (diffuser en direct une vidéo prête) 1 pt/s · Studio Transformation Avatar (l’IA remplace le visage de votre vidéo par celui d’une photo) 5 pts/s. Les points d’un pack servent à toutes ces fonctions. Logiciel Windows pas encore relié aux points.',
   camTitle: 'Licence Weechat Camera', camSub: 'Paiement unique · à vie', camLines: ['Weechat apparaît comme caméra dans WhatsApp, Facebook Live, TikTok, Google Meet, Zoom', 'Aucune expiration', 'Incluse dans Premium et Ultimate'], camNote: 'Achat prévu · paiement pas encore actif. Les points restent nécessaires pour Swap Live et Studio.',
   priceDisclaimer: 'Grille de présentation · aucun paiement n’est encore actif sur Weechat.',
   faqTitle: 'Foire aux questions',
@@ -176,7 +176,7 @@ const en: typeof fr = {
   swapTitle: 'Swap Live', swapSub: 'Transform your face and appearance in real time.',
   audioTitle: 'Audio translation', audioSub: 'Speak. We translate your voice in real time.',
   points: 'points', bonusLabel: 'Included bonus', choose: 'Choose', popular: 'Best choice', days: 'days',
-  consumptionNote: 'Planned rates: Swap Live 2 pts/s · Studio Case 1 (stream a ready video) 1 pt/s · Studio Case 2 (transform your video with a photo) 5 pts/s. A pack’s points work for all of these. Windows app not yet linked to points.',
+  consumptionNote: 'Planned rates: Swap Live 2 pts/s · Studio Video Broadcast (stream a ready video live) 1 pt/s · Studio Avatar Transformation (AI replaces the face in your video with a photo) 5 pts/s. A pack’s points work for all of these. Windows app not yet linked to points.',
   camTitle: 'Weechat Camera licence', camSub: 'One-time payment · lifetime', camLines: ['Weechat appears as a camera in WhatsApp, Facebook Live, TikTok, Google Meet, Zoom', 'No expiry', 'Included in Premium and Ultimate'], camNote: 'Planned purchase · payment not active yet. Points are still needed for Swap Live and Studio.',
   priceDisclaimer: 'Presentation pricing · no payment is active on Weechat yet.',
   faqTitle: 'Frequently asked questions',

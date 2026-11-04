@@ -70,7 +70,7 @@ class App:
                                     bg=ACCENT, fg="white", relief="flat", padx=10, pady=4)
         self.studio_btn.pack(side="left", padx=4)
         self.video = None
-        self.transform_btn = tk.Button(studio, text="Transformer avec la photo (Cas 2)",
+        self.transform_btn = tk.Button(studio, text="Transformation Avatar (vidéo + photo)",
                                        command=self.toggle_transform, bg=ACCENT, fg="white",
                                        relief="flat", padx=10, pady=4)
         self.transform_btn.pack(side="left", padx=4)
@@ -87,7 +87,7 @@ class App:
         self.status = tk.Label(root, text="Prêt. Utilisez uniquement une photo dont vous avez les droits.",
                                bg=BG, fg="#ffd27a", wraplength=700, font=("Segoe UI", 11, "bold"))
         self.status.pack(pady=4)
-        tk.Label(root, text="3. Dans WhatsApp / Zoom / TikTok, choisissez la caméra « Unity Video Capture ».",
+        tk.Label(root, text="3. Dans WhatsApp / Zoom / TikTok, choisissez la caméra « Weechat Camera ».",
                  bg=BG, fg="#9fb3e6").pack(pady=4)
         # Fixed pixel-size box: a text Label's width/height are in characters, which pushed status off-screen.
         box = tk.Frame(root, bg="black", width=640, height=480)
@@ -172,7 +172,7 @@ class App:
             except Exception as exc:
                 self.log(f"Erreur : {exc}")
             finally:
-                self.root.after(0, lambda: (self.transform_btn.config(text="Transformer avec la photo (Cas 2)"),
+                self.root.after(0, lambda: (self.transform_btn.config(text="Transformation Avatar (vidéo + photo)"),
                                             self.studio_btn.config(state="normal"),
                                             self.btn.config(state="normal" if self.models else "disabled")))
         self.worker = threading.Thread(target=job, daemon=True)

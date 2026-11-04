@@ -1,7 +1,7 @@
-"""Weechat Studio — Cas 2 : transformer une vidéo MP4 avec le visage d'une photo autorisée.
+"""Weechat Studio — Transformation Avatar : transformer une vidéo MP4 avec le visage d'une photo autorisée.
 
 Traitement 100 % local, image par image, son d'origine conservé.
-Le résultat est enregistré sur le Bureau puis peut être diffusé avec le Cas 1.
+Le résultat est enregistré sur le Bureau puis peut être diffusé avec le Diffusion Vidéo.
 Tarif prévu : forfait en points par vidéo. Ce module ne débite PAS encore de points :
 le moteur Windows n'est pas relié au compte Weechat.
 """
@@ -81,7 +81,7 @@ def transform(video, face, stop_event, log=print, on_frame=None, root=None, out=
     s = min(1.0, MAX_SIDE / max(w, h, 1))
     w, h = int(w * s) // 2 * 2, int(h * s) // 2 * 2
 
-    log("Cas 2 — chargement du moteur IA (10 à 60 s)…")
+    log("Transformation Avatar — chargement du moteur IA (10 à 60 s)…")
     analyser, swapper = load_engine(root, log)
     faces = analyser.get(read_image(face))
     if not faces:
