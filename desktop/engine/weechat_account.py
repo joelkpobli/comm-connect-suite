@@ -33,7 +33,8 @@ def _req(path, body=None, token=None):
             return json.loads(raw) if raw else None
     except urllib.error.HTTPError as e:
         try:
-            msg = json.loads(e.read()).get("msg") or json.loads(e.read()).get("error_description")
+            j = json.loads(e.read())
+            msg = j.get("msg") or j.get("error_description")
         except Exception:
             msg = None
         if e.code in (400, 401):
