@@ -29,8 +29,21 @@ import weechat_studio
 import weechat_transform
 import weechat_audio
 import weechat_swap
+import weechat_account
+import webbrowser
 
-BG, FG, ACCENT = "#0b1530", "#e6ecff", "#2f6bff"
+BG, PANEL, FG, MUTED, ACCENT, OK, WARN = "#0b1530", "#13214a", "#e6ecff", "#9fb3e6", "#2f6bff", "#2ecc71", "#ffd27a"
+FONT = "Segoe UI"
+
+
+def btn(parent, text, cmd, **kw):
+    return tk.Button(parent, text=text, command=cmd, bg=kw.pop("bg", ACCENT), fg="white", relief="flat",
+                     activebackground="#4a80ff", activeforeground="white", cursor="hand2",
+                     font=(FONT, 10, "bold"), padx=14, pady=7, bd=0, **kw)
+
+
+def lbl(parent, text="", fg=FG, size=10, bold=False, bg=PANEL, **kw):
+    return tk.Label(parent, text=text, bg=bg, fg=fg, font=(FONT, size, "bold" if bold else "normal"), **kw)
 
 
 class App:
@@ -40,63 +53,182 @@ class App:
         self.worker = None
         self.face = None
         self.frame = None
-        root.title("Weechat Swap Live")
-        root.configure(bg=BG)
-        root.geometry("900x800")
-
-        tk.Label(root, text="Weechat Swap Live", bg=BG, fg=FG, font=("Segoe UI", 18, "bold")).pack(pady=10)
-        bar = tk.Frame(root, bg=BG)
-        bar.pack(pady=4)
-        tk.Button(bar, text="1. Choisir la photo du visage", command=self.pick,
-                  bg=ACCENT, fg="white", relief="flat", padx=12, pady=6).pack(side="left", padx=4)
-        tk.Label(bar, text="Webcam :", bg=BG, fg=FG).pack(side="left", padx=(12, 2))
-        self.cam = ttk.Combobox(bar, values=["auto", "0", "1", "2", "3"], width=5, state="readonly")
-        self.cam.set("auto")
         self.models = None
-        self.cam.pack(side="left")
-        self.btn = tk.Button(bar, text="2. Démarrer", command=self.toggle,
-                             bg=ACCENT, fg="white", relief="flat", padx=12, pady=6)
-        self.btn.pack(side="left", padx=8)
-
-        self.face_lbl = tk.Label(root, text="Aucune photo choisie", bg=BG, fg=FG)
-        self.face_lbl.pack()
-
-        studio = tk.Frame(root, bg=BG)
-        studio.pack(pady=4)
-        tk.Label(studio, text="Mode Studio :", bg=BG, fg=FG, font=("Segoe UI", 10, "bold")).pack(side="left", padx=4)
-        tk.Button(studio, text="Choisir une vidéo", command=self.pick_video,
-                  bg=ACCENT, fg="white", relief="flat", padx=10, pady=4).pack(side="left", padx=4)
-        self.studio_btn = tk.Button(studio, text="Diffuser en boucle", command=self.toggle_studio,
-                                    bg=ACCENT, fg="white", relief="flat", padx=10, pady=4)
-        self.studio_btn.pack(side="left", padx=4)
         self.video = None
-        self.transform_btn = tk.Button(studio, text="Transformation Avatar (vidéo + photo)",
-                                       command=self.toggle_transform, bg=ACCENT, fg="white",
-                                       relief="flat", padx=10, pady=4)
-        self.transform_btn.pack(side="left", padx=4)
-        self.video_lbl = tk.Label(root, text="Aucune vidéo choisie", bg=BG, fg=FG)
-        self.video_lbl.pack()
-        sound = tk.Frame(root, bg=BG)
-        sound.pack(pady=2)
-        tk.Label(sound, text="Son de la vidéo :", bg=BG, fg=FG).pack(side="left", padx=4)
+        self.session = None
+        root.title("Weechat")
+        root.configure(bg=BG)
+        root.geometry("1180x760")
+        root.minsize(1000, 680)
+        st = ttk.Style()
+        st.theme_use("clam")
+        st.configure("TNotebook", background=PANEL, borderwidth=0)
+        st.configure("TNotebook.Tab", background=BG, foreground=MUTED, padding=(14, 8), font=(FONT, 10, "bold"))
+        st.map("TNotebook.Tab", background=[("selected", ACCENT)], foreground=[("selected", "white")])
+
+        # En-tête : logo + compte
+        head = tk.Frame(root, bg=BG)
+        head.pack(fill="x", padx=18, pady=(12, 6))
+        tk.Label(head, text="W", bg=ACCENT, fg="white", font=(FONT, 16, "bold"), width=2).pack(side="left")
+        tk.Label(head, text="  Weechat", bg=BG, fg=FG, font=(FONT, 18, "bold")).pack(side="left")
+        self.account = tk.Frame(head, bg=BG)
+        self.account.pack(side="right")
+
+        body = tk.Frame(root, bg=BG)
+        body.pack(fill="both", expand=True, padx=18, pady=6)
+
+        # Colonne gauche : grande prévisualisation
+        left = tk.Frame(body, bg=PANEL)
+        left.pack(side="left", fill="both", expand=True, padx=(0, 10))
+        top = tk.Frame(left, bg=PANEL)
+        top.pack(fill="x", padx=12, pady=(10, 4))
+        lbl(top, "Aperçu de la caméra", size=12, bold=True).pack(side="left")
+        self.badge = lbl(top, "● Weechat Camera inactive", fg=MUTED, bold=True)
+        self.badge.pack(side="right")
+        box = tk.Frame(left, bg="black", width=720, height=540)
+        box.pack(padx=12, pady=6)
+        box.pack_propagate(False)
+        self.view = tk.Label(box, bg="black", fg=MUTED, text="L'image envoyée à vos appels s'affichera ici",
+                             font=(FONT, 11))
+        self.view.pack(fill="both", expand=True)
+        self.status = lbl(left, "Prêt. Utilisez uniquement des photos et vidéos dont vous avez les droits.",
+                          fg=WARN, bold=True, wraplength=700, justify="left")
+        self.status.pack(fill="x", padx=12, pady=(4, 2))
+        lbl(left, "Dans WhatsApp / Zoom / Meet / TikTok / Facebook Live, choisissez la caméra « Weechat Camera ».",
+            fg=MUTED).pack(fill="x", padx=12, pady=(0, 10))
+
+        # Colonne droite : onglets
+        right = tk.Frame(body, bg=PANEL, width=400)
+        right.pack(side="right", fill="y")
+        right.pack_propagate(False)
+        nb = ttk.Notebook(right)
+        nb.pack(fill="both", expand=True, padx=8, pady=8)
+
+        live = tk.Frame(nb, bg=PANEL)
+        nb.add(live, text="Swap Live")
+        lbl(live, "Votre visage remplacé en direct par une photo.", fg=MUTED, wraplength=360,
+            justify="left").pack(anchor="w", padx=10, pady=(12, 8))
+        btn(live, "1. Choisir la photo du visage", self.pick).pack(fill="x", padx=10, pady=4)
+        self.face_lbl = lbl(live, "Aucune photo choisie", fg=MUTED, wraplength=360, justify="left")
+        self.face_lbl.pack(anchor="w", padx=10)
+        row = tk.Frame(live, bg=PANEL)
+        row.pack(fill="x", padx=10, pady=10)
+        lbl(row, "Webcam :").pack(side="left")
+        self.cam = ttk.Combobox(row, values=["auto", "0", "1", "2", "3"], width=6, state="readonly")
+        self.cam.set("auto")
+        self.cam.pack(side="left", padx=6)
+        self.btn = btn(live, "2. Démarrer le Swap Live", self.toggle, bg=OK)
+        self.btn.pack(fill="x", padx=10, pady=4)
+
+        diff = tk.Frame(nb, bg=PANEL)
+        nb.add(diff, text="Studio Diffusion")
+        lbl(diff, "Studio Diffusion Vidéo : diffuse une vidéo prête (MP4) en boucle dans Weechat Camera, avec son.",
+            fg=MUTED, wraplength=360, justify="left").pack(anchor="w", padx=10, pady=(12, 8))
+        btn(diff, "Choisir une vidéo", self.pick_video).pack(fill="x", padx=10, pady=4)
+        self.video_lbl = lbl(diff, "Aucune vidéo choisie", fg=MUTED, wraplength=360, justify="left")
+        self.video_lbl.pack(anchor="w", padx=10)
+        lbl(diff, "Son de la vidéo :").pack(anchor="w", padx=10, pady=(10, 2))
         outs = weechat_audio.outputs() + ["Couper le son"]
         self.audio_out = tk.StringVar(value=outs[0])
-        tk.OptionMenu(sound, self.audio_out, *outs).pack(side="left")
-        tk.Label(root, text="Pour vos appels : « CABLE Input » ici, puis micro « CABLE Output » dans WhatsApp / TikTok.",
-                 bg=BG, fg="#9fb3e6").pack()
-        self.status = tk.Label(root, text="Prêt. Utilisez uniquement une photo dont vous avez les droits.",
-                               bg=BG, fg="#ffd27a", wraplength=700, font=("Segoe UI", 11, "bold"))
-        self.status.pack(pady=4)
-        tk.Label(root, text="3. Dans WhatsApp / Zoom / TikTok, choisissez la caméra « Weechat Camera ».",
-                 bg=BG, fg="#9fb3e6").pack(pady=4)
-        # Fixed pixel-size box: a text Label's width/height are in characters, which pushed status off-screen.
-        box = tk.Frame(root, bg="black", width=640, height=480)
-        box.pack(pady=8)
-        box.pack_propagate(False)
-        self.view = tk.Label(box, bg="black")
-        self.view.pack(fill="both", expand=True)
+        om = tk.OptionMenu(diff, self.audio_out, *outs)
+        om.config(bg=BG, fg=FG, relief="flat", highlightthickness=0)
+        om.pack(fill="x", padx=10)
+        lbl(diff, "Pour vos appels : « CABLE Input » ici, puis micro « CABLE Output » dans l'application.",
+            fg=MUTED, wraplength=360, justify="left").pack(anchor="w", padx=10, pady=6)
+        self.studio_btn = btn(diff, "Diffuser en boucle", self.toggle_studio, bg=OK)
+        self.studio_btn.pack(fill="x", padx=10, pady=4)
+
+        tr = tk.Frame(nb, bg=PANEL)
+        nb.add(tr, text="Transformation")
+        lbl(tr, "Studio Transformation Avatar : crée une nouvelle vidéo MP4 avec le visage de la photo "
+                "(choisis dans les onglets Swap Live et Studio Diffusion). Le résultat est enregistré "
+                "sur le Bureau puis prêt à diffuser.", fg=MUTED, wraplength=360,
+            justify="left").pack(anchor="w", padx=10, pady=(12, 8))
+        btn(tr, "Choisir la photo", self.pick).pack(fill="x", padx=10, pady=3)
+        btn(tr, "Choisir la vidéo", self.pick_video).pack(fill="x", padx=10, pady=3)
+        self.transform_btn = btn(tr, "Lancer la transformation", self.toggle_transform, bg=OK)
+        self.transform_btn.pack(fill="x", padx=10, pady=10)
+
         root.protocol("WM_DELETE_WINDOW", self.close)
+        self.render_account()
         self.refresh()
+        threading.Thread(target=self._restore, daemon=True).start()
+
+    # ---------- Compte Weechat ----------
+    def _restore(self):
+        s = weechat_account.restore()
+        if s:
+            self.session = s
+            self.load_balances()
+
+    def render_account(self, points=None, seconds=None):
+        for w in self.account.winfo_children():
+            w.destroy()
+        if not self.session:
+            tk.Label(self.account, text="Mode invité — non connecté  ", bg=BG, fg=WARN,
+                     font=(FONT, 10)).pack(side="left")
+            btn(self.account, "Se connecter", self.login_dialog).pack(side="left", padx=4)
+            btn(self.account, "Créer un compte", lambda: webbrowser.open(weechat_account.SITE + "/inscription"),
+                bg=PANEL).pack(side="left")
+            return
+        email = (self.session.get("user") or {}).get("email", "")
+        bal = "Chargement des soldes…" if points is None else \
+            f"{points} points  ·  {seconds // 60} min {seconds % 60:02d} s audio"
+        tk.Label(self.account, text=f"{email}   ", bg=BG, fg=FG, font=(FONT, 10, "bold")).pack(side="left")
+        tk.Label(self.account, text=bal + "   ", bg=BG, fg=OK, font=(FONT, 10, "bold")).pack(side="left")
+        btn(self.account, "Recharger", lambda: webbrowser.open(weechat_account.SITE + "/credits"),
+            bg=PANEL).pack(side="left", padx=4)
+        btn(self.account, "Actualiser", self.load_balances, bg=PANEL).pack(side="left", padx=4)
+        btn(self.account, "Déconnexion", self.logout, bg="#a33").pack(side="left")
+
+    def load_balances(self):
+        self.root.after(0, self.render_account)
+
+        def job():
+            try:
+                p, s = weechat_account.balances(self.session)
+                self.root.after(0, lambda: self.render_account(p, s))
+            except weechat_account.AuthError as exc:
+                self.log(f"Soldes indisponibles : {exc}")
+        threading.Thread(target=job, daemon=True).start()
+
+    def logout(self):
+        weechat_account.sign_out()
+        self.session = None
+        self.render_account()
+
+    def login_dialog(self):
+        d = tk.Toplevel(self.root, bg=PANEL)
+        d.title("Connexion Weechat")
+        d.geometry("380x300")
+        d.transient(self.root)
+        d.grab_set()
+        lbl(d, "Connexion à votre compte Weechat", size=12, bold=True).pack(pady=(16, 4))
+        lbl(d, "Même email et mot de passe que sur le site.", fg=MUTED).pack()
+        lbl(d, "Email").pack(anchor="w", padx=24, pady=(12, 0))
+        em = tk.Entry(d, font=(FONT, 11))
+        em.pack(fill="x", padx=24)
+        lbl(d, "Mot de passe").pack(anchor="w", padx=24, pady=(8, 0))
+        pw = tk.Entry(d, show="•", font=(FONT, 11))
+        pw.pack(fill="x", padx=24)
+        err = lbl(d, "", fg="#ff7a7a", wraplength=330)
+        err.pack(pady=4)
+
+        def go(*_):
+            err.config(text="Connexion…")
+
+            def job():
+                try:
+                    s = weechat_account.sign_in(em.get().strip(), pw.get())
+                    self.session = s
+                    self.root.after(0, d.destroy)
+                    self.load_balances()
+                except weechat_account.AuthError as exc:
+                    self.root.after(0, lambda: err.config(text=str(exc)))
+            threading.Thread(target=job, daemon=True).start()
+        btn(d, "Se connecter", go).pack(fill="x", padx=24)
+        pw.bind("<Return>", go)
+        em.focus_set()
 
     def log(self, msg):
         try:
@@ -172,7 +304,7 @@ class App:
             except Exception as exc:
                 self.log(f"Erreur : {exc}")
             finally:
-                self.root.after(0, lambda: (self.transform_btn.config(text="Transformation Avatar (vidéo + photo)"),
+                self.root.after(0, lambda: (self.transform_btn.config(text="Lancer la transformation"),
                                             self.studio_btn.config(state="normal"),
                                             self.btn.config(state="normal" if self.models else "disabled")))
         self.worker = threading.Thread(target=job, daemon=True)
@@ -185,20 +317,23 @@ class App:
         if self.frame is not None:
             img, fps = self.frame
             h, w = img.shape[:2]
-            s = min(640 / w, 480 / h, 1.0)
+            s = min(720 / w, 540 / h, 1.0)
             if s < 1.0:
                 img = cv2.resize(img, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA)
             rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             photo = ImageTk.PhotoImage(Image.fromarray(rgb))
             self.view.config(image=photo)
             self.view.image = photo
-            self.root.title(f"Weechat Swap Live — {fps:.1f} img/s")
+            self.root.title(f"Weechat — {fps:.1f} img/s")
+            self.badge.config(text=f"● Weechat Camera active · {fps:.0f} img/s", fg=OK)
+        if not self.busy():
+            self.badge.config(text="● Weechat Camera inactive", fg=MUTED)
         self.root.after(40, self.refresh)
 
     def toggle(self):
         if self.worker and self.worker.is_alive():
             self.stop.set()
-            self.btn.config(text="2. Démarrer")
+            self.btn.config(text="2. Démarrer le Swap Live")
             return
         if not self.face:
             messagebox.showwarning("Weechat", "Choisissez d'abord une photo de visage.")
@@ -216,7 +351,7 @@ class App:
         except Exception as exc:
             self.log(f"Erreur : {exc}")
         finally:
-            self.root.after(0, lambda: self.btn.config(text="2. Démarrer"))
+            self.root.after(0, lambda: self.btn.config(text="2. Démarrer le Swap Live"))
 
     def prepare_models(self):
         """Téléchargement unique des modèles au premier lancement, reprise automatique."""
