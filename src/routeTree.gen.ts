@@ -26,6 +26,7 @@ import { Route as AuthenticatedSwapLiveRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSwapPhotoRouteImport } from './routes/_authenticated/swap-photo'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedTraductionRouteImport } from './routes/_authenticated/traduction'
+import { Route as ApiPublicPaydunyaIpnRouteImport } from './routes/api/public/paydunya-ipn'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -113,6 +114,11 @@ const AuthenticatedTraductionRoute = AuthenticatedTraductionRouteImport.update({
   path: '/traduction',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicPaydunyaIpnRoute = ApiPublicPaydunyaIpnRouteImport.update({
+  id: '/api/public/paydunya-ipn',
+  path: '/api/public/paydunya-ipn',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/traduction': typeof AuthenticatedTraductionRoute
+  '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/traduction': typeof AuthenticatedTraductionRoute
+  '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -169,6 +177,7 @@ export interface FileRoutesById {
   '/_authenticated/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/traduction': typeof AuthenticatedTraductionRoute
+  '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/swap-photo'
     | '/tableau-de-bord'
     | '/traduction'
+    | '/api/public/paydunya-ipn'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -207,6 +217,7 @@ export interface FileRouteTypes {
     | '/swap-photo'
     | '/tableau-de-bord'
     | '/traduction'
+    | '/api/public/paydunya-ipn'
   id:
     | '__root__'
     | '/'
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/swap-photo'
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/traduction'
+    | '/api/public/paydunya-ipn'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -236,6 +248,7 @@ export interface RootRouteChildren {
   RecuperationRoute: typeof RecuperationRoute
   ReinitialisationRoute: typeof ReinitialisationRoute
   TelechargerRoute: typeof TelechargerRoute
+  ApiPublicPaydunyaIpnRoute: typeof ApiPublicPaydunyaIpnRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -359,6 +372,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTraductionRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/paydunya-ipn': {
+      id: '/api/public/paydunya-ipn'
+      path: '/api/public/paydunya-ipn'
+      fullPath: '/api/public/paydunya-ipn'
+      preLoaderRoute: typeof ApiPublicPaydunyaIpnRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -399,6 +419,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecuperationRoute: RecuperationRoute,
   ReinitialisationRoute: ReinitialisationRoute,
   TelechargerRoute: TelechargerRoute,
+  ApiPublicPaydunyaIpnRoute: ApiPublicPaydunyaIpnRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
