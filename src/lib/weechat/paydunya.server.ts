@@ -29,7 +29,7 @@ export async function createInvoice(itemId: string, userId: string, origin: stri
   return { url: json.response_text, token: json.token };
 }
 
-export type FulfillResult = { status: 'completed' | 'pending' | 'cancelled' | 'failed'; itemId?: string; userId?: string };
+export type FulfillResult = { status: 'completed' | 'pending' | 'cancelled' | 'failed'; itemId?: string | undefined; userId?: string | undefined };
 
 export async function fulfillInvoice(token: string, expectedUserId?: string): Promise<FulfillResult> {
   if (!/^[A-Za-z0-9_-]{6,100}$/.test(token)) return { status: 'failed' };

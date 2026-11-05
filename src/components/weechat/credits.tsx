@@ -4,6 +4,9 @@ import { creditsQuery, audioQuery } from '@/lib/weechat/credits-query';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, AudioLines, Check, Clock, Coins, History, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useServerFn } from '@tanstack/react-start';
+import { startCheckout, getCameraLicense } from '@/lib/weechat/payments.functions';
+import { cameraLicense } from '@/lib/weechat/landing-copy';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
 import { formatCredits } from '@/lib/weechat/demo-data';
@@ -32,6 +35,16 @@ export function CreditsPage() {
   const [cur, setCur] = useState<Currency>('XOF');
   const [selected, setSelected] = useState<Plan>(swapPlans[2] ?? swapPlans[0] as Plan);
   const [kind, setKind] = useState<'swap' | 'audio'>('swap');
+  const checkout = useServerFn(startCheckout);
+  const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
+  const [busy, setBusy] = useState<string | null>(null);
+  const [payError, setPayError] = useState(false);
+  const pay = async (itemId: string) => {
+    setBusy(itemId); setPayError(false);
+    try { const r = await checkout({ data: { itemId } }); if (r.ok) { window.location.href = r.url; return; } setPayError(true); }
+    catch { setPayError(true); }
+    setBusy(null);
+  };
   const isAudio = selected.audioMin != null;
   const qty = isAudio ? `${selected.audioMin} min` : `${formatCredits(selected.points ?? 0)} pts`;
 
@@ -48,7 +61,7 @@ export function CreditsPage() {
   </label>;
 
   return <>
-    <PageTitle title={en ? 'Top up points' : 'Recharge de points'} subtitle={en ? 'Two separate balances: points for video, minutes for audio translation. No payment is active yet.' : 'Deux soldes séparés : les points pour la vidéo, les minutes pour la traduction audio. Aucun paiement n’est encore actif.'} action={<Button asChild variant="outline"><Link to="/historique"><History />{en ? 'History' : 'Historique'}</Link></Button>} />
+    <PageTitle title={en ? 'Top up points' : 'Recharge de points'} subtitle={en ? 'Two separate balances: points for video, minutes for audio translation. Payment by Mobile Money via PayDunya.' : 'Deux soldes séparés : les points pour la vidéo, les minutes pour la traduction audio. Paiement par Mobile Money via PayDunya.'} action={<Button asChild variant="outline"><Link to="/historique"><History />{en ? 'History' : 'Historique'}</Link></Button>} />
     <div className="dual-balance">
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><Coins size={26} /></span><div><span>{en ? 'Points · Swap Live, Restyle, Photo' : 'Points · Swap Live, Restyle, Photo'}</span><strong>{formatCredits(real.totals.balance)} <small>pts</small></strong></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><AudioLines size={26} /></span><div><span>{en ? 'Audio translation minutes' : 'Minutes de traduction audio'}</span><strong>{fmtAudio(audio)}</strong></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
@@ -57,9 +70,11 @@ export function CreditsPage() {
     <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); setSelected(k === 'swap' ? swapPlans[2] ?? swapPlans[0] as Plan : audioPlans[1] ?? audioPlans[0] as Plan); }}>{k === 'swap' ? 'Swap Live' : (en ? 'Audio translation' : 'Traduction audio')}</Button>)}</div></div>
     <div className="dashboard-section-header" id="audio"><h2>{kind === 'swap' ? 'Swap Live' : (en ? 'Audio translation' : 'Traduction audio')}</h2><span className="subtle-label">{kind === 'swap' ? (en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE') : 'MINUTES'}</span></div>
     <div className="credit-packs">{(kind === 'swap' ? swapPlans : audioPlans).map(card)}</div>
-    <div className="purchase-summary"><div><strong>{selected.name}</strong><p>{qty} · {selected.price[cur]} {sym(cur)}</p></div><Button size="lg" disabled>{en ? 'Payments unavailable' : 'Paiements indisponibles'}</Button></div>
+    <div className="purchase-summary"><div><strong>{selected.name}</strong><p>{qty} · {selected.price[cur]} {sym(cur)}</p></div><Button size="lg" disabled={busy !== null} onClick={() => pay(selected.id)}>{busy === selected.id ? '…' : (en ? 'Pay with Mobile Money' : 'Payer par Mobile Money')}</Button></div>
+    {payError && <p role="alert" className="mt-2 text-sm text-destructive">{en ? 'Payment could not start. Please try again.' : 'Le paiement n’a pas pu démarrer. Réessayez.'}</p>}
+    <div className="purchase-summary mt-4"><div><strong>{en ? 'Weechat Camera licence (lifetime)' : 'Licence Weechat Camera (à vie)'}</strong><p>{cameraLicense.price.XOF} FCFA · {en ? 'one-time payment, included in Premium and Ultimate' : 'paiement unique, incluse dans Premium et Ultimate'}</p></div>{hasLicense ? <span className="demo-badge"><span />{en ? 'Licence active' : 'Licence active'}</span> : <Button size="lg" variant="outline" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy licence' : 'Acheter la licence')}</Button>}</div>
     <p className="mt-4 text-sm text-muted-foreground">{en ? 'Windows Swap Live is not yet linked to points. Local Restyle filters are free. Swap Photo is unavailable. Translation uses the separate audio balance in prepaid 10-second blocks, including a started block if startup fails.' : 'Swap Live Windows n’est pas encore relié aux points. Les filtres Restyle locaux sont gratuits. Swap Photo est indisponible. La traduction utilise le solde audio séparé, par tranches prépayées de 10 secondes, y compris la tranche commencée si le démarrage échoue.'}</p>
-    <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Payments are not active yet.' : 'Les paiements ne sont pas encore actifs.'}<span>{en ? 'Mobile Money and cards will open once the merchant account is ready.' : 'Mobile Money et cartes seront ouverts dès que le compte marchand sera prêt.'}</span></p></div>
+    <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by PayDunya.' : 'Paiement sécurisé par PayDunya.'}<span>{en ? 'Your balance is credited automatically after confirmation. Card payment coming soon.' : 'Votre solde est crédité automatiquement après confirmation. Paiement par carte bientôt.'}</span></p></div>
 
   </>;
 }
