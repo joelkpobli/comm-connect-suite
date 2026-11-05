@@ -19,6 +19,7 @@ import { Route as TelechargerRouteImport } from './routes/telecharger'
 import { Route as AuthenticatedAvatarsRouteImport } from './routes/_authenticated/avatars'
 import { Route as AuthenticatedCreditsRouteImport } from './routes/_authenticated/credits'
 import { Route as AuthenticatedHistoriqueRouteImport } from './routes/_authenticated/historique'
+import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
 import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
 import { Route as AuthenticatedRestyleLiveRouteImport } from './routes/_authenticated/restyle-live'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
@@ -77,6 +78,12 @@ const AuthenticatedHistoriqueRoute = AuthenticatedHistoriqueRouteImport.update({
   path: '/historique',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPaiementRetourRoute =
+  AuthenticatedPaiementRetourRouteImport.update({
+    id: '/paiement-retour',
+    path: '/paiement-retour',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedParametresRoute = AuthenticatedParametresRouteImport.update({
   id: '/parametres',
   path: '/parametres',
@@ -130,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/avatars': typeof AuthenticatedAvatarsRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
+  '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/parametres': typeof AuthenticatedParametresRoute
   '/restyle-live': typeof AuthenticatedRestyleLiveRoute
   '/studio': typeof AuthenticatedStudioRoute
@@ -149,6 +157,7 @@ export interface FileRoutesByTo {
   '/avatars': typeof AuthenticatedAvatarsRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
+  '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/parametres': typeof AuthenticatedParametresRoute
   '/restyle-live': typeof AuthenticatedRestyleLiveRoute
   '/studio': typeof AuthenticatedStudioRoute
@@ -170,6 +179,7 @@ export interface FileRoutesById {
   '/_authenticated/avatars': typeof AuthenticatedAvatarsRoute
   '/_authenticated/credits': typeof AuthenticatedCreditsRoute
   '/_authenticated/historique': typeof AuthenticatedHistoriqueRoute
+  '/_authenticated/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/_authenticated/parametres': typeof AuthenticatedParametresRoute
   '/_authenticated/restyle-live': typeof AuthenticatedRestyleLiveRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
@@ -191,6 +201,7 @@ export interface FileRouteTypes {
     | '/avatars'
     | '/credits'
     | '/historique'
+    | '/paiement-retour'
     | '/parametres'
     | '/restyle-live'
     | '/studio'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/avatars'
     | '/credits'
     | '/historique'
+    | '/paiement-retour'
     | '/parametres'
     | '/restyle-live'
     | '/studio'
@@ -230,6 +242,7 @@ export interface FileRouteTypes {
     | '/_authenticated/avatars'
     | '/_authenticated/credits'
     | '/_authenticated/historique'
+    | '/_authenticated/paiement-retour'
     | '/_authenticated/parametres'
     | '/_authenticated/restyle-live'
     | '/_authenticated/studio'
@@ -323,6 +336,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHistoriqueRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/paiement-retour': {
+      id: '/_authenticated/paiement-retour'
+      path: '/paiement-retour'
+      fullPath: '/paiement-retour'
+      preLoaderRoute: typeof AuthenticatedPaiementRetourRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/parametres': {
       id: '/_authenticated/parametres'
       path: '/parametres'
@@ -386,6 +406,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAvatarsRoute: typeof AuthenticatedAvatarsRoute
   AuthenticatedCreditsRoute: typeof AuthenticatedCreditsRoute
   AuthenticatedHistoriqueRoute: typeof AuthenticatedHistoriqueRoute
+  AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
   AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
   AuthenticatedRestyleLiveRoute: typeof AuthenticatedRestyleLiveRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
@@ -399,6 +420,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAvatarsRoute: AuthenticatedAvatarsRoute,
   AuthenticatedCreditsRoute: AuthenticatedCreditsRoute,
   AuthenticatedHistoriqueRoute: AuthenticatedHistoriqueRoute,
+  AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,
   AuthenticatedParametresRoute: AuthenticatedParametresRoute,
   AuthenticatedRestyleLiveRoute: AuthenticatedRestyleLiveRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
