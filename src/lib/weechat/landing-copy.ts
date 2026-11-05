@@ -26,8 +26,8 @@ export type Plan = {
 
 export const swapPlans: Plan[] = [
   {
-    id: 'decouverte', name: 'Pack Découverte', badge: 'Offre découverte', price: { XOF: '4 999', EUR: '7,60', USD: '8,30' }, points: 417, validity: 3,
-    lines: { fr: ['417 points (3 min 28 s de Swap Live)', 'Visage en direct sur votre webcam', 'Valable 3 jours'], en: ['417 points (3 min 28 s of Swap Live)', 'Live face on your webcam', 'Valid 3 days'] },
+    id: 'decouverte', name: 'Pack Découverte', badge: 'Offre découverte', price: { XOF: '4 999', EUR: '7,60', USD: '8,30' }, points: 417, validity: 7,
+    lines: { fr: ['417 points (3 min 28 s de Swap Live)', 'Visage en direct sur votre webcam', 'Valable 7 jours'], en: ['417 points (3 min 28 s of Swap Live)', 'Live face on your webcam', 'Valid 7 days'] },
   },
   {
     id: 'starter', name: 'Starter', price: { XOF: '19 900', EUR: '30,50', USD: '33' }, points: 1658, validity: 30,
