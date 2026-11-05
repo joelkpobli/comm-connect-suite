@@ -52,6 +52,35 @@ export type Database = {
           },
         ]
       }
+      balance_validity: {
+        Row: {
+          audio_until: string | null
+          credits_until: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_until?: string | null
+          credits_until?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_until?: string | null
+          credits_until?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "balance_validity_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -143,6 +172,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_balances: { Args: { p_user_id: string }; Returns: undefined }
+      extend_validity: {
+        Args: { p_days: number; p_target: string; p_user_id: string }
+        Returns: string
+      }
       get_audio_seconds: { Args: never; Returns: number }
       get_credit_snapshot: { Args: never; Returns: Json }
       get_credit_totals: {
