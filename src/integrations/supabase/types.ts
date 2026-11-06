@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_token_transactions: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          reason: string
+          reference: string
+          tokens: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          reason: string
+          reference: string
+          tokens: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          reason?: string
+          reference?: string
+          tokens?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_token_transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audio_time_transactions: {
         Row: {
           created_at: string
@@ -56,18 +94,21 @@ export type Database = {
         Row: {
           audio_until: string | null
           credits_until: string | null
+          tokens_until: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           audio_until?: string | null
           credits_until?: string | null
+          tokens_until?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           audio_until?: string | null
           credits_until?: string | null
+          tokens_until?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -177,6 +218,7 @@ export type Database = {
         Args: { p_days: number; p_target: string; p_user_id: string }
         Returns: string
       }
+      get_ai_token_balance: { Args: never; Returns: number }
       get_audio_seconds: { Args: never; Returns: number }
       get_credit_snapshot: { Args: never; Returns: Json }
       get_credit_totals: {
@@ -193,6 +235,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      post_ai_token_operation: {
+        Args: {
+          p_kind: string
+          p_reason: string
+          p_reference: string
+          p_tokens: number
+          p_user_id: string
+        }
+        Returns: string
       }
       post_audio_operation: {
         Args: {
