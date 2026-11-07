@@ -53,6 +53,17 @@ export async function fulfillInvoice(token: string, expectedUserId?: string): Pr
     const { error } = await supabaseAdmin.rpc('post_audio_operation', { p_user_id: userId, p_seconds: item.audioSeconds, p_kind: 'purchase', p_reason: reason, p_reference: ref });
     if (error) { console.error('audio failed', error.message); throw new Error('Fulfillment failed'); }
   }
+  if (item.aiTokens > 0) {
+    const { error } = await supabaseAdmin.rpc('post_ai_token_operation', { p_user_id: userId, p_tokens: item.aiTokens, p_kind: 'bonus', p_reason: `Bonus jetons IA — ${item.label}`, p_reference: ref });
+    if (error) { console.error('tokens failed', error.message); throw new Error('Fulfillment failed'); }
+  }
+  if (item.validityDays > 0) {
+    const targets = [item.points > 0 && 'credits', item.audioSeconds > 0 && 'audio', item.aiTokens > 0 && 'tokens'].filter(Boolean) as string[];
+    for (const t of targets) {
+      const { error } = await supabaseAdmin.rpc('extend_validity', { p_user_id: userId, p_target: t, p_days: item.validityDays });
+      if (error) console.error('validity failed', t, error.message);
+    }
+  }
   if (item.cameraLicense) {
     const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
     if (error || !data.user) throw new Error('Fulfillment failed');

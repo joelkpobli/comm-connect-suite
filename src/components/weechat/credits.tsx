@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
-import { creditsQuery, audioQuery } from '@/lib/weechat/credits-query';
+import { creditsQuery, audioQuery, aiTokensQuery } from '@/lib/weechat/credits-query';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, AudioLines, Check, Clock, Coins, History, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -31,7 +31,7 @@ export function BalanceChips() {
 export function CreditsPage() {
   const { locale } = useDemo();
   const en = locale === 'en';
-  const { data: real } = useSuspenseQuery(creditsQuery); const { data: audio } = useQuery(audioQuery);
+  const { data: real } = useSuspenseQuery(creditsQuery); const { data: audio } = useQuery(audioQuery); const { data: tokens } = useQuery(aiTokensQuery);
   const [cur, setCur] = useState<Currency>('XOF');
   const [selected, setSelected] = useState<Plan>(swapPlans[2] ?? swapPlans[0] as Plan);
   const [kind, setKind] = useState<'swap' | 'audio'>('swap');
@@ -65,6 +65,7 @@ export function CreditsPage() {
     <div className="dual-balance">
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><Coins size={26} /></span><div><span>{en ? 'Points · Swap Live, Restyle, Photo' : 'Points · Swap Live, Restyle, Photo'}</span><strong>{formatCredits(real.totals.balance)} <small>pts</small></strong></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><AudioLines size={26} /></span><div><span>{en ? 'Audio translation minutes' : 'Minutes de traduction audio'}</span><strong>{fmtAudio(audio)}</strong></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
+      <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><Coins size={26} /></span><div><span>{en ? 'AI tokens (Studio AI)' : 'Jetons IA (Studio IA)'}</span><strong>{formatCredits(tokens ?? 0)}</strong></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
     </div>
     <div className="lp-currow"><span>{en ? 'Show prices in' : 'Afficher les prix en'}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <Button variant="ghost" key={k} type="button" className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div></div>
     <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); setSelected(k === 'swap' ? swapPlans[2] ?? swapPlans[0] as Plan : audioPlans[1] ?? audioPlans[0] as Plan); }}>{k === 'swap' ? 'Swap Live' : (en ? 'Audio translation' : 'Traduction audio')}</Button>)}</div></div>
