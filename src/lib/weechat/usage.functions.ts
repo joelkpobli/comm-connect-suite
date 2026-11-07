@@ -12,6 +12,13 @@ export const getAudioSeconds = createServerFn({ method: 'GET' }).middleware([req
   return Number(data ?? 0);
 });
 
+/** AI token balance (separate third wallet). */
+export const getAiTokens = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { data, error } = await context.supabase.rpc('get_ai_token_balance');
+  if (error) throw new Error('AI token balance unavailable');
+  return Number(data ?? 0);
+});
+
 /** Debits one started block of live usage. Amounts are decided here, never by the browser. */
 export const chargeUsageBlock = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ service: z.enum(['audio', 'swap_live']), sessionId: z.string().uuid(), block: z.number().int().min(0).max(MAX_SESSION_BLOCKS) }).parse(d))
