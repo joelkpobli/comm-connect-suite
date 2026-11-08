@@ -82,3 +82,34 @@ def balances(session):
     points = totals[0]["balance"] if totals else 0
     seconds = _req("/rest/v1/rpc/get_audio_seconds", {}, tok) or 0
     return int(points or 0), int(seconds or 0)
+
+
+def has_license(session):
+    """Licence Weechat Camera lue côté serveur (app_metadata, non modifiable par l'utilisateur)."""
+    u = _req("/auth/v1/user", None, session["access_token"]) or {}
+    return bool((u.get("app_metadata") or {}).get("camera_license"))
+
+
+class ChargeError(Exception):
+    def __init__(self, code, balance=None):
+        super().__init__(code)
+        self.code, self.balance = code, balance
+
+
+def charge_block(session, service, session_id, block):
+    """Débite un bloc de 10 s (tarif fixé par le serveur). Lève ChargeError si refusé."""
+    body = json.dumps({"service": service, "sessionId": session_id, "block": block}).encode()
+    req = urllib.request.Request(SITE + "/api/public/desktop-charge", data=body, method="POST",
+                                 headers={"Content-Type": "application/json",
+                                          "Authorization": f"Bearer {session['access_token']}"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return json.loads(r.read())["balance"]
+    except urllib.error.HTTPError as e:
+        try:
+            j = json.loads(e.read())
+        except Exception:
+            j = {}
+        raise ChargeError(j.get("error") or ("unauthorized" if e.code == 401 else "failed"), j.get("balance"))
+    except urllib.error.URLError:
+        raise ChargeError("offline")

@@ -31,6 +31,7 @@ import weechat_audio
 import weechat_swap
 import weechat_account
 import webbrowser
+import uuid
 
 BG, PANEL, FG, MUTED, ACCENT, OK, WARN = "#0b1530", "#13214a", "#e6ecff", "#9fb3e6", "#2f6bff", "#2ecc71", "#ffd27a"
 FONT = "Segoe UI"
@@ -56,6 +57,7 @@ class App:
         self.models = None
         self.video = None
         self.session = None
+        self.license = False
         root.title("Weechat")
         root.configure(bg=BG)
         root.geometry("1180x760")
@@ -176,6 +178,10 @@ class App:
             f"{points} points  ·  {seconds // 60} min {seconds % 60:02d} s audio"
         tk.Label(self.account, text=f"{email}   ", bg=BG, fg=FG, font=(FONT, 10, "bold")).pack(side="left")
         tk.Label(self.account, text=bal + "   ", bg=BG, fg=OK, font=(FONT, 10, "bold")).pack(side="left")
+        if points is not None:
+            tk.Label(self.account, text=("Licence Weechat Camera active ✓   " if self.license else
+                                         "⚠ Licence Weechat Camera requise (10 000 FCFA)   "),
+                     bg=BG, fg=OK if self.license else WARN, font=(FONT, 10, "bold")).pack(side="left")
         btn(self.account, "Recharger", lambda: webbrowser.open(weechat_account.SITE + "/credits"),
             bg=PANEL).pack(side="left", padx=4)
         btn(self.account, "Actualiser", self.load_balances, bg=PANEL).pack(side="left", padx=4)
@@ -187,14 +193,17 @@ class App:
         def job():
             try:
                 p, s = weechat_account.balances(self.session)
+                self.license = weechat_account.has_license(self.session)
                 self.root.after(0, lambda: self.render_account(p, s))
             except weechat_account.AuthError as exc:
                 self.log(f"Soldes indisponibles : {exc}")
         threading.Thread(target=job, daemon=True).start()
 
     def logout(self):
+        self.stop.set()
         weechat_account.sign_out()
         self.session = None
+        self.license = False
         self.render_account()
 
     def login_dialog(self):
@@ -251,6 +260,51 @@ class App:
             self.video = path
             self.video_lbl.config(text=path)
 
+    def allowed(self):
+        """Connexion + licence obligatoires avant toute diffusion dans Weechat Camera."""
+        if not self.session:
+            messagebox.showwarning("Weechat", "Connectez-vous à votre compte Weechat pour utiliser la caméra.")
+            return False
+        try:
+            self.license = weechat_account.has_license(self.session)
+        except weechat_account.AuthError as exc:
+            messagebox.showwarning("Weechat", f"Vérification de la licence impossible : {exc}")
+            return False
+        if not self.license:
+            if messagebox.askyesno("Weechat", "La licence Weechat Camera (10 000 FCFA, à vie) est requise.\n"
+                                              "Ouvrir la page d'achat ?"):
+                webbrowser.open(weechat_account.SITE + "/credits")
+            return False
+        return True
+
+    def meter(self, service):
+        """Débite un bloc de 10 s avant chaque période ; arrête la diffusion si refusé."""
+        sid, block = str(uuid.uuid4()), 0
+        msgs = {"insufficient": "Solde de points épuisé. Rechargez sur votre compte Weechat.",
+                "license_required": "Licence Weechat Camera requise.",
+                "unauthorized": "Session expirée : reconnectez-vous.",
+                "offline": "Connexion Internet perdue : diffusion arrêtée.",
+                "failed": "Débit refusé par le serveur : diffusion arrêtée."}
+        while not self.stop.is_set():
+            try:
+                bal = weechat_account.charge_block(self.session, service, sid, block)
+            except weechat_account.ChargeError as exc:
+                if exc.code == "unauthorized":
+                    s = weechat_account.restore()
+                    if s:
+                        self.session = s
+                        continue
+                self.stop.set()
+                self.log(msgs.get(exc.code, msgs["failed"]))
+                self.root.after(0, lambda: messagebox.showwarning("Weechat", msgs.get(exc.code, msgs["failed"])))
+                break
+            self.root.after(0, self.load_balances)
+            block += 1
+            self.stop.wait(10)
+
+    def start_meter(self, service):
+        threading.Thread(target=self.meter, args=(service,), daemon=True).start()
+
     def busy(self):
         return self.worker is not None and self.worker.is_alive()
 
@@ -262,7 +316,10 @@ class App:
         if not self.video:
             messagebox.showwarning("Weechat", "Choisissez d'abord une vidéo dont vous avez les droits.")
             return
+        if not self.allowed():
+            return
         self.stop.clear()
+        self.start_meter("studio_diffusion")
         self.studio_btn.config(text="Arrêter la diffusion")
         self.btn.config(state="disabled")
 
@@ -338,7 +395,10 @@ class App:
         if not self.face:
             messagebox.showwarning("Weechat", "Choisissez d'abord une photo de visage.")
             return
+        if not self.allowed():
+            return
         self.stop.clear()
+        self.start_meter("swap_live")
         self.btn.config(text="Arrêter")
         self.log("Chargement du moteur IA (10 à 30 s)...")
         self.worker = threading.Thread(target=self.work, daemon=True)
