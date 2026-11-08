@@ -27,6 +27,7 @@ import { Route as AuthenticatedSwapLiveRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedSwapPhotoRouteImport } from './routes/_authenticated/swap-photo'
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedTraductionRouteImport } from './routes/_authenticated/traduction'
+import { Route as ApiPublicDesktopChargeRouteImport } from './routes/api/public/desktop-charge'
 import { Route as ApiPublicPaydunyaIpnRouteImport } from './routes/api/public/paydunya-ipn'
 
 const IndexRoute = IndexRouteImport.update({
@@ -121,6 +122,11 @@ const AuthenticatedTraductionRoute = AuthenticatedTraductionRouteImport.update({
   path: '/traduction',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicDesktopChargeRoute = ApiPublicDesktopChargeRouteImport.update({
+  id: '/api/public/desktop-charge',
+  path: '/api/public/desktop-charge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPaydunyaIpnRoute = ApiPublicPaydunyaIpnRouteImport.update({
   id: '/api/public/paydunya-ipn',
   path: '/api/public/paydunya-ipn',
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/traduction': typeof AuthenticatedTraductionRoute
+  '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
 }
 export interface FileRoutesByTo {
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/traduction': typeof AuthenticatedTraductionRoute
+  '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
 }
 export interface FileRoutesById {
@@ -187,6 +195,7 @@ export interface FileRoutesById {
   '/_authenticated/swap-photo': typeof AuthenticatedSwapPhotoRoute
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/traduction': typeof AuthenticatedTraductionRoute
+  '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
 }
 export interface FileRouteTypes {
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/swap-photo'
     | '/tableau-de-bord'
     | '/traduction'
+    | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -229,6 +239,7 @@ export interface FileRouteTypes {
     | '/swap-photo'
     | '/tableau-de-bord'
     | '/traduction'
+    | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
   id:
     | '__root__'
@@ -250,6 +261,7 @@ export interface FileRouteTypes {
     | '/_authenticated/swap-photo'
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/traduction'
+    | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
   fileRoutesById: FileRoutesById
 }
@@ -261,6 +273,7 @@ export interface RootRouteChildren {
   RecuperationRoute: typeof RecuperationRoute
   ReinitialisationRoute: typeof ReinitialisationRoute
   TelechargerRoute: typeof TelechargerRoute
+  ApiPublicDesktopChargeRoute: typeof ApiPublicDesktopChargeRoute
   ApiPublicPaydunyaIpnRoute: typeof ApiPublicPaydunyaIpnRoute
 }
 
@@ -392,6 +405,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTraductionRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/desktop-charge': {
+      id: '/api/public/desktop-charge'
+      path: '/api/public/desktop-charge'
+      fullPath: '/api/public/desktop-charge'
+      preLoaderRoute: typeof ApiPublicDesktopChargeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/paydunya-ipn': {
       id: '/api/public/paydunya-ipn'
       path: '/api/public/paydunya-ipn'
@@ -441,6 +461,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecuperationRoute: RecuperationRoute,
   ReinitialisationRoute: ReinitialisationRoute,
   TelechargerRoute: TelechargerRoute,
+  ApiPublicDesktopChargeRoute: ApiPublicDesktopChargeRoute,
   ApiPublicPaydunyaIpnRoute: ApiPublicPaydunyaIpnRoute,
 }
 export const routeTree = rootRouteImport
