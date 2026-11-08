@@ -20,6 +20,7 @@ export type Plan = {
   price: PlanPrice;
   points?: number;
   audioMin?: number;
+  bonusAudioMin?: number;
   validity: number; // days
   lines: { fr: string[]; en: string[] };
 };
@@ -34,15 +35,15 @@ export const swapPlans: Plan[] = [
     lines: { fr: ['Live : 13 min 49 s', 'Studio Diffusion Vidéo : 27 min 38 s', 'Valable 30 jours'], en: ['Live: 13 min 49 s', 'Studio Video Broadcast: 27 min 38 s', 'Valid 30 days'] },
   },
   {
-    id: 'standard', name: 'Standard', popular: true, price: { XOF: '49 900', EUR: '76', USD: '83' }, points: 3960, validity: 90,
+    id: 'standard', name: 'Standard', popular: true, price: { XOF: '49 900', EUR: '76', USD: '83' }, points: 3960, bonusAudioMin: 30, validity: 90,
     lines: { fr: ['Live : 33 min', 'Studio Diffusion Vidéo : 66 min', 'Studio Transformation Avatar : 13 min 12 s', 'Bonus : Traduction 30 min', 'Valable 90 jours'], en: ['Live: 33 min', 'Studio Video Broadcast: 66 min', 'Studio Avatar Transformation: 13 min 12 s', 'Bonus: 30 min translation', 'Valid 90 days'] },
   },
   {
-    id: 'premium', name: 'Premium', price: { XOF: '84 900', EUR: '129', USD: '141' }, points: 5640, validity: 365,
+    id: 'premium', name: 'Premium', price: { XOF: '84 900', EUR: '129', USD: '141' }, points: 5640, bonusAudioMin: 60, validity: 365,
     lines: { fr: ['Live : 47 min', 'Live visage + voix traduite', 'Studio Diffusion Vidéo : 94 min', 'Studio Transformation Avatar : 18 min 48 s', 'Bonus : Traduction 1 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 47 min', 'Live face + translated voice', 'Studio Video Broadcast: 94 min', 'Studio Avatar Transformation: 18 min 48 s', 'Bonus: 1 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
   },
   {
-    id: 'ultimate', name: 'Ultimate', price: { XOF: '150 000', EUR: '229', USD: '250' }, points: 11400, validity: 365,
+    id: 'ultimate', name: 'Ultimate', price: { XOF: '150 000', EUR: '229', USD: '250' }, points: 11400, bonusAudioMin: 120, validity: 365,
     lines: { fr: ['Live : 1 h 35 min', 'Live visage + voix traduite', 'Studio Diffusion Vidéo : 3 h 10 min', 'Studio Transformation Avatar : 38 min', 'Bonus : Traduction 2 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 1 h 35 min', 'Live face + translated voice', 'Studio Video Broadcast: 3 h 10 min', 'Studio Avatar Transformation: 38 min', 'Bonus: 2 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
   },
 ];
