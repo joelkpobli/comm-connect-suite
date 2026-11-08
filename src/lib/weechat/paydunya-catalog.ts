@@ -10,7 +10,7 @@ export const aiTokenBonus: Record<string, number> = { starter: 100, standard: 20
 const xof = (s: string) => Number(s.replace(/\D/g, ''));
 
 export const paydunyaCatalogue: CatalogueItem[] = [
-  ...swapPlans.map(p => ({ id: p.id, label: `Weechat ${p.name}`, amountXOF: xof(p.price.XOF), points: p.points ?? 0, audioSeconds: 0, cameraLicense: cameraLicense.includedIn.includes(p.id), aiTokens: aiTokenBonus[p.id] ?? 0, validityDays: p.validity })),
+  ...swapPlans.map(p => ({ id: p.id, label: `Weechat ${p.name}`, amountXOF: xof(p.price.XOF), points: p.points ?? 0, audioSeconds: (p.bonusAudioMin ?? 0) * 60, cameraLicense: cameraLicense.includedIn.includes(p.id), aiTokens: aiTokenBonus[p.id] ?? 0, validityDays: p.validity })),
   ...audioPlans.map(p => ({ id: p.id, label: `Weechat ${p.name}`, amountXOF: xof(p.price.XOF), points: 0, audioSeconds: (p.audioMin ?? 0) * 60, cameraLicense: false, aiTokens: 0, validityDays: p.validity })),
   { id: 'camera-license', label: 'Licence Weechat Camera (à vie)', amountXOF: cameraLicense.priceXOF, points: 0, audioSeconds: 0, cameraLicense: true, aiTokens: 0, validityDays: 0 },
 ];
