@@ -2,7 +2,7 @@
 // To connect one, implement AsyncAiAdapter and return it from getAdapter() when its key is set.
 import type { AiTaskKind } from './ai-pricing';
 
-export type TalkingPhotoInput = { imageUrl: string; script: string; voiceId?: string; seconds: number };
+export type TalkingPhotoInput = { imageUrl: string; script: string; voiceId?: string | undefined; seconds: number };
 export type ImageGenInput = { prompt: string; aspectRatio: '1:1' | '16:9' | '9:16'; style: 'photo' | 'studio' | 'avatar'; count: number };
 export type ProviderJob = { providerJobId: string };
 export type ProviderStatus = { state: 'pending' | 'processing' | 'completed' | 'failed'; resultUrls?: string[] };
