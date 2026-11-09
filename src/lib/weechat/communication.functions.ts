@@ -3,6 +3,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { PIPELINE_LANGUAGES } from './translation-pipeline';
+import { usageReference } from './usage-meter';
 
 const Lang = z.enum(PIPELINE_LANGUAGES);
 type Outcome<T> = { ok: true; value: T; ms: number } | { ok: false; error: string; provider: string };
@@ -59,7 +60,14 @@ export const realRelay = createServerFn({ method: 'POST' }).middleware([requireS
   });
 
 /** Creates a short-lived Palabra streaming session; only the publisher token reaches the browser. */
-export const palabraSession = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth]).handler(async () => {
+export const palabraSession = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ sessionId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+  // Entitlement: the first prepaid audio block of this usage session must exist in the caller's ledger, debited within the last minute.
+  const since = new Date(Date.now() - 60_000).toISOString();
+  const paid = await context.supabase.from('audio_time_transactions').select('id').eq('user_id', context.userId)
+    .eq('reference', usageReference('audio', context.userId, data.sessionId, 0)).lt('seconds', 0).gte('created_at', since).maybeSingle();
+  if (paid.error || !paid.data) return { ok: false as const, error: 'not_paid' };
   const key = process.env['PALABRA_API_KEY'];
   if (!key) return { ok: false as const, error: 'missing_provider_key' };
   let res: Response;
