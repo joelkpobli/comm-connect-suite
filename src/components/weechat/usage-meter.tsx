@@ -36,7 +36,7 @@ export function useUsageMeter(service: UsageService, onExhausted: () => void) {
     return 'ok' as const;
   };
   useEffect(() => () => { if (s.current.timer) clearInterval(s.current.timer); }, []);
-  return { begin, end, elapsed, balance, running, exhausted };
+  return { begin, end, elapsed, balance, running, exhausted, sessionId: () => s.current.id };
 }
 
 const mmss = (n: number) => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;

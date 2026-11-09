@@ -57,7 +57,7 @@ export function LiveTranslator() {
     try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, channelCount: 1 } }); }
     catch { setMsg(c.denied); stop(); return; }
     r.current.stream = stream; void loadOuts();
-    const res = await session().catch(() => ({ ok: false as const, error: 'provider_unreachable' }));
+    const res = await session({ data: { sessionId: meter.sessionId() } }).catch(() => ({ ok: false as const, error: 'provider_unreachable' }));
     if (!res.ok) { setMsg(res.error === 'missing_provider_key' ? c.missing : c.failed); stop(); return; }
     const outCtx = new AudioContext({ sampleRate: PALABRA_SAMPLE_RATE }); r.current.outCtx = outCtx;
     const sc = outCtx as AudioContext & { setSinkId?: (id: string) => Promise<void> };
