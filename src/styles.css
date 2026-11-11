@@ -225,3 +225,22 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 
 .lp-modecards { gap: .75rem; }
 .lp-modecards button { padding: 1rem 1.5rem; font-size: 1rem; }
+
+.lp-mock-studio > img:first-child { width:100%; height:100%; object-fit:cover; }
+.lp-studio-bar { position:absolute; left:14px; right:14px; bottom:58px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:10px 12px; border-radius:14px; background:var(--overlay); border:1px solid var(--border); font-size:12px; font-weight:600; }
+.lp-studio-bar span { display:inline-flex; align-items:center; gap:6px; }
+.lp-studio-loop { color:var(--primary); margin-left:auto; }
+.lp-studio-progress { flex-basis:100%; height:4px; border-radius:4px; background:var(--border); overflow:hidden; }
+.lp-studio-progress i { display:block; height:100%; width:40%; background:var(--primary); animation:lp-loop 4s linear infinite; }
+.lp-studio-out { position:absolute; left:14px; bottom:14px; display:flex; gap:8px; }
+.lp-studio-out span { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; background:var(--overlay); border:1px solid var(--primary); font-size:12px; font-weight:600; }
+.lp-mock-transform { display:flex; align-items:center; justify-content:center; gap:10px; padding:20px; background:linear-gradient(160deg,var(--surface-deep),color-mix(in oklab,var(--primary) 18%,var(--surface-deep))); }
+.lp-mock-transform figure { position:relative; flex:1; margin:0; aspect-ratio:3/4; border-radius:12px; overflow:hidden; border:1px solid var(--border); }
+.lp-mock-transform figure.sq { flex:.7; aspect-ratio:1; }
+.lp-mock-transform figure.out { border-color:var(--primary); }
+.lp-mock-transform figure img { width:100%; height:100%; object-fit:cover; }
+.lp-mock-transform figcaption { position:absolute; left:6px; right:6px; bottom:6px; display:flex; align-items:center; gap:4px; padding:4px 6px; border-radius:8px; background:var(--overlay); font-size:10px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.lp-tf-op { flex:none; color:var(--primary); }
+.lp-tf-spin { position:absolute; top:6px; left:6px; padding:3px 8px; border-radius:999px; background:var(--primary); color:var(--primary-foreground); font-size:10px; font-weight:700; }
+@keyframes lp-loop { from { transform:translateX(-100%); } to { transform:translateX(250%); } }
+@media (prefers-reduced-motion: reduce) { .lp-studio-progress i { animation:none; } }

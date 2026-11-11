@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Coins, CalendarClock, Gift, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Film, Repeat, Plus, Coins, CalendarClock, Gift, type LucideIcon } from 'lucide-react';
 import 'flag-icons/css/flag-icons.min.css';
 import mtnLogo from '@/assets/pay/mtn.svg.asset.json';
 import orangeLogo from '@/assets/pay/orange.png.asset.json';
@@ -32,8 +32,8 @@ const platformLogos: { name: string; svg: React.ReactNode }[] = [
   { name: 'Discord', svg: <svg viewBox="0 0 24 24" width="18" height="18" fill="#5865F2"><path d="M19.3 5.4A16 16 0 0 0 15.4 4l-.5 1a14 14 0 0 0-5.8 0L8.6 4a16 16 0 0 0-3.9 1.4C2.2 9.3 1.5 13.1 1.8 16.8A16 16 0 0 0 6.7 20l1-1.7a10 10 0 0 1-1.6-.8l.4-.3a11.4 11.4 0 0 0 11 0l.4.3c-.5.3-1 .6-1.6.8l1 1.7a16 16 0 0 0 4.9-3.2c.4-4.2-.7-7.9-2.9-11.4ZM8.7 14.6c-1 0-1.7-.9-1.7-2s.7-2 1.7-2 1.8.9 1.7 2c0 1.1-.7 2-1.7 2Zm6.6 0c-1 0-1.7-.9-1.7-2s.7-2 1.7-2 1.8.9 1.7 2c0 1.1-.7 2-1.7 2Z"/></svg> },
 ];
 
-const featureRoutes = ['/swap-live', '/traduction', '/restyle-live', '/swap-photo'] as const;
-const featureIds = ['swap', 'translation', 'restyle', 'photo'] as const;
+const featureRoutes = ['/swap-live', '/traduction', '/telecharger', '/telecharger', '/restyle-live'] as const;
+const featureIds = ['swap', 'translation', 'studio', 'transform', 'restyle'] as const;
 
 function SwapMock() {
   return <div className="lp-mock lp-mock-call">
@@ -52,6 +52,23 @@ function RestyleMock() {
   return <div className="lp-mock lp-mock-restyle">
     <img src={heroPortrait} alt="" loading="lazy" width={1600} height={1008} />
     <div className="lp-pills">{['Noir & blanc', 'Vif', 'Contraste'].map(t => <span key={t}>{t}</span>)}</div>
+  </div>;
+}
+function StudioMock({ d }: { d: ReturnType<typeof landingCopy>['studioDemo'] }) {
+  return <div className="lp-mock lp-mock-studio">
+    <img src={personaF2} alt="" loading="lazy" />
+    <span className="lp-live-tag"><span />LIVE</span>
+    <div className="lp-studio-bar"><span className="lp-studio-file"><Film size={14} />{d.video}</span><span className="lp-studio-loop"><Repeat size={14} />{d.loop}</span><div className="lp-studio-progress"><i /></div></div>
+    <div className="lp-studio-out"><span><Camera size={13} />{d.cam}</span><span><Mic size={13} />{d.mic}</span></div>
+  </div>;
+}
+function TransformMock({ d }: { d: ReturnType<typeof landingCopy>['studioDemo'] }) {
+  return <div className="lp-mock lp-mock-transform">
+    <figure><img src={heroPortrait} alt="" loading="lazy" /><figcaption><Film size={13} />{d.video}</figcaption></figure>
+    <Plus className="lp-tf-op" size={20} />
+    <figure className="sq"><img src={personaM1} alt="" loading="lazy" /><figcaption><ImageIcon size={13} />{d.photo}</figcaption></figure>
+    <ArrowRight className="lp-tf-op" size={20} />
+    <figure className="out"><img src={personaM1} alt="" loading="lazy" /><span className="lp-tf-spin">{d.processing}</span><figcaption><Film size={13} />{d.result}</figcaption></figure>
   </div>;
 }
 function PhotoMock() {
@@ -140,10 +157,10 @@ export function HomePage() {
           <ul>{(panel.points ?? []).map(p => <li key={p}><Check size={16} />{p}</li>)}</ul>
           <div className="lp-actions">
             <Button asChild><Link to={featureRoutes[n]!}>{c.ctas[n]} <ArrowRight /></Link></Button>
-            <Button asChild variant="ghost"><Link to="/telecharger" hash={featureIds[n] ?? "swap"}>{c.guide}</Link></Button>
+            <Button asChild variant="ghost"><Link to="/telecharger">{c.guide}</Link></Button>
           </div>
         </div>
-        <div className="lp-visual">{n === 0 ? <SwapMock /> : n === 1 ? <TranslateMock bubbles={c.bubbles} /> : n === 2 ? <RestyleMock /> : <PhotoMock />}</div>
+        <div className="lp-visual">{n === 0 ? <SwapMock /> : n === 1 ? <TranslateMock bubbles={c.bubbles} /> : n === 2 ? <StudioMock d={c.studioDemo} /> : n === 3 ? <TransformMock d={c.studioDemo} /> : <RestyleMock />}</div>
       </div>)}
     </section>
 
