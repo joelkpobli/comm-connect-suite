@@ -81,7 +81,7 @@ class App:
 
         # Colonne gauche : grande prévisualisation
         left = tk.Frame(body, bg=PANEL)
-        left.pack(side="left", fill="both", expand=True, padx=(0, 10))
+        left.pack(side="right", fill="both", expand=True, padx=(10, 0))
         top = tk.Frame(left, bg=PANEL)
         top.pack(fill="x", padx=12, pady=(10, 4))
         lbl(top, "Aperçu de la caméra", size=12, bold=True).pack(side="left")
@@ -99,9 +99,9 @@ class App:
         lbl(left, "Dans WhatsApp / Zoom / Meet / TikTok / Facebook Live, choisissez la caméra « Weechat Camera ».",
             fg=MUTED).pack(fill="x", padx=12, pady=(0, 10))
 
-        # Colonne droite : onglets
+        # Colonne gauche : commandes (l'écran d'appel est à droite)
         right = tk.Frame(body, bg=PANEL, width=400)
-        right.pack(side="right", fill="y")
+        right.pack(side="left", fill="y", before=left)
         right.pack_propagate(False)
         nb = ttk.Notebook(right)
         nb.pack(fill="both", expand=True, padx=8, pady=8)
@@ -383,9 +383,10 @@ class App:
         if self.frame is not None:
             img, fps = self.frame
             h, w = img.shape[:2]
-            s = min(720 / w, 540 / h, 1.0)
-            if s < 1.0:
-                img = cv2.resize(img, (int(w * s), int(h * s)), interpolation=cv2.INTER_AREA)
+            s = min(720 / w, 540 / h)
+            if s != 1.0:
+                img = cv2.resize(img, (int(w * s), int(h * s)),
+                                 interpolation=cv2.INTER_AREA if s < 1.0 else cv2.INTER_LANCZOS4)
             rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             photo = ImageTk.PhotoImage(Image.fromarray(rgb))
             self.view.config(image=photo)
