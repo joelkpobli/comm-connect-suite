@@ -303,3 +303,4 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
   .lp-prices { gap:20px; }
   .lp-prices article { padding:24px 20px; }
 }
+.app-sidebar { scrollbar-width:none; } .app-sidebar::-webkit-scrollbar { display:none; }

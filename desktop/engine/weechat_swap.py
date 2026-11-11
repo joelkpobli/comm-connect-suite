@@ -25,6 +25,9 @@ def providers():
     return order + ["CPUExecutionProvider"]
 
 
+HD = (960, 540)
+
+
 def _probe(index, width=640, height=480):
     """Ouvre une caméra et renvoie (cap, frame) si elle donne une vraie image couleur."""
     cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
@@ -55,7 +58,7 @@ def is_color(frame):
 def open_camera(choice, log):
     """choice = 'auto' ou un index. En auto, ignore les caméras IR (Windows Hello) et noires."""
     if choice != "auto":
-        cap, frame = _probe(int(choice))
+        cap, frame = _probe(int(choice), *HD)
         if cap is None:
             raise RuntimeError(f"Webcam {choice} inaccessible. Fermez les autres applications "
                                "qui l'utilisent, ou choisissez « auto ».")
@@ -64,7 +67,7 @@ def open_camera(choice, log):
         return cap, int(choice)
     fallback = None
     for i in range(4):
-        cap, frame = _probe(i)
+        cap, frame = _probe(i, *HD)
         if cap is None:
             continue
         if frame.mean() > 12 and is_color(frame):
@@ -98,7 +101,21 @@ def open_vcam(width, height, log):
     return None
 
 
-def run(face, camera="auto", width=640, height=480, det_size=320, vcam_on=True,
+def sharpen_face(img, bbox, amount=0.8):
+    """Le modèle rend le visage en 128x128 : on redonne du piqué à la zone du visage."""
+    h, w = img.shape[:2]
+    x1, y1, x2, y2 = [int(v) for v in bbox]
+    m = int(0.15 * max(x2 - x1, y2 - y1))
+    x1, y1, x2, y2 = max(0, x1 - m), max(0, y1 - m), min(w, x2 + m), min(h, y2 + m)
+    if x2 - x1 < 8 or y2 - y1 < 8:
+        return img
+    roi = img[y1:y2, x1:x2]
+    blur = cv2.GaussianBlur(roi, (0, 0), 1.6)
+    img[y1:y2, x1:x2] = cv2.addWeighted(roi, 1 + amount, blur, -amount, 0)
+    return img
+
+
+def run(face, camera="auto", width=960, height=540, det_size=320, vcam_on=True,
         stop_event=None, log=print, preview=True, on_frame=None, root=None):
     stop_event = stop_event or threading.Event()
 
@@ -168,6 +185,7 @@ def run(face, camera="auto", width=640, height=480, det_size=320, vcam_on=True,
                 out = cv2.resize(frame, (width, height))
                 for f in analyser.get(out):
                     out = swapper.get(out, f, source, paste_back=True)
+                    out = sharpen_face(out, f.bbox)
                 now = time.time()
                 fps = 0.9 * fps + 0.1 / max(now - last, 1e-6)
                 last = now
