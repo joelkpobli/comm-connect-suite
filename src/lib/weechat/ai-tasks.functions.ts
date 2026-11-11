@@ -7,8 +7,8 @@ export type AiTaskResult =
   | { ok: true; taskId: string; providerJobId: string; cost: number }
   | { ok: false; error: 'provider_not_configured' | 'insufficient' | 'provider_failed' | 'provider_billing' | 'failed' };
 
-const talkingSchema = z.object({ imageUrl: media, script: z.string().trim().min(1).max(1000), voiceId: z.string().max(100).optional(), seconds: z.number().int().min(1).max(TALKING_PHOTO_MAX_SECONDS) });
 const media = z.string().max(8_000_000).refine((v) => /^https:\/\//.test(v) || /^data:image\/(png|jpeg|webp);base64,/.test(v), 'invalid_image');
+const talkingSchema = z.object({ imageUrl: media, script: z.string().trim().min(1).max(1000), voiceId: z.string().max(100).optional(), seconds: z.number().int().min(1).max(TALKING_PHOTO_MAX_SECONDS) });
 const swapSchema = z.object({ targetImage: media, faceImage: media });
 const imageSchema = z.object({ prompt: z.string().trim().min(3).max(1000), aspectRatio: z.enum(['1:1', '16:9', '9:16']), style: z.enum(['photo', 'studio', 'avatar']), count: z.number().int().min(1).max(IMAGE_MAX_COUNT) });
 
