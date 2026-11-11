@@ -39,3 +39,10 @@ export const chargeUsageBlock = createServerFn({ method: 'POST' }).middleware([r
     }
     return { ok: true, balance };
   });
+
+/** Expiry dates of the three wallets (owner-scoped read). */
+export const getBalanceValidity = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { data, error } = await context.supabase.from('balance_validity').select('credits_until, audio_until, tokens_until').eq('user_id', context.userId).maybeSingle();
+  if (error) { console.error('getBalanceValidity', error.message); return { credits: null, audio: null, tokens: null }; }
+  return { credits: data?.credits_until ?? null, audio: data?.audio_until ?? null, tokens: data?.tokens_until ?? null };
+});
