@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
 import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, cameraLicense, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 import { whatsappLink } from '@/lib/weechat/contact';
+import { SwapDemo, TranslateDemo, BroadcastDemo, TransformDemo, RestyleDemo } from './live-demos';
 
 import heroPortrait from '@/assets/hero-portrait.jpg';
 import personaF1 from '@/assets/faces/face1.webp';
@@ -34,51 +35,6 @@ const platformLogos: { name: string; svg: React.ReactNode }[] = [
 
 const featureRoutes = ['/swap-live', '/traduction', '/telecharger', '/telecharger', '/restyle-live'] as const;
 const featureIds = ['swap', 'translation', 'studio', 'transform', 'restyle'] as const;
-
-function SwapMock() {
-  return <div className="lp-mock lp-mock-call">
-    <img src={heroPortrait} alt="" loading="lazy" width={1600} height={1008} />
-    <span className="lp-live-tag"><span />LIVE</span>
-    <div className="lp-mock-strip">{[personaF1, personaF2, personaM1].map((p, n) => <img key={n} src={p} alt="" className={n === 0 ? 'on' : ''} loading="lazy" />)}</div>
-  </div>;
-}
-function TranslateMock({ bubbles }: { bubbles: string[] }) {
-  return <div className="lp-mock lp-mock-chat">
-    <div className="lp-bubbles"><p><b>FR</b>{bubbles[0]}</p><p className="out"><b>EN</b>{bubbles[1]}</p></div>
-    <div className="lp-wave" aria-hidden="true">{Array.from({ length: 24 }, (_, n) => <i key={n} style={{ height: `${20 + ((n * 37) % 60)}%` }} />)}</div>
-  </div>;
-}
-function RestyleMock() {
-  return <div className="lp-mock lp-mock-restyle">
-    <img src={heroPortrait} alt="" loading="lazy" width={1600} height={1008} />
-    <div className="lp-pills">{['Noir & blanc', 'Vif', 'Contraste'].map(t => <span key={t}>{t}</span>)}</div>
-  </div>;
-}
-function StudioMock({ d }: { d: ReturnType<typeof landingCopy>['studioDemo'] }) {
-  return <div className="lp-mock lp-mock-studio">
-    <img src={personaF2} alt="" loading="lazy" />
-    <span className="lp-live-tag"><span />LIVE</span>
-    <div className="lp-studio-bar"><span className="lp-studio-file"><Film size={14} />{d.video}</span><span className="lp-studio-loop"><Repeat size={14} />{d.loop}</span><div className="lp-studio-progress"><i /></div></div>
-    <div className="lp-studio-out"><span><Camera size={13} />{d.cam}</span><span><Mic size={13} />{d.mic}</span></div>
-  </div>;
-}
-function TransformMock({ d }: { d: ReturnType<typeof landingCopy>['studioDemo'] }) {
-  return <div className="lp-mock lp-mock-transform">
-    <figure><img src={heroPortrait} alt="" loading="lazy" /><figcaption><Film size={13} />{d.video}</figcaption></figure>
-    <Plus className="lp-tf-op" size={20} />
-    <figure className="sq"><img src={personaM1} alt="" loading="lazy" /><figcaption><ImageIcon size={13} />{d.photo}</figcaption></figure>
-    <ArrowRight className="lp-tf-op" size={20} />
-    <figure className="out"><img src={personaM1} alt="" loading="lazy" /><span className="lp-tf-spin">{d.processing}</span><figcaption><Film size={13} />{d.result}</figcaption></figure>
-  </div>;
-}
-function PhotoMock() {
-  return <div className="lp-mock lp-mock-photo">
-    <img src={heroPortrait} alt="" loading="lazy" width={1600} height={1008} />
-    <div className="lp-split" aria-hidden="true" />
-    <span className="lp-ab l">Avant</span><span className="lp-ab r">Après</span>
-    <img src={personaF2} alt="" className="lp-ref" loading="lazy" />
-  </div>;
-}
 
 const lineIcon: Record<LineKind, LucideIcon> = { live: Video, restyle: Wand2, photo: ImageIcon, translate: Languages, vcam: Camera, languages: Languages, speed: Zap, support: Headphones, points: Coins, validity: CalendarClock };
 const opLogos: Record<string, { src: string; tone: string }> = {
@@ -141,7 +97,6 @@ export function HomePage() {
       <span className="lp-eyebrow">{c.bandEyebrow}</span><h2>{c.bandTitle}</h2>
       <div className="lp-specs">{(c.specs ?? []).map(s => <span key={s}>{s}</span>)}</div>
       <div className="lp-platforms">{(platformLogos ?? []).map(p => <span key={p.name} className="lp-plat">{p.svg}{p.name}</span>)}</div>
-      <small>{c.bandNote}</small>
     </section>
 
     <section id="how" className="lp-section"><h2>{c.howTitle}</h2><p className="lp-lead">{c.howText}</p>
@@ -160,7 +115,7 @@ export function HomePage() {
             <Button asChild variant="ghost"><Link to="/telecharger">{c.guide}</Link></Button>
           </div>
         </div>
-        <div className="lp-visual">{n === 0 ? <SwapMock /> : n === 1 ? <TranslateMock bubbles={c.bubbles} /> : n === 2 ? <StudioMock d={c.studioDemo} /> : n === 3 ? <TransformMock d={c.studioDemo} /> : <RestyleMock />}</div>
+        <div className="lp-visual">{(() => { const fr = locale === 'fr'; return n === 0 ? <SwapDemo fr={fr} /> : n === 1 ? <TranslateDemo fr={fr} /> : n === 2 ? <BroadcastDemo fr={fr} /> : n === 3 ? <TransformDemo fr={fr} /> : <RestyleDemo fr={fr} />; })()}</div>
       </div>)}
     </section>
 
@@ -194,8 +149,15 @@ export function HomePage() {
       <div className="lp-currow"><span>{c.showPricesIn}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
       <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : c.audioTitle}</h3>
       <p className="lp-lead">{mode === 'swap' ? c.swapSub : c.audioSub}</p>
-      {plans.filter(p => p.badge).map(p => <DiscoveryCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}
-      {mode === 'swap' && <article className="lp-discovery"><div><span className="lp-badge">{c.camSub}</span><h3>{c.camTitle}</h3></div><div className="lp-discovery-lines"><ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul><small>{c.camNote}</small></div><div className="lp-discovery-cta"><strong>{cameraLicense.price[cur]}<small>{cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$'}</small></strong></div></article>}
+      <div className={`lp-prices ${mode === 'swap' ? 'two' : 'one'}`}>
+        {plans.filter(p => p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}
+        {mode === 'swap' && <article className="lp-camcard">
+          <header><h3>{c.camTitle}</h3><span className="lp-badge">{c.camSub}</span></header>
+          <strong>{cameraLicense.price[cur]}<small>{cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$'}</small></strong>
+          <ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul>
+          <Button asChild variant="outline"><Link to="/credits">{c.choose}</Link></Button>
+        </article>}
+      </div>
       <div className={`lp-prices ${mode === 'audio' ? 'three' : 'four'}`}>{(plans ?? []).filter(p => !p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
       <small className="lp-conso">{c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>
