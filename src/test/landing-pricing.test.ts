@@ -38,7 +38,7 @@ describe('Grille tarifaire en points (présentation)', () => {
   });
 
   it('présente les 4 onglets de fonctionnalités et 9 questions FAQ', () => {
-    expect(landingCopy('fr').tabs).toEqual(['Swap Live', 'Traduction en temps réel', 'Restyle Live', 'Photo & vidéo']);
+    expect(landingCopy('fr').tabs).toEqual(['Swap Live', 'Traduction en temps réel', 'Studio Diffusion Vidéo', 'Studio Transformation Avatar', 'Restyle Live']);
     expect(landingCopy('fr').faq).toHaveLength(9);
     expect(landingCopy('en').faq).toHaveLength(9);
   });
