@@ -78,7 +78,7 @@ const filters = [
 ] as const;
 export function RestyleDemo({ fr }: { fr: boolean }) {
   const [f, setF] = useState(1);
-  return <div className="ld"><div className="ld-screen">
+  return <div className="ld"><div className="ld-screen ld-full">
     <Clip src={demoPeople[3]!.src} className="ld-video" style={{ filter: filters[f]![2], transition: 'filter .4s' }} />
     <span className="ld-tag live"><i />LIVE</span>
   </div>
