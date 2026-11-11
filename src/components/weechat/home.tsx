@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Film, Repeat, Plus, Coins, CalendarClock, Gift, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Film, Repeat, Plus, Coins, CalendarClock, Gift, Sparkles, type LucideIcon } from 'lucide-react';
 import 'flag-icons/css/flag-icons.min.css';
 import mtnLogo from '@/assets/pay/mtn.svg.asset.json';
 import orangeLogo from '@/assets/pay/orange.png.asset.json';
@@ -11,7 +11,7 @@ import visaLogo from '@/assets/pay/visa.png.asset.json';
 import mcLogo from '@/assets/pay/mastercard.png.asset.json';
 import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
-import { landingCopy, landingFaces, swapPlans, audioPlans, momoCountries, momoOperators, classifyLine, cameraLicense, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
+import { landingCopy, landingFaces, swapPlans, audioPlans, tokenPlans, momoCountries, momoOperators, classifyLine, cameraLicense, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 import { whatsappLink } from '@/lib/weechat/contact';
 import { SwapDemo, TranslateDemo, BroadcastDemo, TransformDemo, RestyleDemo } from './live-demos';
 
@@ -67,6 +67,7 @@ function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale:
     {plan.popular && <span className="lp-pop">{c.popular}</span>}
     <header><h3>{plan.name}</h3>{plan.badge && <span className="lp-badge">{plan.badge}</span>}<span className="lp-validity">{plan.validity} {c.days}</span></header>
     <strong>{plan.price[cur]}<small>{sym}</small></strong>
+    {plan.aiTokens && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.aiTokens)} {locale === 'fr' ? 'jetons IA' : 'AI tokens'}</p>}
     {plan.points && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.points)} {c.points} · ≈ {Math.round(plan.points / 2 / 60)} min Swap Live</p>}
     <PlanLines plan={plan} locale={locale} c={c} />
     <Button asChild variant={plan.popular ? 'default' : 'outline'}><Link to="/credits">{c.choose} {plan.name}</Link></Button>
@@ -76,10 +77,10 @@ function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale:
 export function HomePage() {
   const { locale } = useDemo(); const c = landingCopy(locale);
   const [tab, setTab] = useState(0);
-  const [mode, setMode] = useState<'swap' | 'audio'>('swap');
+  const [mode, setMode] = useState<'swap' | 'audio' | 'tokens'>('swap');
   const [cur, setCur] = useState<Currency>('XOF');
   const [open, setOpen] = useState<number | null>(0);
-  const plans = mode === 'swap' ? swapPlans : audioPlans;
+  const plans = mode === 'swap' ? swapPlans : mode === 'audio' ? audioPlans : tokenPlans;
   return <div className="lp">
 
     <section className="lp-hero">
@@ -145,11 +146,11 @@ export function HomePage() {
     <section id="pricing" className="lp-section">
       <span className="lp-eyebrow">{c.priceEyebrow}</span><h2>{c.priceTitle}</h2><p className="lp-lead">{c.priceText}</p>
       <p className="lp-modehint">{c.priceModeHint}</p>
-      <div className="lp-toggle lp-modecards">{([['swap', c.modeSwap, Video], ['audio', c.modeAudio, Mic]] as const).map(([k, label, I]) => <button key={k} className={mode === k ? 'active' : ''} aria-pressed={mode === k} onClick={() => setMode(k)}><I size={15} />{label}</button>)}</div>
+      <div className="lp-toggle lp-modecards">{([['swap', c.modeSwap, Video], ['audio', c.modeAudio, Mic], ['tokens', c.modeTokens, Sparkles]] as const).map(([k, label, I]) => <button key={k} className={mode === k ? 'active' : ''} aria-pressed={mode === k} onClick={() => setMode(k)}><I size={15} />{label}</button>)}</div>
       <div className="lp-currow"><span>{c.showPricesIn}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
-      <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : c.audioTitle}</h3>
-      <p className="lp-lead">{mode === 'swap' ? c.swapSub : c.audioSub}</p>
-      <div className={`lp-prices ${mode === 'swap' ? 'two' : 'one'}`}>
+      <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : mode === 'audio' ? c.audioTitle : c.tokensTitle}</h3>
+      <p className="lp-lead">{mode === 'swap' ? c.swapSub : mode === 'audio' ? c.audioSub : c.tokensSub}</p>
+      {mode !== 'tokens' && <div className={`lp-prices ${mode === 'swap' ? 'two' : 'one'}`}>
         {plans.filter(p => p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}
         {mode === 'swap' && <article className="lp-camcard">
           <header><h3>{c.camTitle}</h3><span className="lp-badge">{c.camSub}</span></header>
@@ -157,7 +158,7 @@ export function HomePage() {
           <ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul>
           <Button asChild variant="outline"><Link to="/credits">{c.choose}</Link></Button>
         </article>}
-      </div>
+      </div>}
       <div className={`lp-prices ${mode === 'audio' ? 'three' : 'four'}`}>{(plans ?? []).filter(p => !p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
       <small className="lp-conso">{c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>

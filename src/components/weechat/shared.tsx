@@ -6,7 +6,7 @@ import { uiCopy } from '@/lib/weechat/ui-copy';
 import { formatCredits, type Transaction } from '@/lib/weechat/demo-data';
 import type { ReactNode } from 'react';
 export function Brand({ compact = false }: { compact?: boolean }) { const { locale } = useDemo(); const tr = (text: string) => uiCopy(text, locale);
-  return <Link to="/" className="brand" aria-label={tr('Weechat — Accueil')}><svg className="brand-mark" viewBox="0 0 40 34" fill="none" aria-hidden="true"><path d="M4 6L12 28L20 12L28 28L36 6" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" /></svg>{!compact && <span>Weechat<span className="brand-period">.</span></span>}</Link>;
+  return <Link to="/" className="brand" aria-label={tr('Weechat — Accueil')}><svg className="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M20 3C10.6 3 3 10 3 18.8c0 4.6 2.1 8.7 5.4 11.6L7 37l7.2-3.3c1.8.5 3.8.8 5.8.8 9.4 0 17-7 17-15.7S29.4 3 20 3Z" fill="currentColor" /><path d="M11 18.5h2.6M15.6 14v9M20 11v15M24.4 14v9M27.4 18.5H29" stroke="var(--background)" strokeWidth="2.6" strokeLinecap="round" /></svg>{!compact && <span>Weechat<span className="brand-period">.</span></span>}</Link>;
 }
 export function LanguageSelect() {
   const { locale, setLocale } = useDemo(); const tr = (text: string) => uiCopy(text, locale);

@@ -10,7 +10,7 @@ import { cameraLicense } from '@/lib/weechat/landing-copy';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
 import { formatCredits } from '@/lib/weechat/demo-data';
-import { swapPlans, audioPlans, type Currency, type Plan } from '@/lib/weechat/landing-copy';
+import { swapPlans, audioPlans, tokenPlans, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 
 /** Audio minutes come from the separate audio-time ledger (stored in seconds). */
 const fmtAudio = (sec: number | undefined) => sec === undefined ? '…' : sec % 60 ? `${Math.floor(sec / 60)} min ${sec % 60} s` : `${sec / 60} min`;
@@ -34,7 +34,7 @@ export function CreditsPage() {
   const { data: real } = useSuspenseQuery(creditsQuery); const { data: audio } = useQuery(audioQuery); const { data: tokens } = useQuery(aiTokensQuery);
   const [cur, setCur] = useState<Currency>('XOF');
   const [selected, setSelected] = useState<Plan>(swapPlans[2] ?? swapPlans[0] as Plan);
-  const [kind, setKind] = useState<'swap' | 'audio'>('swap');
+  const [kind, setKind] = useState<'swap' | 'audio' | 'tokens'>('swap');
   const checkout = useServerFn(startCheckout);
   const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
   const [busy, setBusy] = useState<string | null>(null);
@@ -46,15 +46,15 @@ export function CreditsPage() {
     setBusy(null);
   };
   const isAudio = selected.audioMin != null;
-  const qty = isAudio ? `${selected.audioMin} min` : `${formatCredits(selected.points ?? 0)} pts`;
+  const qty = selected.aiTokens ? `${formatCredits(selected.aiTokens)} ${en ? 'AI tokens' : 'jetons IA'}` : isAudio ? `${selected.audioMin} min` : `${formatCredits(selected.points ?? 0)} pts`;
 
   const card = (p: Plan) => <label key={p.id} className={`credit-pack ${selected.id === p.id ? 'selected' : ''}`}>
     <input type="radio" name="pack" value={p.id} checked={selected.id === p.id} onChange={() => { setSelected(p); }} />
     <span className="pack-check">{selected.id === p.id && <Check size={13} />}</span>
     {p.popular && <span className="popular-label"><Sparkles size={12} />{en ? 'Best choice' : 'Meilleur choix'}</span>}
     <span className="pack-name">{p.name}</span>
-    {p.audioMin != null ? <AudioLines size={27} className="text-primary" /> : <Coins size={27} className="text-primary" />}
-    <strong>{p.audioMin != null ? p.audioMin : formatCredits(p.points ?? 0)}<small>{p.audioMin != null ? ' min' : ' pts'}</small></strong>
+    {p.aiTokens ? <Sparkles size={27} className="text-primary" /> : p.audioMin != null ? <AudioLines size={27} className="text-primary" /> : <Coins size={27} className="text-primary" />}
+    <strong>{p.aiTokens ? formatCredits(p.aiTokens) : p.audioMin != null ? p.audioMin : formatCredits(p.points ?? 0)}<small>{p.aiTokens ? (en ? ' tokens' : ' jetons') : p.audioMin != null ? ' min' : ' pts'}</small></strong>
     <p>{(en ? p.lines.en : p.lines.fr)[0]}</p>
     <span className="pack-price">{p.price[cur]} <small>{sym(cur)}</small></span>
     <span className="pack-example"><Clock size={12} /> {en ? `Valid ${p.validity} days` : `Valable ${p.validity} jours`}</span>
@@ -68,13 +68,12 @@ export function CreditsPage() {
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><Coins size={26} /></span><div><span>{en ? 'AI tokens (Studio AI)' : 'Jetons IA (Studio IA)'}</span><strong>{formatCredits(tokens ?? 0)}</strong></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
     </div>
     <div className="lp-currow"><span>{en ? 'Show prices in' : 'Afficher les prix en'}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <Button variant="ghost" key={k} type="button" className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div></div>
-    <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); setSelected(k === 'swap' ? swapPlans[2] ?? swapPlans[0] as Plan : audioPlans[1] ?? audioPlans[0] as Plan); }}>{k === 'swap' ? 'Swap Live' : (en ? 'Audio translation' : 'Traduction audio')}</Button>)}</div></div>
-    <div className="dashboard-section-header" id="audio"><h2>{kind === 'swap' ? 'Swap Live' : (en ? 'Audio translation' : 'Traduction audio')}</h2><span className="subtle-label">{kind === 'swap' ? (en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE') : 'MINUTES'}</span></div>
-    <div className="credit-packs">{(kind === 'swap' ? swapPlans : audioPlans).map(card)}</div>
+    <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio', 'tokens'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); setSelected(k === 'swap' ? swapPlans[2] ?? swapPlans[0] as Plan : k === 'audio' ? audioPlans[1] ?? audioPlans[0] as Plan : tokenPlans[2] ?? tokenPlans[0] as Plan); }}>{k === 'swap' ? 'Swap Live' : k === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</Button>)}</div></div>
+    <div className="dashboard-section-header" id="audio"><h2>{kind === 'swap' ? 'Swap Live' : kind === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</h2><span className="subtle-label">{kind === 'swap' ? (en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE') : kind === 'audio' ? 'MINUTES' : (en ? 'SWAP PHOTO 2 · IMAGE 5 · TALKING PHOTO 3/S' : 'SWAP PHOTO 2 · IMAGE 5 · PHOTO PARLANTE 3/S')}</span></div>
+    <div className="credit-packs">{(kind === 'swap' ? swapPlans : kind === 'audio' ? audioPlans : tokenPlans).map(card)}</div>
     <div className="purchase-summary"><div><strong>{selected.name}</strong><p>{qty} · {selected.price[cur]} {sym(cur)}</p></div><Button size="lg" disabled={busy !== null} onClick={() => pay(selected.id)}>{busy === selected.id ? '…' : (en ? 'Pay with Mobile Money' : 'Payer par Mobile Money')}</Button></div>
     {payError && <p role="alert" className="mt-2 text-sm text-destructive">{en ? 'Payment could not start. Please try again.' : 'Le paiement n’a pas pu démarrer. Réessayez.'}</p>}
     <div className="purchase-summary mt-4"><div><strong>{en ? 'Weechat Camera licence (lifetime)' : 'Licence Weechat Camera (à vie)'}</strong><p>{cameraLicense.price.XOF} FCFA · {en ? 'one-time payment, included in Premium and Ultimate' : 'paiement unique, incluse dans Premium et Ultimate'}</p></div>{hasLicense ? <span className="demo-badge"><span />{en ? 'Licence active' : 'Licence active'}</span> : <Button size="lg" variant="outline" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy licence' : 'Acheter la licence')}</Button>}</div>
-    <p className="mt-4 text-sm text-muted-foreground">{en ? 'Windows Swap Live is not yet linked to points. Local Restyle filters are free. Swap Photo is unavailable. Translation uses the separate audio balance in prepaid 10-second blocks, including a started block if startup fails.' : 'Swap Live Windows n’est pas encore relié aux points. Les filtres Restyle locaux sont gratuits. Swap Photo est indisponible. La traduction utilise le solde audio séparé, par tranches prépayées de 10 secondes, y compris la tranche commencée si le démarrage échoue.'}</p>
     <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by PayDunya.' : 'Paiement sécurisé par PayDunya.'}<span>{en ? 'Your balance is credited automatically after confirmation. Card payment coming soon.' : 'Votre solde est crédité automatiquement après confirmation. Paiement par carte bientôt.'}</span></p></div>
 
   </>;
