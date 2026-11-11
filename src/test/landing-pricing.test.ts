@@ -43,9 +43,8 @@ describe('Grille tarifaire en points (présentation)', () => {
     expect(landingCopy('en').faq).toHaveLength(9);
   });
 
-  it('indique honnêtement qu’aucun paiement n’est actif', () => {
-    expect(landingCopy('fr').priceDisclaimer).toContain('aucun paiement');
-    expect(landingCopy('fr').payText).toContain('Aucun paiement');
+  it('présente un paiement unique sans abonnement', () => {
+    expect(landingCopy('fr').priceDisclaimer).toContain('sans abonnement');
   });
 });
 

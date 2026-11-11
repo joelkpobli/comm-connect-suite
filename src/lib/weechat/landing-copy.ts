@@ -121,7 +121,7 @@ const fr = {
   points: 'points', bonusLabel: 'Bonus inclus', choose: 'Choisir', popular: 'Meilleur choix', days: 'jours',
   consumptionNote: 'Consommation : Swap Live 2 pts/s · Studio Diffusion Vidéo (diffuser en direct une vidéo prête) 1 pt/s · Studio Transformation Avatar (l’IA remplace le visage de votre vidéo par celui d’une photo) 5 pts/s. Les points d’un pack servent à toutes ces fonctions.',
   camTitle: 'Licence Weechat Camera', camSub: 'Paiement unique · à vie', camLines: ['Weechat apparaît comme caméra dans WhatsApp, Facebook Live, TikTok, Google Meet, Zoom', 'Aucune expiration', 'Incluse dans Premium et Ultimate'], camNote: 'Achat prévu · paiement pas encore actif. Les points restent nécessaires pour Swap Live et Studio.',
-  priceDisclaimer: 'Prix TTC · paiement unique par pack, sans engagement.',
+  priceDisclaimer: 'Paiement unique par pack, sans abonnement.',
   faqTitle: 'Foire aux questions',
   faq: [
     ['Comment fonctionnent les points ?', 'Vous achetez des points prépayés, consommés selon vos actions : 2 points par seconde de Swap Live ou de Restyle, 2 points par photo. Les points ne correspondent pas à des minutes d’appel.'],
