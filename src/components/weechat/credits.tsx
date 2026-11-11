@@ -6,7 +6,8 @@ import { ArrowRight, AudioLines, Check, Clock, Coins, History, ShieldCheck, Spar
 import { Button } from '@/components/ui/button';
 import { useServerFn } from '@tanstack/react-start';
 import { startCheckout, getCameraLicense } from '@/lib/weechat/payments.functions';
-import { cameraLicense } from '@/lib/weechat/landing-copy';
+import { cameraLicense, landingCopy } from '@/lib/weechat/landing-copy';
+import { PlanCard } from './home';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
 import { formatCredits } from '@/lib/weechat/demo-data';
@@ -33,8 +34,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const en = locale === 'en';
   const { data: real } = useSuspenseQuery(creditsQuery); const { data: audio } = useQuery(audioQuery); const { data: tokens } = useQuery(aiTokensQuery); const { data: v } = useQuery(validityQuery);
   const [cur, setCur] = useState<Currency>('XOF');
-  const [selected, setSelected] = useState<Plan>(swapPlans[2] ?? swapPlans[0] as Plan);
-  const [kind, setKind] = useState<'swap' | 'audio' | 'tokens'>('swap');
+    const [kind, setKind] = useState<'swap' | 'audio' | 'tokens'>('swap');
   const checkout = useServerFn(startCheckout);
   const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
   const [busy, setBusy] = useState<string | null>(null);
@@ -45,20 +45,9 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
     catch { setPayError(true); }
     setBusy(null);
   };
-  const isAudio = selected.audioMin != null;
-  const qty = selected.aiTokens ? `${formatCredits(selected.aiTokens)} ${en ? 'AI tokens' : 'jetons IA'}` : isAudio ? `${selected.audioMin} min` : `${formatCredits(selected.points ?? 0)} pts`;
-
-  const card = (p: Plan) => <label key={p.id} className={`credit-pack ${selected.id === p.id ? 'selected' : ''}`}>
-    <input type="radio" name="pack" value={p.id} checked={selected.id === p.id} onChange={() => { setSelected(p); }} />
-    <span className="pack-check">{selected.id === p.id && <Check size={13} />}</span>
-    {p.popular && <span className="popular-label"><Sparkles size={12} />{en ? 'Best choice' : 'Meilleur choix'}</span>}
-    <span className="pack-name">{p.name}</span>
-    {p.aiTokens ? <Sparkles size={27} className="text-primary" /> : p.audioMin != null ? <AudioLines size={27} className="text-primary" /> : <Coins size={27} className="text-primary" />}
-    <strong>{p.aiTokens ? formatCredits(p.aiTokens) : p.audioMin != null ? p.audioMin : formatCredits(p.points ?? 0)}<small>{p.aiTokens ? (en ? ' tokens' : ' jetons') : p.audioMin != null ? ' min' : ' pts'}</small></strong>
-    <p>{(en ? p.lines.en : p.lines.fr)[0]}</p>
-    <span className="pack-price">{p.price[cur]} <small>{sym(cur)}</small></span>
-    <span className="pack-example"><Clock size={12} /> {en ? `Valid ${p.validity} days` : `Valable ${p.validity} jours`}</span>
-  </label>;
+  const c = landingCopy(locale);
+  const buy = (p: Plan) => <Button size="lg" className="w-full text-base font-semibold" variant={p.popular ? 'default' : 'outline'} disabled={busy !== null} onClick={() => pay(p.id)}>{busy === p.id ? '…' : (en ? `Buy ${p.name}` : `Acheter ${p.name}`)}</Button>;
+  const list = kind === 'swap' ? swapPlans : kind === 'audio' ? audioPlans : tokenPlans;
 
   return <>
     {!embedded && <>
@@ -70,12 +59,16 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
     </div>
     </>}
     <div className="lp-currow"><span>{en ? 'Show prices in' : 'Afficher les prix en'}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <Button variant="ghost" key={k} type="button" className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div></div>
-    <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio', 'tokens'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); setSelected(k === 'swap' ? swapPlans[2] ?? swapPlans[0] as Plan : k === 'audio' ? audioPlans[1] ?? audioPlans[0] as Plan : tokenPlans[2] ?? tokenPlans[0] as Plan); }}>{k === 'swap' ? 'Swap Live' : k === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</Button>)}</div></div>
+    <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio', 'tokens'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); }}>{k === 'swap' ? 'Swap Live' : k === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</Button>)}</div></div>
     <div className="dashboard-section-header" id="audio"><h2>{kind === 'swap' ? 'Swap Live' : kind === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</h2><span className="subtle-label">{kind === 'swap' ? (en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE') : kind === 'audio' ? 'MINUTES' : (en ? 'SWAP PHOTO 2 · IMAGE 5 · TALKING PHOTO 3/S' : 'SWAP PHOTO 2 · IMAGE 5 · PHOTO PARLANTE 3/S')}</span></div>
-    <div className="credit-packs">{(kind === 'swap' ? swapPlans : kind === 'audio' ? audioPlans : tokenPlans).map(card)}</div>
-    <div className="purchase-summary"><div><strong>{selected.name}</strong><p>{qty} · {selected.price[cur]} {sym(cur)}</p></div><Button size="lg" disabled={busy !== null} onClick={() => pay(selected.id)}>{busy === selected.id ? '…' : (en ? 'Pay with Mobile Money' : 'Payer par Mobile Money')}</Button></div>
-    {payError && <p role="alert" className="mt-2 text-sm text-destructive">{en ? 'Payment could not start. Please try again.' : 'Le paiement n’a pas pu démarrer. Réessayez.'}</p>}
-    <div className="purchase-summary mt-4"><div><strong>{en ? 'Weechat Camera licence (lifetime)' : 'Licence Weechat Camera (à vie)'}</strong><p>{cameraLicense.price.XOF} FCFA · {en ? 'one-time payment, included in Premium and Ultimate' : 'paiement unique, incluse dans Premium et Ultimate'}</p></div>{hasLicense ? <span className="demo-badge"><span />{en ? 'Licence active' : 'Licence active'}</span> : <Button size="lg" variant="outline" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy licence' : 'Acheter la licence')}</Button>}</div>
+    <div className="lp-prices four">{list.map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} action={buy(p)} />)}</div>
+    {payError && <p role="alert" className="mt-3 text-sm text-destructive">{en ? 'Payment could not start. Please try again.' : 'Le paiement n’a pas pu démarrer. Réessayez.'}</p>}
+    {kind === 'swap' && <div className="lp-prices one"><article className="lp-camcard">
+      <header><h3>{c.camTitle}</h3><span className="lp-badge">{c.camSub}</span></header>
+      <strong>{cameraLicense.price[cur]}<small>{sym(cur)}</small></strong>
+      <ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul>
+      {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="w-full text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy the licence' : 'Acheter la licence')}</Button>}
+    </article></div>}
     <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by PayDunya.' : 'Paiement sécurisé par PayDunya.'}<span>{en ? 'Your balance is credited automatically after confirmation. Card payment coming soon.' : 'Votre solde est crédité automatiquement après confirmation. Paiement par carte bientôt.'}</span></p></div>
 
   </>;

@@ -61,7 +61,7 @@ function DiscoveryCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; lo
   </article>;
 }
 
-function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale: 'fr' | 'en'; c: ReturnType<typeof landingCopy> }) {
+export function PlanCard({ plan, cur, locale, c, action }: { plan: Plan; cur: Currency; locale: 'fr' | 'en'; c: ReturnType<typeof landingCopy>; action?: React.ReactNode }) {
   const sym = cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$';
   return <article className={plan.popular ? 'popular' : ''}>
     {plan.popular && <span className="lp-pop">{c.popular}</span>}
@@ -70,7 +70,7 @@ function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale:
     {plan.aiTokens && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.aiTokens)} {locale === 'fr' ? 'jetons IA' : 'AI tokens'}</p>}
     {plan.points && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.points)} {c.points} · ≈ {Math.round(plan.points / 2 / 60)} min Swap Live</p>}
     <PlanLines plan={plan} locale={locale} c={c} />
-    <Button asChild variant={plan.popular ? 'default' : 'outline'}><Link to="/credits">{c.choose} {plan.name}</Link></Button>
+    {action ?? <Button asChild variant={plan.popular ? 'default' : 'outline'}><Link to="/credits">{c.choose} {plan.name}</Link></Button>}
   </article>;
 }
 
