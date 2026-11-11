@@ -29,6 +29,9 @@ function Picker({ label, value, onChange }: { label: string; value: string | nul
   </label>;
 }
 
+/** Flip to true once the AI provider account is funded. */
+const AI_STUDIO_AVAILABLE = false;
+
 export function SwapPhotoPage() {
   const { locale } = useDemo(); const fr = locale === 'fr';
   const qc = useQueryClient();
@@ -74,6 +77,7 @@ export function SwapPhotoPage() {
 
   return <><PageTitle title={fr ? 'Studio IA' : 'AI Studio'} subtitle={fr ? 'Changez un visage sur une photo, créez des images ou faites parler une photo.' : 'Swap a face in a photo, create images or make a photo talk.'}
       action={<span className="rounded-full border border-border px-3 py-1 text-sm">{tokens.data ?? '…'} {fr ? 'jetons IA' : 'AI tokens'}</span>} />
+    {!AI_STUDIO_AVAILABLE && <div role="status" className="mb-4 rounded-xl border border-primary/40 bg-primary/10 p-4 text-sm"><strong className="mr-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">{fr ? 'Bientôt disponible' : 'Coming soon'}</strong>{fr ? 'Le Studio IA ouvre très bientôt. Vos jetons IA restent valables 365 jours et ne sont jamais débités avant l’ouverture.' : 'The AI Studio opens very soon. Your AI tokens stay valid for 365 days and are never charged before launch.'}</div>}
     <div className="grid gap-2 sm:grid-cols-3">{tabs.map(([id, label, Icon, price]) =>
       <button key={id} type="button" onClick={() => { setTab(id); setResults(null); setError(null); }} className={`flex min-h-11 items-center gap-3 rounded-xl border p-3 text-left transition ${tab === id ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
         <Icon className="text-primary" size={20} /><span><strong className="block text-sm">{label}</strong><small className="text-muted-foreground">{price}</small></span></button>)}</div>
@@ -86,7 +90,7 @@ export function SwapPhotoPage() {
         <div className="grid content-start gap-3"><label className="grid gap-2 text-sm font-medium">{fr ? 'Ce que la personne doit dire' : 'What the person should say'}<textarea className="min-h-32 rounded-md border border-input bg-background p-3 text-sm" maxLength={300} value={script} onChange={(e) => setScript(e.target.value)} /></label>
           <label className="grid gap-2 text-sm font-medium">{fr ? `Durée (max ${TALKING_PHOTO_MAX_SECONDS} s)` : `Length (max ${TALKING_PHOTO_MAX_SECONDS} s)`}<Input type="number" min={1} max={TALKING_PHOTO_MAX_SECONDS} value={seconds} onChange={(e) => setSeconds(Math.min(TALKING_PHOTO_MAX_SECONDS, Math.max(1, Number(e.target.value) || 1)))} /></label></div></div>}
       <p className="text-xs text-muted-foreground">{fr ? 'Utilisez uniquement des visages dont vous avez l’accord. Vos photos ne sont pas enregistrées par Weechat ; téléchargez le résultat, il expire au bout d’une heure.' : 'Only use faces you have consent for. Weechat does not store your photos; download the result, it expires after one hour.'}</p>
-      <Button disabled={busy || (tab === 'swap' && (!target || !face)) || (tab === 'image' && prompt.trim().length < 3) || (tab === 'talk' && (!target || !script.trim()))}
+      <Button disabled={!AI_STUDIO_AVAILABLE || busy || (tab === 'swap' && (!target || !face)) || (tab === 'image' && prompt.trim().length < 3) || (tab === 'talk' && (!target || !script.trim()))}
         onClick={() => tab === 'swap' ? go('face_swap', () => swap({ data: { targetImage: target!, faceImage: face! } }))
           : tab === 'image' ? go('image_generation', () => gen({ data: { prompt, aspectRatio: '1:1', style: 'photo', count } }))
           : go('talking_photo', () => talk({ data: { imageUrl: target!, script, seconds } }))}>

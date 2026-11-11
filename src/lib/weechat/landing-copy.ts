@@ -21,6 +21,7 @@ export type Plan = {
   points?: number;
   audioMin?: number;
   bonusAudioMin?: number;
+  aiTokens?: number;
   validity: number; // days
   lines: { fr: string[]; en: string[] };
 };
@@ -61,6 +62,15 @@ export const audioPlans: Plan[] = [
     id: 'audio-marathon', name: 'Audio Marathon', price: { XOF: '39 900', EUR: '61', USD: '66' }, audioMin: 120, validity: 60,
     lines: { fr: ['2 h de traduction vocale', '48 langues', 'Sens de traduction au choix', 'Voix traduite et sous-titres', 'Support prioritaire', 'Valable 60 jours'], en: ['2 h of voice translation', '48 languages', 'Choose translation direction', 'Translated speech and subtitles', 'Priority support', 'Valid 60 days'] },
   },
+];
+
+// AI token packs (Studio IA: Swap Photo 2, image 5, talking photo 3/s). Separate wallet, not usable for Live or audio.
+const tk = (n: number) => ({ fr: [`${n / 2} Swap Photos`, `ou ${Math.floor(n / 5)} images IA`, `ou ${Math.floor(n / 3)} s de photo parlante`, 'Valable 365 jours'], en: [`${n / 2} Swap Photos`, `or ${Math.floor(n / 5)} AI images`, `or ${Math.floor(n / 3)} s of talking photo`, 'Valid 365 days'] });
+export const tokenPlans: Plan[] = [
+  { id: 'tokens-100', name: 'Mini IA', price: { XOF: '1 000', EUR: '1,50', USD: '1,70' }, aiTokens: 100, validity: 365, lines: tk(100) },
+  { id: 'tokens-260', name: 'Créateur IA', price: { XOF: '2 500', EUR: '3,80', USD: '4,20' }, aiTokens: 260, validity: 365, lines: tk(260) },
+  { id: 'tokens-550', name: 'Studio IA', popular: true, price: { XOF: '5 000', EUR: '7,60', USD: '8,30' }, aiTokens: 550, validity: 365, lines: tk(550) },
+  { id: 'tokens-1200', name: 'Pro IA', price: { XOF: '10 000', EUR: '15,25', USD: '16,70' }, aiTokens: 1200, validity: 365, lines: tk(1200) },
 ];
 
 export const consumption = { live: 2, restyle: 2, photo: 2 }; // pts per second / per photo
@@ -117,7 +127,7 @@ const fr = {
   cardNetworks: 'Réseaux de paiement acceptés', cardNote: 'Devises internationales prises en charge',
   priceEyebrow: 'Paiement à l’utilisation', priceTitle: 'Tarification simple et transparente', priceText: 'Vous ne payez que ce que vous consommez. Sans abonnement, sans frais cachés.',
   priceModeHint: 'Choisissez votre usage : points vidéo ou minutes de traduction.',
-  modeSwap: 'Swap Live', modeAudio: 'Audio', showPricesIn: 'Afficher les prix en :',
+  modeSwap: 'Swap Live', modeAudio: 'Audio', modeTokens: 'Jetons IA', tokensTitle: 'Jetons IA', tokensSub: 'Pour le Studio IA : Swap Photo, images IA et photo parlante. Ne servent pas au Live ni à la traduction.', showPricesIn: 'Afficher les prix en :',
   swapTitle: 'Swap Live', swapSub: 'Transformez votre visage et votre apparence en temps réel.',
   audioTitle: 'Traduction audio', audioSub: 'Parlez. On traduit votre voix en temps réel.',
   points: 'points', bonusLabel: 'Bonus inclus', choose: 'Choisir', popular: 'Meilleur choix', days: 'jours',
@@ -177,7 +187,7 @@ const en: typeof fr = {
   cardNetworks: 'Accepted payment networks', cardNote: 'International currencies supported',
   priceEyebrow: 'Pay as you go', priceTitle: 'Simple, transparent pricing', priceText: 'You only pay for what you use. No subscription, no hidden fees.',
   priceModeHint: 'Pick your use: video points or translation minutes.',
-  modeSwap: 'Swap Live', modeAudio: 'Audio', showPricesIn: 'Show prices in:',
+  modeSwap: 'Swap Live', modeAudio: 'Audio', modeTokens: 'AI tokens', tokensTitle: 'AI tokens', tokensSub: 'For the AI Studio: Swap Photo, AI images and talking photo. Not used for Live or translation.', showPricesIn: 'Show prices in:',
   swapTitle: 'Swap Live', swapSub: 'Transform your face and appearance in real time.',
   audioTitle: 'Audio translation', audioSub: 'Speak. We translate your voice in real time.',
   points: 'points', bonusLabel: 'Included bonus', choose: 'Choose', popular: 'Best choice', days: 'days',
