@@ -287,3 +287,19 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 .lp-camcard header { display:flex; flex-wrap:wrap; gap:8px; align-items:center; } .lp-camcard header h3 { margin:0; }
 .lp-prices article > a { margin-top:auto !important; }
 @media (max-width:640px) { .lp-prices.two { grid-template-columns:1fr; } }
+
+/* Restyle: show the whole person, not a cropped mouth */
+.ld-screen.ld-full { aspect-ratio:4/5; max-height:620px; margin-inline:auto; width:100%; }
+.ld-screen.ld-full .ld-video { object-fit:contain; background:var(--surface-deep); }
+/* Mobile breathing room */
+@media (max-width:760px) {
+  #features .lp-panel { margin-top:72px; gap:28px; }
+  .lp-panel h2, .lp-panel h3 { line-height:1.25; }
+  .lp-panel p { line-height:1.7; }
+  .ld { gap:16px; }
+  .ld-screen { border-radius:16px; aspect-ratio:4/5; }
+  .ld-tag { font-size:11px; top:10px; padding:4px 9px; }
+  .ld-filters button, .ld-picker button { min-height:44px; }
+  .lp-prices { gap:20px; }
+  .lp-prices article { padding:24px 20px; }
+}
