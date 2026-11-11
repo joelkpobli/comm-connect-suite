@@ -54,15 +54,15 @@ export function SwapPhotoPage() {
     try {
       const r = await start();
       qc.invalidateQueries({ queryKey: aiTokensQuery.queryKey });
-      if (!r.ok) { setError(errors[r.error] ?? errors.failed!); return; }
+      if (!r.ok) { setError(errors[r.error] ?? errors['failed']!); return; }
       for (let i = 0; i < 120; i++) {
         await new Promise((s) => setTimeout(s, i < 5 ? 2000 : 5000));
         const s = await status({ data: { kind, providerJobId: r.providerJobId } });
         if (s.state === 'completed') { setResults({ urls: ('resultUrls' in s && s.resultUrls) || [], video: kind === 'talking_photo' }); return; }
-        if (s.state === 'failed') { setError(errors.provider_failed!); return; }
+        if (s.state === 'failed') { setError(errors['provider_failed']!); return; }
       }
-      setError(errors.timeout!);
-    } catch { setError(errors.failed!); } finally { setBusy(false); }
+      setError(errors['timeout']!);
+    } catch { setError(errors['failed']!); } finally { setBusy(false); }
   }
 
   const tabs: [Tab, string, typeof ImageIcon, string][] = [
