@@ -25,6 +25,9 @@ def providers():
     return order + ["CPUExecutionProvider"]
 
 
+HD = (960, 540)
+
+
 def _probe(index, width=640, height=480):
     """Ouvre une caméra et renvoie (cap, frame) si elle donne une vraie image couleur."""
     cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
@@ -55,7 +58,7 @@ def is_color(frame):
 def open_camera(choice, log):
     """choice = 'auto' ou un index. En auto, ignore les caméras IR (Windows Hello) et noires."""
     if choice != "auto":
-        cap, frame = _probe(int(choice))
+        cap, frame = _probe(int(choice), *HD)
         if cap is None:
             raise RuntimeError(f"Webcam {choice} inaccessible. Fermez les autres applications "
                                "qui l'utilisent, ou choisissez « auto ».")
@@ -64,7 +67,7 @@ def open_camera(choice, log):
         return cap, int(choice)
     fallback = None
     for i in range(4):
-        cap, frame = _probe(i)
+        cap, frame = _probe(i, *HD)
         if cap is None:
             continue
         if frame.mean() > 12 and is_color(frame):
@@ -112,7 +115,7 @@ def sharpen_face(img, bbox, amount=0.8):
     return img
 
 
-def run(face, camera="auto", width=1280, height=720, det_size=320, vcam_on=True,
+def run(face, camera="auto", width=960, height=540, det_size=320, vcam_on=True,
         stop_event=None, log=print, preview=True, on_frame=None, root=None):
     stop_event = stop_event or threading.Event()
 
