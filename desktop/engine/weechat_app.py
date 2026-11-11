@@ -18,6 +18,18 @@ if sys.stdout is None or sys.stderr is None:
 
 import threading
 import time
+
+# Netteté : sans cela, Windows agrandit la fenêtre comme une image (texte flou).
+if sys.platform == "win32":
+    try:
+        import ctypes
+        try:
+            ctypes.windll.shcore.SetProcessDpiAwareness(2)  # per-monitor
+        except Exception:
+            ctypes.windll.user32.SetProcessDPIAware()
+    except Exception:
+        pass
+
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -59,6 +71,10 @@ class App:
         self.session = None
         self.license = False
         root.title("Weechat")
+        try:
+            root.tk.call("tk", "scaling", root.winfo_fpixels("1i") / 72.0)
+        except tk.TclError:
+            pass
         root.configure(bg=BG)
         root.geometry("1180x760")
         root.minsize(1000, 680)
