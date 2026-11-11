@@ -40,3 +40,4 @@
 - PayDunya checkout: browser sends only a catalogue id (paydunya-catalog); fulfillment re-confirms the invoice with PayDunya, checks owner/item/amount, and credits with reference paydunya:<token>; the camera licence is server-written auth app_metadata so it cannot be self-granted.
 - Keep translation bonus minutes structured on pricing plans and derive checkout audio seconds from them; fulfillment must use the existing audio ledger and pack validity so advertised bonuses are actually delivered.
 - Async AI tasks (talking photo, image generation) go through ai-tasks.functions with server-fixed token prices in ai-pricing and provider-neutral adapters in ai-adapters.server; adapters fail closed before any debit and submit failures refund via a unique reference.
+- Landing/design work follows the UI/UX Pro Max guide stored in docs/design/ui-ux-pro-max; keeps design decisions consistent.

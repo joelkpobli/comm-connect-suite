@@ -94,7 +94,7 @@ function PlanCard({ plan, cur, locale, c }: { plan: Plan; cur: Currency; locale:
     {plan.popular && <span className="lp-pop">{c.popular}</span>}
     <header><h3>{plan.name}</h3>{plan.badge && <span className="lp-badge">{plan.badge}</span>}<span className="lp-validity">{plan.validity} {c.days}</span></header>
     <strong>{plan.price[cur]}<small>{sym}</small></strong>
-    {plan.points && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.points)} {c.points}</p>}
+    {plan.points && <p className="lp-pts">{new Intl.NumberFormat('fr-FR').format(plan.points)} {c.points} · ≈ {Math.round(plan.points / 2 / 60)} min Swap Live</p>}
     <PlanLines plan={plan} locale={locale} c={c} />
     <Button asChild variant={plan.popular ? 'default' : 'outline'}><Link to="/credits">{c.choose} {plan.name}</Link></Button>
   </article>;
@@ -173,7 +173,7 @@ export function HomePage() {
     <section id="pricing" className="lp-section">
       <span className="lp-eyebrow">{c.priceEyebrow}</span><h2>{c.priceTitle}</h2><p className="lp-lead">{c.priceText}</p>
       <p className="lp-modehint">{c.priceModeHint}</p>
-      <div className="lp-toggle">{([['swap', c.modeSwap, Video], ['audio', c.modeAudio, Mic]] as const).map(([k, label, I]) => <button key={k} className={mode === k ? 'active' : ''} aria-pressed={mode === k} onClick={() => setMode(k)}><I size={15} />{label}</button>)}</div>
+      <div className="lp-toggle lp-modecards">{([['swap', c.modeSwap, Video], ['audio', c.modeAudio, Mic]] as const).map(([k, label, I]) => <button key={k} className={mode === k ? 'active' : ''} aria-pressed={mode === k} onClick={() => setMode(k)}><I size={15} />{label}</button>)}</div>
       <div className="lp-currow"><span>{c.showPricesIn}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
       <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : c.audioTitle}</h3>
       <p className="lp-lead">{mode === 'swap' ? c.swapSub : c.audioSub}</p>

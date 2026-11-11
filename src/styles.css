@@ -222,3 +222,6 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 #features .lp-mock { width:100%; }
 #features .lp-mock-strip img, #features .lp-ref { width:44px; height:44px; }
 #features .lp-ref { width:56px; height:56px; }
+
+.lp-modecards { gap: .75rem; }
+.lp-modecards button { padding: 1rem 1.5rem; font-size: 1rem; }
