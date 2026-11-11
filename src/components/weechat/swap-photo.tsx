@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
-import { aiTokensQuery } from '@/lib/weechat/credits-query';
+import { aiTokensQuery, validityQuery, fmtExpiry } from '@/lib/weechat/credits-query';
 import { AI_TASK_PRICES, TALKING_PHOTO_MAX_SECONDS, type AiTaskKind } from '@/lib/weechat/ai-pricing';
 import { startFaceSwapTask, startImageGenerationTask, startTalkingPhotoTask, getAiTaskStatus } from '@/lib/weechat/ai-tasks.functions';
 
@@ -35,7 +35,7 @@ const AI_STUDIO_AVAILABLE = false;
 export function SwapPhotoPage() {
   const { locale } = useDemo(); const fr = locale === 'fr';
   const qc = useQueryClient();
-  const tokens = useQuery(aiTokensQuery);
+  const tokens = useQuery(aiTokensQuery); const validity = useQuery(validityQuery);
   const [tab, setTab] = useState<Tab>('swap');
   const [target, setTarget] = useState<string | null>(null);
   const [face, setFace] = useState<string | null>(null);
@@ -76,7 +76,7 @@ export function SwapPhotoPage() {
   const cost = tab === 'swap' ? AI_TASK_PRICES.faceSwapPerPhoto : tab === 'image' ? count * AI_TASK_PRICES.imagePerUnit : seconds * AI_TASK_PRICES.talkingPhotoPerSecond;
 
   return <><PageTitle title={fr ? 'Studio IA' : 'AI Studio'} subtitle={fr ? 'Changez un visage sur une photo, créez des images ou faites parler une photo.' : 'Swap a face in a photo, create images or make a photo talk.'}
-      action={<span className="rounded-full border border-border px-3 py-1 text-sm">{tokens.data ?? '…'} {fr ? 'jetons IA' : 'AI tokens'}</span>} />
+      action={<span className="rounded-full border border-border px-3 py-1 text-sm">{tokens.data ?? '…'} {fr ? 'jetons IA' : 'AI tokens'} · {fmtExpiry(validity.data?.tokens, !fr)}</span>} />
     {!AI_STUDIO_AVAILABLE && <div role="status" className="mb-4 rounded-xl border border-primary/40 bg-primary/10 p-4 text-sm"><strong className="mr-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">{fr ? 'Bientôt disponible' : 'Coming soon'}</strong>{fr ? 'Le Studio IA ouvre très bientôt. Vos jetons IA restent valables 365 jours et ne sont jamais débités avant l’ouverture.' : 'The AI Studio opens very soon. Your AI tokens stay valid for 365 days and are never charged before launch.'}</div>}
     <div className="grid gap-2 sm:grid-cols-3">{tabs.map(([id, label, Icon, price]) =>
       <button key={id} type="button" onClick={() => { setTab(id); setResults(null); setError(null); }} className={`flex min-h-11 items-center gap-3 rounded-xl border p-3 text-left transition ${tab === id ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
