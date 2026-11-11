@@ -277,15 +277,17 @@ class App:
             return False
         return True
 
-    def meter(self, service):
-        """Débite un bloc de 10 s avant chaque période ; arrête la diffusion si refusé."""
+    def meter(self, service, stop):
+        """Débite un bloc de 10 s avant chaque période ; arrête la diffusion si refusé.
+        `stop` est l'événement propre à cette session : il est levé dès que le
+        moteur s'arrête (clic, erreur ou fin), donc aucun débit sans diffusion."""
         sid, block = str(uuid.uuid4()), 0
         msgs = {"insufficient": "Solde de points épuisé. Rechargez sur votre compte Weechat.",
                 "license_required": "Licence Weechat Camera requise.",
                 "unauthorized": "Session expirée : reconnectez-vous.",
                 "offline": "Connexion Internet perdue : diffusion arrêtée.",
                 "failed": "Débit refusé par le serveur : diffusion arrêtée."}
-        while not self.stop.is_set():
+        while not stop.is_set():
             try:
                 bal = weechat_account.charge_block(self.session, service, sid, block)
             except weechat_account.ChargeError as exc:
@@ -294,16 +296,22 @@ class App:
                     if s:
                         self.session = s
                         continue
-                self.stop.set()
+                stop.set()
                 self.log(msgs.get(exc.code, msgs["failed"]))
                 self.root.after(0, lambda: messagebox.showwarning("Weechat", msgs.get(exc.code, msgs["failed"])))
                 break
             self.root.after(0, self.load_balances)
             block += 1
-            self.stop.wait(10)
+            stop.wait(10)
 
-    def start_meter(self, service):
-        threading.Thread(target=self.meter, args=(service,), daemon=True).start()
+    def new_session(self):
+        """Nouvel événement d'arrêt par session : un ancien compteur ne peut jamais repartir."""
+        self.stop.set()
+        self.stop = threading.Event()
+        return self.stop
+
+    def start_meter(self, service, stop):
+        threading.Thread(target=self.meter, args=(service, stop), daemon=True).start()
 
     def busy(self):
         return self.worker is not None and self.worker.is_alive()
@@ -318,19 +326,20 @@ class App:
             return
         if not self.allowed():
             return
-        self.stop.clear()
-        self.start_meter("studio_diffusion")
+        stop = self.new_session()
+        self.start_meter("studio_diffusion", stop)
         self.studio_btn.config(text="Arrêter la diffusion")
         self.btn.config(state="disabled")
 
         def job():
             try:
                 out = self.audio_out.get()
-                weechat_studio.play(self.video, self.stop, log=self.log, on_frame=self.on_frame,
+                weechat_studio.play(self.video, stop, log=self.log, on_frame=self.on_frame,
                                     audio_out=None if out == "Couper le son" else out)
             except Exception as exc:
                 self.log(f"Erreur : {exc}")
             finally:
+                stop.set()  # arrête le débit dès que la diffusion s'arrête
                 self.root.after(0, lambda: (self.studio_btn.config(text="Diffuser en boucle"),
                                             self.btn.config(state="normal" if self.models else "disabled")))
         self.worker = threading.Thread(target=job, daemon=True)
@@ -346,7 +355,7 @@ class App:
         if not self.models:
             messagebox.showwarning("Weechat", "Attendez la fin du téléchargement des modèles IA.")
             return
-        self.stop.clear()
+        self.new_session()
         self.transform_btn.config(text="Annuler la transformation")
         self.btn.config(state="disabled")
         self.studio_btn.config(state="disabled")
@@ -397,20 +406,21 @@ class App:
             return
         if not self.allowed():
             return
-        self.stop.clear()
-        self.start_meter("swap_live")
+        stop = self.new_session()
+        self.start_meter("swap_live", stop)
         self.btn.config(text="Arrêter")
         self.log("Chargement du moteur IA (10 à 30 s)...")
-        self.worker = threading.Thread(target=self.work, daemon=True)
+        self.worker = threading.Thread(target=self.work, args=(stop,), daemon=True)
         self.worker.start()
 
-    def work(self):
+    def work(self, stop):
         try:
-            weechat_swap.run(self.face, camera=self.cam.get(), stop_event=self.stop,
+            weechat_swap.run(self.face, camera=self.cam.get(), stop_event=stop,
                              log=self.log, preview=False, on_frame=self.on_frame, root=self.models)
         except Exception as exc:
             self.log(f"Erreur : {exc}")
         finally:
+            stop.set()  # arrête le débit dès que le Swap Live s'arrête
             self.root.after(0, lambda: self.btn.config(text="2. Démarrer le Swap Live"))
 
     def prepare_models(self):
