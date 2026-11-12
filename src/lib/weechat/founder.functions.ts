@@ -43,7 +43,7 @@ export const getFounderOverview = createServerFn({ method: 'GET' }).middleware([
   ]);
   // Packs bought = distinct PayDunya invoices, labelled by the ledger reason.
   const packs = new Map<string, { label: string; at: string }>();
-  for (const r of credits) if (r.reference.startsWith('paydunya:')) packs.set(r.reference.split(':').slice(0, 2).join(':'), { label: r.reason.replace(/^Achat\s*—?\s*/i, ''), at: r.created_at });
+  for (const r of credits) if (r.reference.startsWith('paydunya:')) packs.set(r.reference.split(':').slice(0, 2).join(':'), { label: r.reason.replace(/^Achat\s+/i, '').replace(/\s*\(PayDunya\)$/, ''), at: r.created_at });
   for (const r of [...audio, ...tokens]) { const k = r.reference.split(':').slice(0, 2).join(':'); if (r.reference.startsWith('paydunya:') && !packs.has(k)) packs.set(k, { label: 'Pack audio / jetons', at: r.created_at }); }
   const packCounts: Record<string, number> = {};
   for (const p of packs.values()) packCounts[p.label] = (packCounts[p.label] ?? 0) + 1;
