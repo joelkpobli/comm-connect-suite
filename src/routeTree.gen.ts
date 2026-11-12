@@ -18,6 +18,7 @@ import { Route as ReinitialisationRouteImport } from './routes/reinitialisation'
 import { Route as TelechargerRouteImport } from './routes/telecharger'
 import { Route as AuthenticatedAvatarsRouteImport } from './routes/_authenticated/avatars'
 import { Route as AuthenticatedCreditsRouteImport } from './routes/_authenticated/credits'
+import { Route as AuthenticatedFondateurRouteImport } from './routes/_authenticated/fondateur'
 import { Route as AuthenticatedHistoriqueRouteImport } from './routes/_authenticated/historique'
 import { Route as AuthenticatedPaiementRetourRouteImport } from './routes/_authenticated/paiement-retour'
 import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
@@ -72,6 +73,11 @@ const AuthenticatedAvatarsRoute = AuthenticatedAvatarsRouteImport.update({
 const AuthenticatedCreditsRoute = AuthenticatedCreditsRouteImport.update({
   id: '/credits',
   path: '/credits',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFondateurRoute = AuthenticatedFondateurRouteImport.update({
+  id: '/fondateur',
+  path: '/fondateur',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHistoriqueRoute = AuthenticatedHistoriqueRouteImport.update({
@@ -142,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/telecharger': typeof TelechargerRoute
   '/avatars': typeof AuthenticatedAvatarsRoute
   '/credits': typeof AuthenticatedCreditsRoute
+  '/fondateur': typeof AuthenticatedFondateurRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/parametres': typeof AuthenticatedParametresRoute
@@ -163,6 +170,7 @@ export interface FileRoutesByTo {
   '/telecharger': typeof TelechargerRoute
   '/avatars': typeof AuthenticatedAvatarsRoute
   '/credits': typeof AuthenticatedCreditsRoute
+  '/fondateur': typeof AuthenticatedFondateurRoute
   '/historique': typeof AuthenticatedHistoriqueRoute
   '/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/parametres': typeof AuthenticatedParametresRoute
@@ -186,6 +194,7 @@ export interface FileRoutesById {
   '/telecharger': typeof TelechargerRoute
   '/_authenticated/avatars': typeof AuthenticatedAvatarsRoute
   '/_authenticated/credits': typeof AuthenticatedCreditsRoute
+  '/_authenticated/fondateur': typeof AuthenticatedFondateurRoute
   '/_authenticated/historique': typeof AuthenticatedHistoriqueRoute
   '/_authenticated/paiement-retour': typeof AuthenticatedPaiementRetourRoute
   '/_authenticated/parametres': typeof AuthenticatedParametresRoute
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/telecharger'
     | '/avatars'
     | '/credits'
+    | '/fondateur'
     | '/historique'
     | '/paiement-retour'
     | '/parametres'
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/telecharger'
     | '/avatars'
     | '/credits'
+    | '/fondateur'
     | '/historique'
     | '/paiement-retour'
     | '/parametres'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/telecharger'
     | '/_authenticated/avatars'
     | '/_authenticated/credits'
+    | '/_authenticated/fondateur'
     | '/_authenticated/historique'
     | '/_authenticated/paiement-retour'
     | '/_authenticated/parametres'
@@ -342,6 +354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCreditsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/fondateur': {
+      id: '/_authenticated/fondateur'
+      path: '/fondateur'
+      fullPath: '/fondateur'
+      preLoaderRoute: typeof AuthenticatedFondateurRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/historique': {
       id: '/_authenticated/historique'
       path: '/historique'
@@ -425,6 +444,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAvatarsRoute: typeof AuthenticatedAvatarsRoute
   AuthenticatedCreditsRoute: typeof AuthenticatedCreditsRoute
+  AuthenticatedFondateurRoute: typeof AuthenticatedFondateurRoute
   AuthenticatedHistoriqueRoute: typeof AuthenticatedHistoriqueRoute
   AuthenticatedPaiementRetourRoute: typeof AuthenticatedPaiementRetourRoute
   AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
@@ -439,6 +459,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAvatarsRoute: AuthenticatedAvatarsRoute,
   AuthenticatedCreditsRoute: AuthenticatedCreditsRoute,
+  AuthenticatedFondateurRoute: AuthenticatedFondateurRoute,
   AuthenticatedHistoriqueRoute: AuthenticatedHistoriqueRoute,
   AuthenticatedPaiementRetourRoute: AuthenticatedPaiementRetourRoute,
   AuthenticatedParametresRoute: AuthenticatedParametresRoute,
