@@ -17,8 +17,8 @@ export function SystemBanners({ signedIn }: { signedIn: boolean }) {
   const shown = (notices ?? []).filter((n) => !hidden.includes(n.id));
   if (!active.length && !shown.length) return null;
   return <div className="space-y-2 px-4 pt-3">
-    {active.map((m) => <div key={m.module} role="status" className="flex items-start gap-3 rounded-lg border border-warning/40 bg-warning/10 p-3 text-sm text-foreground">
-      <Wrench className="mt-0.5 size-4 shrink-0 text-warning" /><div><strong>Maintenance — {MODULE_LABELS[m.module as MaintenanceModule] ?? m.module}</strong>{m.message && <p className="text-muted-foreground">{m.message}</p>}</div></div>)}
+    {active.map((m) => <div key={m.module} role="status" className="flex items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-foreground">
+      <Wrench className="mt-0.5 size-4 shrink-0 text-destructive" /><div><strong>Maintenance — {MODULE_LABELS[m.module as MaintenanceModule] ?? m.module}</strong>{m.message && <p className="text-muted-foreground">{m.message}</p>}</div></div>)}
     {shown.map((n) => <div key={n.id} role="alert" className={`flex items-start gap-3 rounded-lg border p-3 text-sm ${n.severity === 'info' ? 'border-primary/40 bg-primary/10' : 'border-destructive/40 bg-destructive/10'}`}>
       {n.severity === 'info' ? <Info className="mt-0.5 size-4 shrink-0 text-primary" /> : <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />}
       <div className="flex-1"><strong>{n.title}</strong><p className="text-muted-foreground">{n.message}</p></div>
