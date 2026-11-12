@@ -49,8 +49,8 @@ export function SwapPhotoPage() {
   const swap = useServerFn(startFaceSwapTask), gen = useServerFn(startImageGenerationTask), talk = useServerFn(startTalkingPhotoTask), status = useServerFn(getAiTaskStatus);
 
   const errors: Record<string, string> = fr
-    ? { insufficient: 'Jetons IA insuffisants. Rechargez un pack.', provider_billing: 'Service IA momentanément indisponible. Vos jetons ont été remboursés.', provider_failed: 'La création a échoué. Vos jetons ont été remboursés.', provider_not_configured: 'Service IA indisponible.', failed: 'Une erreur est survenue.', timeout: 'Le traitement prend trop de temps. Réessayez plus tard.' }
-    : { insufficient: 'Not enough AI tokens. Top up a pack.', provider_billing: 'AI service temporarily unavailable. Your tokens were refunded.', provider_failed: 'Creation failed. Your tokens were refunded.', provider_not_configured: 'AI service unavailable.', failed: 'Something went wrong.', timeout: 'Processing is taking too long. Try again later.' };
+    ? { insufficient: 'Jetons IA insuffisants. Rechargez un pack.', provider_billing: 'Service IA momentanément indisponible. Vos jetons ont été remboursés.', provider_failed: 'La création a échoué. Vos jetons ont été remboursés.', provider_not_configured: 'Service IA indisponible.', maintenance: 'Maintenance technique en cours sur la génération IA. Aucun jeton n’a été débité.', failed: 'Une erreur est survenue.', timeout: 'Le traitement prend trop de temps. Réessayez plus tard.' }
+    : { insufficient: 'Not enough AI tokens. Top up a pack.', provider_billing: 'AI service temporarily unavailable. Your tokens were refunded.', provider_failed: 'Creation failed. Your tokens were refunded.', provider_not_configured: 'AI service unavailable.', maintenance: 'AI generation is under maintenance. No tokens were charged.', failed: 'Something went wrong.', timeout: 'Processing is taking too long. Try again later.' };
 
   async function go(kind: AiTaskKind, start: () => Promise<{ ok: true; providerJobId: string } | { ok: false; error: string }>) {
     setBusy(true); setError(null); setResults(null);
