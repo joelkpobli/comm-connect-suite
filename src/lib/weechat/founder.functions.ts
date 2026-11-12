@@ -164,7 +164,5 @@ export const founderProviderHealth = createServerFn({ method: 'GET' }).middlewar
     check('replicate', Boolean(rep), () => fetch('https://api.replicate.com/v1/account', { headers: { Authorization: `Bearer ${rep}` } })),
     check('palabra', Boolean(process.env['PALABRA_API_KEY'])),
     check('paydunya', Boolean(process.env['PAYDUNYA_MASTER_KEY'])),
-    check('deepgram', Boolean(process.env['DEEPGRAM_API_KEY'])),
-    check('deepl', Boolean(process.env['DEEPL_API_KEY'])),
   ]);
 });
