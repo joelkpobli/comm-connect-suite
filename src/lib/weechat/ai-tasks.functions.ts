@@ -5,7 +5,7 @@ import { aiTaskCost, aiTaskReference, IMAGE_MAX_COUNT, TALKING_PHOTO_MAX_SECONDS
 
 export type AiTaskResult =
   | { ok: true; taskId: string; providerJobId: string; cost: number }
-  | { ok: false; error: 'provider_not_configured' | 'insufficient' | 'provider_failed' | 'provider_billing' | 'failed' };
+  | { ok: false; error: 'provider_not_configured' | 'insufficient' | 'provider_failed' | 'provider_billing' | 'maintenance' | 'failed' };
 
 const media = z.string().max(8_000_000).refine((v) => /^https:\/\//.test(v) || /^data:image\/(png|jpeg|webp);base64,/.test(v), 'invalid_image');
 const talkingSchema = z.object({ imageUrl: media, script: z.string().trim().min(1).max(1000), voiceId: z.string().max(100).optional(), seconds: z.number().int().min(1).max(TALKING_PHOTO_MAX_SECONDS) });
@@ -14,6 +14,8 @@ const imageSchema = z.object({ prompt: z.string().trim().min(3).max(1000), aspec
 
 async function run(kind: AiTaskKind, userId: string, units: number, submit: (a: import('./ai-adapters.server').AsyncAiAdapter) => Promise<{ providerJobId: string }> | undefined): Promise<AiTaskResult> {
   const { getAdapter, AdapterUnavailable } = await import('./ai-adapters.server');
+  const usage = await import('./provider-usage.server');
+  if (await usage.isModulePaused('ai_generation')) return { ok: false, error: 'maintenance' };
   let adapter;
   try { adapter = getAdapter(kind); } catch (e) { if (e instanceof AdapterUnavailable) return { ok: false, error: 'provider_not_configured' }; throw e; }
   const cost = aiTaskCost(kind, units);
@@ -25,10 +27,12 @@ async function run(kind: AiTaskKind, userId: string, units: number, submit: (a: 
   try {
     const job = await submit(adapter);
     if (!job) throw new Error('unsupported');
+    await usage.recordProviderEvent(adapter.name, kind, 'ok', 'ai_generation');
     return { ok: true, taskId, providerJobId: job.providerJobId, cost };
   } catch (e) {
     const billing = e instanceof Error && e.message === 'provider_billing';
     console.error(`ai task ${kind} submit failed`, e instanceof Error ? e.message : e);
+    await usage.recordProviderEvent(adapter.name, kind, billing ? 'billing' : 'failed', 'ai_generation', e instanceof Error ? e.message : String(e));
     await supabaseAdmin.rpc('post_ai_token_operation', { p_user_id: userId, p_tokens: cost, p_kind: 'refund', p_reason: `Remboursement — ${label}`, p_reference: aiTaskReference(kind, userId, taskId, true) });
     return { ok: false, error: billing ? 'provider_billing' : 'provider_failed' };
   }

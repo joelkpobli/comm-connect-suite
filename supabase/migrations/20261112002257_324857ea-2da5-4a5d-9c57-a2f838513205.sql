@@ -1,0 +1,2 @@
+GRANT SELECT ON public.provider_usage_events TO authenticated;
+CREATE POLICY "Admins read provider usage" ON public.provider_usage_events FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'admin'));
