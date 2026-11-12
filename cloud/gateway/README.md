@@ -1,17 +1,15 @@
-# Weechat Cloud Live — passerelle GPU (Option 1)
+# Weechat Cloud Live — passerelle GPU
 
-Webcam (PC) → WebRTC → ce serveur GPU → moteur d'avatar → WebRTC → Weechat → Unity Video Capture.
+Webcam (PC, capteur de mouvements) → WebRTC → serveur GPU → avatar animé → WebRTC → Weechat Camera.
 
-## Statut honnête
-- Transport WebRTC, vérification du compte Weechat et limite de sessions : prêts.
-- Moteur d'avatar complet (corps, tenue, décor) : **pas encore choisi ni validé**. Le mode
-  `passthrough` renvoie l'image d'origine pour tester la latence réseau seulement.
-- Débit de points : non branché ; aucun accès payant tant qu'il ne l'est pas.
+## Moteur `liveportrait_engine` (LivePortrait, MIT)
+- L'utilisateur choisit un avatar du catalogue (`avatars/<id>.jpg`) : sa tenue et son décor restent ceux de l'avatar.
+- La webcam ne fournit que les mouvements (tête, regard, bouche, expressions). Si le visage est perdu, l'avatar reste affiché, jamais la vraie webcam.
+- Limite : anime un portrait / haut du corps. Pas de corps entier qui danse ou saute.
+- Statut : **non validé sur GPU** (aucun pod testé). `WEECHAT_ENGINE=passthrough` reste disponible pour un test réseau.
 
-## Lancer un test (coût : temps de pod uniquement, ~0,40 $/h sur RTX 4090)
-1. RunPod → Deploy → Custom image construite depuis ce dossier (`docker build -t weechat-gateway .`).
-2. Variables : `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (clé publique), `WEECHAT_ENGINE=passthrough`.
-3. Exposer le port TCP/HTTP 8443, puis ouvrir `https://<pod>/health`.
-4. **Éteindre le pod après le test.**
-
-Aucune image n'est enregistrée sur le serveur.
+## Test (~0,40 $/h sur RTX 4090, dépôt minimum RunPod ≈ 10 $)
+1. Ajouter des photos d'avatars dans `avatars/`, puis `docker build -t weechat-gateway .`
+2. Variables : `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY` (publique).
+3. Exposer 8443, ouvrir `/health`, lancer `weechat_cloud.py --server ... --token ... --avatar <id>`.
+4. **Éteindre le pod après le test.** Aucune image n'est enregistrée.

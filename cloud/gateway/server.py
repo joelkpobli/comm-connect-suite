@@ -31,6 +31,15 @@ class Engine:
     def process(self, bgr):
         return bgr if self.mod is None else self.mod.process(bgr)
 
+    def session(self, avatar_id):
+        """Moteur par appel : l'avatar choisi est chargé une fois, puis animé."""
+        if self.mod is None or not hasattr(self.mod, "Session"):
+            return self
+        path = self.mod.avatar_path(avatar_id)
+        if not path:
+            raise ValueError("avatar inconnu")
+        return self.mod.Session(path)
+
 
 ENGINE = None
 
@@ -38,14 +47,15 @@ ENGINE = None
 class AvatarTrack(MediaStreamTrack):
     kind = "video"
 
-    def __init__(self, source):
+    def __init__(self, source, engine):
         super().__init__()
         self.source = source
+        self.engine = engine
 
     async def recv(self):
         frame = await self.source.recv()
         img = frame.to_ndarray(format="bgr24")
-        out = await asyncio.get_running_loop().run_in_executor(None, ENGINE.process, img)
+        out = await asyncio.get_running_loop().run_in_executor(None, self.engine.process, img)
         nf = VideoFrame.from_ndarray(out, format="bgr24")
         nf.pts, nf.time_base = frame.pts, frame.time_base
         return nf
@@ -76,6 +86,10 @@ async def offer(request):
     if len(pcs) >= MAX_SESSIONS:
         return web.json_response({"error": "busy"}, status=503)
     body = await request.json()
+    try:
+        engine = await asyncio.get_running_loop().run_in_executor(None, ENGINE.session, body.get("avatar"))
+    except ValueError as e:
+        return web.json_response({"error": str(e)}, status=400)
     pc = RTCPeerConnection()
     pcs.add(pc)
     started = time.time()
@@ -83,7 +97,7 @@ async def offer(request):
     @pc.on("track")
     def on_track(track):
         if track.kind == "video":
-            pc.addTrack(AvatarTrack(track))
+            pc.addTrack(AvatarTrack(track, engine))
 
     @pc.on("connectionstatechange")
     async def on_state():

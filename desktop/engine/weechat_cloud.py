@@ -25,7 +25,7 @@ class WebcamTrack(VideoStreamTrack):
         return f
 
 
-async def run(server, token, camera="auto", log=print, stop=None):
+async def run(server, token, camera="auto", log=print, stop=None, avatar=None):
     cap, _ = weechat_swap.open_camera(str(camera), log)
     pc = RTCPeerConnection()
     pc.addTrack(WebcamTrack(cap))
@@ -52,7 +52,7 @@ async def run(server, token, camera="auto", log=print, stop=None):
     await pc.setLocalDescription(await pc.createOffer())
     async with aiohttp.ClientSession() as s:
         async with s.post(server.rstrip("/") + "/offer",
-                          json={"sdp": pc.localDescription.sdp, "type": pc.localDescription.type},
+                          json={"sdp": pc.localDescription.sdp, "type": pc.localDescription.type, "avatar": avatar},
                           headers={"Authorization": f"Bearer {token}"}) as r:
             if r.status == 401:
                 raise RuntimeError("Compte Weechat refusé : reconnectez-vous.")
@@ -72,9 +72,10 @@ def main():
     p.add_argument("--server", required=True)
     p.add_argument("--token", required=True)
     p.add_argument("--camera", default="auto")
+    p.add_argument("--avatar", default=None)
     a = p.parse_args()
     try:
-        asyncio.run(run(a.server, a.token, a.camera))
+        asyncio.run(run(a.server, a.token, a.camera, avatar=a.avatar))
     except Exception as e:
         print("Erreur :", e, file=sys.stderr)
         sys.exit(1)
