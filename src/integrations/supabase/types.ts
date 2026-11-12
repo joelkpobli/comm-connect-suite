@@ -160,6 +160,27 @@ export type Database = {
           },
         ]
       }
+      maintenance_modules: {
+        Row: {
+          active: boolean
+          message: string
+          module: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          message?: string
+          module: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          message?: string
+          module?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -186,6 +207,74 @@ export type Database = {
           voice_language?: string
         }
         Relationships: []
+      }
+      provider_usage_events: {
+        Row: {
+          cost_usd: number
+          created_at: string
+          error: string | null
+          id: string
+          kind: string
+          provider: string
+          status: string
+        }
+        Insert: {
+          cost_usd?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind: string
+          provider: string
+          status: string
+        }
+        Update: {
+          cost_usd?: number
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind?: string
+          provider?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      user_notices: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          read_at: string | null
+          severity: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          read_at?: string | null
+          severity?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          read_at?: string | null
+          severity?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notices_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
