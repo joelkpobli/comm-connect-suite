@@ -16,7 +16,7 @@ import { PageTitle } from './shared';
 
 const card = 'rounded-xl border border-border bg-card p-4';
 const axis = { stroke: 'var(--muted-foreground)', fontSize: 11 };
-const tip = { contentStyle: { background: 'var(--popover)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--popover-foreground)' } };
+const tip = { contentStyle: { background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, color: 'var(--foreground)' } };
 
 export function FounderPage() {
   const check = useServerFn(amIFounder);
