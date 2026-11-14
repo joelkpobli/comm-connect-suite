@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as InscriptionRouteImport } from './routes/inscription'
+import { Route as NumerosVirtuelsRouteImport } from './routes/numeros-virtuels'
 import { Route as RecuperationRouteImport } from './routes/recuperation'
 import { Route as ReinitialisationRouteImport } from './routes/reinitialisation'
 import { Route as TelechargerRouteImport } from './routes/telecharger'
@@ -48,6 +49,11 @@ const ConnexionRoute = ConnexionRouteImport.update({
 const InscriptionRoute = InscriptionRouteImport.update({
   id: '/inscription',
   path: '/inscription',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NumerosVirtuelsRoute = NumerosVirtuelsRouteImport.update({
+  id: '/numeros-virtuels',
+  path: '/numeros-virtuels',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecuperationRoute = RecuperationRouteImport.update({
@@ -143,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
+  '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
@@ -165,6 +172,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
+  '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
@@ -189,6 +197,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
+  '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
@@ -213,6 +222,7 @@ export interface FileRouteTypes {
     | '/'
     | '/connexion'
     | '/inscription'
+    | '/numeros-virtuels'
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
@@ -235,6 +245,7 @@ export interface FileRouteTypes {
     | '/'
     | '/connexion'
     | '/inscription'
+    | '/numeros-virtuels'
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
@@ -258,6 +269,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/connexion'
     | '/inscription'
+    | '/numeros-virtuels'
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
@@ -282,6 +294,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   ConnexionRoute: typeof ConnexionRoute
   InscriptionRoute: typeof InscriptionRoute
+  NumerosVirtuelsRoute: typeof NumerosVirtuelsRoute
   RecuperationRoute: typeof RecuperationRoute
   ReinitialisationRoute: typeof ReinitialisationRoute
   TelechargerRoute: typeof TelechargerRoute
@@ -317,6 +330,13 @@ declare module '@tanstack/react-router' {
       path: '/inscription'
       fullPath: '/inscription'
       preLoaderRoute: typeof InscriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/numeros-virtuels': {
+      id: '/numeros-virtuels'
+      path: '/numeros-virtuels'
+      fullPath: '/numeros-virtuels'
+      preLoaderRoute: typeof NumerosVirtuelsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recuperation': {
@@ -479,6 +499,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   ConnexionRoute: ConnexionRoute,
   InscriptionRoute: InscriptionRoute,
+  NumerosVirtuelsRoute: NumerosVirtuelsRoute,
   RecuperationRoute: RecuperationRoute,
   ReinitialisationRoute: ReinitialisationRoute,
   TelechargerRoute: TelechargerRoute,
