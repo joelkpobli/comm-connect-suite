@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Film, Repeat, Plus, Coins, CalendarClock, Gift, Sparkles, type LucideIcon } from 'lucide-react';
 import 'flag-icons/css/flag-icons.min.css';
@@ -75,6 +75,13 @@ export function PlanCard({ plan, cur, locale, c, action }: { plan: Plan; cur: Cu
   </article>;
 }
 
+function HeroFaces({ fallback }: { fallback: string }) {
+  const list = [fallback, ...landingFaces.map(f => f.src)];
+  const [i, setI] = useState(0);
+  useEffect(() => { if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; const t = setInterval(() => setI(v => (v + 1) % list.length), 1600); return () => clearInterval(t); }, [list.length]);
+  return <>{list.map((src, n) => <img key={src} className={`lp-hero-photo lp-hero-swap ${n === i ? 'on' : ''}`} src={src} alt="" aria-hidden={n !== i} width={1600} height={1008} loading={n === 0 ? 'eager' : 'lazy'} />)}<span className="lp-hero-live" aria-hidden="true">● LIVE</span></>;
+}
+
 export function HomePage() {
   const { locale } = useDemo(); const c = landingCopy(locale);
   const [tab, setTab] = useState(0);
@@ -85,7 +92,7 @@ export function HomePage() {
   return <div className="lp">
 
     <section className="lp-hero">
-      <img className="lp-hero-photo" src={heroPortrait} alt={c.heroNote} width={1600} height={1008} />
+      <HeroFaces fallback={heroPortrait} />
       <div className="lp-hero-shade" aria-hidden="true" />
       <div className="lp-hero-inner">
         <h1>{c.heroTitle[0]}<br /><span>{c.heroTitle[1]}</span></h1>
@@ -99,6 +106,10 @@ export function HomePage() {
       <span className="lp-eyebrow">{c.bandEyebrow}</span><h2>{c.bandTitle}</h2>
       <div className="lp-specs">{(c.specs ?? []).map(s => <span key={s}>{s}</span>)}</div>
       <div className="lp-platforms">{(platformLogos ?? []).map(p => <span key={p.name} className="lp-plat">{p.svg}{p.name}</span>)}</div>
+    </section>
+
+    <section className="lp-section"><h2>{c.audTitle}</h2>
+      <div className="lp-steps">{c.audience.map(([t, d]) => <article key={t}><h3>{t}</h3><p>{d}</p></article>)}</div>
     </section>
 
     <section id="how" className="lp-section"><h2>{c.howTitle}</h2><p className="lp-lead">{c.howText}</p>
