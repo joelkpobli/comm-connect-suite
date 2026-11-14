@@ -1,6 +1,6 @@
 import { ShieldAlert } from 'lucide-react';
 import { useDemo } from './provider';
-import { whatsappLink, WHATSAPP_DISPLAY } from '@/lib/weechat/contact';
+import { Link } from '@tanstack/react-router';
 
 const copy = {
   fr: {
@@ -12,7 +12,7 @@ const copy = {
       ['Confidentialité', ['Weechat n’enregistre ni vos appels ni vos vidéos.', 'Vos photos importées restent sur votre appareil.', 'Seules les données de compte et de paiement sont conservées.', 'Vous pouvez demander la suppression de votre compte.']],
       ['Usages interdits', ['Se faire passer pour une personne réelle sans son accord.', 'Fraude, arnaque sentimentale ou financière.', 'Contenus sexuels non consentis ou impliquant des mineurs.', 'Harcèlement, menaces, chantage ou désinformation.']],
     ],
-    contact: 'Nous contacter sur WhatsApp', rights: '© 2026 Weechat. Tous droits réservés.',
+    more: 'Lire la page complète', rights: '© 2026 Weechat. Tous droits réservés.',
   },
   en: {
     warnTitle: 'Warning: impersonation is forbidden',
@@ -23,7 +23,7 @@ const copy = {
       ['Privacy', ['Weechat does not record your calls or videos.', 'Uploaded photos stay on your device.', 'Only account and payment data is kept.', 'You can request deletion of your account.']],
       ['Forbidden uses', ['Posing as a real person without consent.', 'Fraud, romance or financial scams.', 'Non-consensual sexual content or content involving minors.', 'Harassment, threats, blackmail or disinformation.']],
     ],
-    contact: 'Contact us on WhatsApp', rights: '© 2026 Weechat. All rights reserved.',
+    more: 'Read the full page', rights: '© 2026 Weechat. All rights reserved.',
   },
 } as const;
 
@@ -31,7 +31,7 @@ export function LegalFooter() {
   const { locale } = useDemo(); const c = copy[locale === 'en' ? 'en' : 'fr'];
   return <footer className="legal-footer">
     <div className="legal-warn" role="note"><ShieldAlert size={30} /><div><h2>{c.warnTitle}</h2><p>{c.warn}</p><p><strong>{c.sanction}</strong></p></div></div>
-    <div className="legal-cols">{c.cols.map(([t, items]) => <section key={t}><h3>{t}</h3><ul>{items.map(i => <li key={i}>{i}</li>)}</ul></section>)}</div>
-    <div className="legal-bottom"><span>{c.rights}</span><a href={whatsappLink(locale)} target="_blank" rel="noreferrer">{c.contact} · {WHATSAPP_DISPLAY}</a></div>
+    <div className="legal-cols">{c.cols.map(([t, items], n) => { const to = n === 0 ? '/conditions-utilisation' as const : n === 1 ? '/confidentialite' as const : '/usages-interdits' as const; return <section key={t}><h3><Link to={to}>{t}</Link></h3><ul>{items.map(i => <li key={i}>{i}</li>)}</ul><Link to={to} className="legal-more">{c.more} →</Link></section>; })}</div>
+    <div className="legal-bottom"><span>{c.rights}</span></div>
   </footer>;
 }
