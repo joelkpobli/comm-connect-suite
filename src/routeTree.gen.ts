@@ -11,12 +11,15 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as ConditionsUtilisationRouteImport } from './routes/conditions-utilisation'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConnexionRouteImport } from './routes/connexion'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as NumerosVirtuelsRouteImport } from './routes/numeros-virtuels'
 import { Route as RecuperationRouteImport } from './routes/recuperation'
 import { Route as ReinitialisationRouteImport } from './routes/reinitialisation'
 import { Route as TelechargerRouteImport } from './routes/telecharger'
+import { Route as UsagesInterditsRouteImport } from './routes/usages-interdits'
 import { Route as AuthenticatedAvatarsRouteImport } from './routes/_authenticated/avatars'
 import { Route as AuthenticatedCreditsRouteImport } from './routes/_authenticated/credits'
 import { Route as AuthenticatedFondateurRouteImport } from './routes/_authenticated/fondateur'
@@ -39,6 +42,16 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConditionsUtilisationRoute = ConditionsUtilisationRouteImport.update({
+  id: '/conditions-utilisation',
+  path: '/conditions-utilisation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConnexionRoute = ConnexionRouteImport.update({
@@ -69,6 +82,11 @@ const ReinitialisationRoute = ReinitialisationRouteImport.update({
 const TelechargerRoute = TelechargerRouteImport.update({
   id: '/telecharger',
   path: '/telecharger',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UsagesInterditsRoute = UsagesInterditsRouteImport.update({
+  id: '/usages-interdits',
+  path: '/usages-interdits',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAvatarsRoute = AuthenticatedAvatarsRouteImport.update({
@@ -147,12 +165,15 @@ const ApiPublicPaydunyaIpnRoute = ApiPublicPaydunyaIpnRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/conditions-utilisation': typeof ConditionsUtilisationRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
   '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
+  '/usages-interdits': typeof UsagesInterditsRoute
   '/avatars': typeof AuthenticatedAvatarsRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/fondateur': typeof AuthenticatedFondateurRoute
@@ -170,12 +191,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/conditions-utilisation': typeof ConditionsUtilisationRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
   '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
+  '/usages-interdits': typeof UsagesInterditsRoute
   '/avatars': typeof AuthenticatedAvatarsRoute
   '/credits': typeof AuthenticatedCreditsRoute
   '/fondateur': typeof AuthenticatedFondateurRoute
@@ -195,12 +219,15 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/conditions-utilisation': typeof ConditionsUtilisationRoute
+  '/confidentialite': typeof ConfidentialiteRoute
   '/connexion': typeof ConnexionRoute
   '/inscription': typeof InscriptionRoute
   '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
   '/reinitialisation': typeof ReinitialisationRoute
   '/telecharger': typeof TelechargerRoute
+  '/usages-interdits': typeof UsagesInterditsRoute
   '/_authenticated/avatars': typeof AuthenticatedAvatarsRoute
   '/_authenticated/credits': typeof AuthenticatedCreditsRoute
   '/_authenticated/fondateur': typeof AuthenticatedFondateurRoute
@@ -220,12 +247,15 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/conditions-utilisation'
+    | '/confidentialite'
     | '/connexion'
     | '/inscription'
     | '/numeros-virtuels'
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
+    | '/usages-interdits'
     | '/avatars'
     | '/credits'
     | '/fondateur'
@@ -243,12 +273,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/conditions-utilisation'
+    | '/confidentialite'
     | '/connexion'
     | '/inscription'
     | '/numeros-virtuels'
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
+    | '/usages-interdits'
     | '/avatars'
     | '/credits'
     | '/fondateur'
@@ -267,12 +300,15 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/conditions-utilisation'
+    | '/confidentialite'
     | '/connexion'
     | '/inscription'
     | '/numeros-virtuels'
     | '/recuperation'
     | '/reinitialisation'
     | '/telecharger'
+    | '/usages-interdits'
     | '/_authenticated/avatars'
     | '/_authenticated/credits'
     | '/_authenticated/fondateur'
@@ -292,12 +328,15 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  ConditionsUtilisationRoute: typeof ConditionsUtilisationRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
   ConnexionRoute: typeof ConnexionRoute
   InscriptionRoute: typeof InscriptionRoute
   NumerosVirtuelsRoute: typeof NumerosVirtuelsRoute
   RecuperationRoute: typeof RecuperationRoute
   ReinitialisationRoute: typeof ReinitialisationRoute
   TelechargerRoute: typeof TelechargerRoute
+  UsagesInterditsRoute: typeof UsagesInterditsRoute
   ApiPublicDesktopChargeRoute: typeof ApiPublicDesktopChargeRoute
   ApiPublicPaydunyaIpnRoute: typeof ApiPublicPaydunyaIpnRoute
 }
@@ -316,6 +355,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/conditions-utilisation': {
+      id: '/conditions-utilisation'
+      path: '/conditions-utilisation'
+      fullPath: '/conditions-utilisation'
+      preLoaderRoute: typeof ConditionsUtilisationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/connexion': {
@@ -358,6 +411,13 @@ declare module '@tanstack/react-router' {
       path: '/telecharger'
       fullPath: '/telecharger'
       preLoaderRoute: typeof TelechargerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/usages-interdits': {
+      id: '/usages-interdits'
+      path: '/usages-interdits'
+      fullPath: '/usages-interdits'
+      preLoaderRoute: typeof UsagesInterditsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/avatars': {
@@ -497,12 +557,15 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  ConditionsUtilisationRoute: ConditionsUtilisationRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
   ConnexionRoute: ConnexionRoute,
   InscriptionRoute: InscriptionRoute,
   NumerosVirtuelsRoute: NumerosVirtuelsRoute,
   RecuperationRoute: RecuperationRoute,
   ReinitialisationRoute: ReinitialisationRoute,
   TelechargerRoute: TelechargerRoute,
+  UsagesInterditsRoute: UsagesInterditsRoute,
   ApiPublicDesktopChargeRoute: ApiPublicDesktopChargeRoute,
   ApiPublicPaydunyaIpnRoute: ApiPublicPaydunyaIpnRoute,
 }

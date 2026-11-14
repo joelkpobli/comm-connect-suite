@@ -232,7 +232,7 @@ export function classifyLine(line: string): { kind: LineKind; bonus: boolean } {
     : l.includes('restyle') ? 'restyle'
     : l.includes('studio') ? 'live'
     : l.includes('photo') ? 'photo'
-    : l.includes('point') ? 'points'
+    : l.includes('point') || l.includes('jeton') || l.includes('token') ? 'points'
     : l.startsWith('live') || l.includes('en direct') || l.includes('live face') ? 'live'
     : l.includes('langue') || l.includes('language') ? 'languages'
     : l.includes('rapide') || l.includes('fast') ? 'speed'
