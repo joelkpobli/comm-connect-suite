@@ -4,8 +4,8 @@ import { swapPlans, audioPlans, tokenPlans, cameraLicense } from './landing-copy
 
 export type CatalogueItem = { id: string; label: string; amountXOF: number; points: number; audioSeconds: number; cameraLicense: boolean; aiTokens: number; validityDays: number };
 
-/** AI-token bonus per Swap Live pack (server-fixed). */
-export const aiTokenBonus: Record<string, number> = { starter: 100, standard: 200, premium: 450, ultimate: 1000 };
+/** AI-token bonus per Swap Live pack, taken from the pricing grid (server-fixed). */
+export const aiTokenBonus: Record<string, number> = Object.fromEntries(swapPlans.map(p => [p.id, p.bonusAiTokens ?? 0]));
 
 const xof = (s: string) => Number(s.replace(/\D/g, ''));
 

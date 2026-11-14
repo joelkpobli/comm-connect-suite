@@ -1,5 +1,5 @@
 import { Camera, Check, ChevronDown, Lock, Minus, Webcam } from 'lucide-react';
-import { swapPlans, cameraLicense, type Currency } from '@/lib/weechat/landing-copy';
+import { swapPlans, cameraLicense, supportTier, type Currency } from '@/lib/weechat/landing-copy';
 
 const fmt = (n: number) => new Intl.NumberFormat('fr-FR').format(n);
 const mins = (pts: number, perSec: number) => { const s = Math.floor(pts / perSec); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return h ? `${h} h ${m} min` : `${m} min`; };
@@ -14,7 +14,7 @@ export function CameraNotaBene({ locale }: { locale: 'fr' | 'en' }) {
       <div className="on"><h4><Camera size={19} />{fr ? 'Avec la licence : Weechat Camera' : 'With the licence: Weechat Camera'}</h4>
         <p>{fr ? 'Choisissez « Weechat Camera » dans votre appli d’appel : votre avatar, votre visage changé ou votre vidéo Studio en boucle apparaissent directement dans WhatsApp, TikTok Live, Facebook Live, Zoom ou Meet.' : 'Pick “Weechat Camera” in your calling app: your avatar, swapped face or looping Studio video appears directly in WhatsApp, TikTok Live, Facebook Live, Zoom or Meet.'}</p></div>
     </div>
-    <p className="nb-foot"><Check size={18} />{fr ? `Paiement unique de ${cameraLicense.price.XOF} FCFA, valable à vie, sans abonnement. Offerte dans les packs Premium et Ultimate.` : `One-time ${cameraLicense.price.XOF} FCFA, lifetime, no subscription. Included in Premium and Ultimate.`}</p>
+    <p className="nb-foot"><Check size={18} />{fr ? `Paiement unique de ${cameraLicense.price.XOF} FCFA (${cameraLicense.price.EUR} € · ${cameraLicense.price.USD} $), valable à vie, sans abonnement. Offerte dans les packs Premium et Ultimate.` : `One-time ${cameraLicense.price.XOF} FCFA (€${cameraLicense.price.EUR} · $${cameraLicense.price.USD}), lifetime, no subscription. Included in Premium and Ultimate.`}</p>
   </aside>;
 }
 
@@ -30,8 +30,9 @@ export function PlanCompare({ locale, cur }: { locale: 'fr' | 'en'; cur: Currenc
     [fr ? 'Studio Transformation Avatar' : 'Studio Avatar Transformation', p => has(p.id, 'decouverte', 'starter') ? null : mins(p.points ?? 0, 5)],
     [fr ? 'Live visage + voix traduite' : 'Live face + translated voice', p => has(p.id, 'premium', 'ultimate') ? true : null],
     [fr ? 'Bonus traduction vocale' : 'Voice translation bonus', p => p.bonusAudioMin ? `${p.bonusAudioMin} min` : null],
+    [fr ? 'Bonus jetons IA' : 'AI token bonus', p => p.bonusAiTokens ? `${fmt(p.bonusAiTokens)} ${fr ? 'jetons' : 'tokens'}` : null],
     [fr ? 'Licence Weechat Camera à vie' : 'Lifetime Weechat Camera licence', p => has(p.id, 'premium', 'ultimate') ? (fr ? 'Offerte' : 'Included') : null],
-    [fr ? 'Support WhatsApp' : 'WhatsApp support', () => true],
+    [fr ? 'Support WhatsApp' : 'WhatsApp support', p => supportTier[p.id]?.[fr ? 'fr' : 'en'] ?? true],
   ];
   const cell = (v: React.ReactNode) => v === null ? <Minus size={18} className="nb-no" aria-label={fr ? 'Non inclus' : 'Not included'} /> : v === true ? <Check size={18} className="nb-yes" aria-label={fr ? 'Inclus' : 'Included'} /> : v;
   return <details className="cmp">

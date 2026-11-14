@@ -22,6 +22,7 @@ export type Plan = {
   audioMin?: number;
   bonusAudioMin?: number;
   aiTokens?: number;
+  bonusAiTokens?: number;
   validity: number; // days
   lines: { fr: string[]; en: string[] };
 };
@@ -29,23 +30,23 @@ export type Plan = {
 export const swapPlans: Plan[] = [
   {
     id: 'decouverte', name: 'Pack Découverte', badge: 'Offre découverte', price: { XOF: '4 999', EUR: '7,60', USD: '8,30' }, points: 417, validity: 7,
-    lines: { fr: ['Visage en direct sur votre webcam', 'Valable 7 jours'], en: ['Live face on your webcam', 'Valid 7 days'] },
+    lines: { fr: ['Visage en direct sur votre webcam', 'Support WhatsApp standard', 'Valable 7 jours'], en: ['Live face on your webcam', 'Standard WhatsApp support', 'Valid 7 days'] },
   },
   {
-    id: 'starter', name: 'Starter', price: { XOF: '19 900', EUR: '30,50', USD: '33' }, points: 1658, validity: 30,
-    lines: { fr: ['Live : 13 min 49 s', 'Studio Diffusion Vidéo : 27 min 38 s', 'Valable 30 jours'], en: ['Live: 13 min 49 s', 'Studio Video Broadcast: 27 min 38 s', 'Valid 30 days'] },
+    id: 'starter', name: 'Starter', price: { XOF: '19 900', EUR: '30,50', USD: '33' }, points: 1658, bonusAiTokens: 100, validity: 30,
+    lines: { fr: ['Live : 13 min 49 s', 'Studio Diffusion Vidéo : 27 min 38 s', 'Support WhatsApp standard', 'Bonus : 100 jetons IA', 'Valable 30 jours'], en: ['Live: 13 min 49 s', 'Studio Video Broadcast: 27 min 38 s', 'Standard WhatsApp support', 'Bonus: 100 AI tokens', 'Valid 30 days'] },
   },
   {
-    id: 'standard', name: 'Standard', popular: true, price: { XOF: '49 900', EUR: '76', USD: '83' }, points: 3960, bonusAudioMin: 30, validity: 90,
-    lines: { fr: ['Live : 33 min', 'Studio Diffusion Vidéo : 66 min', 'Studio Transformation Avatar : 13 min 12 s', 'Bonus : Traduction 30 min', 'Valable 90 jours'], en: ['Live: 33 min', 'Studio Video Broadcast: 66 min', 'Studio Avatar Transformation: 13 min 12 s', 'Bonus: 30 min translation', 'Valid 90 days'] },
+    id: 'standard', name: 'Standard', popular: true, price: { XOF: '49 900', EUR: '76', USD: '83' }, points: 3960, bonusAudioMin: 30, bonusAiTokens: 200, validity: 90,
+    lines: { fr: ['Live : 33 min', 'Studio Diffusion Vidéo : 66 min', 'Studio Transformation Avatar : 13 min 12 s', 'Bonus : Traduction 30 min', 'Bonus : 200 jetons IA', 'Support prioritaire', 'Valable 90 jours'], en: ['Live: 33 min', 'Studio Video Broadcast: 66 min', 'Studio Avatar Transformation: 13 min 12 s', 'Bonus: 30 min translation', 'Bonus: 200 AI tokens', 'Priority support', 'Valid 90 days'] },
   },
   {
-    id: 'premium', name: 'Premium', price: { XOF: '84 900', EUR: '129', USD: '141' }, points: 5640, bonusAudioMin: 60, validity: 365,
-    lines: { fr: ['Live : 47 min', 'Live visage + voix traduite', 'Studio Diffusion Vidéo : 94 min', 'Studio Transformation Avatar : 18 min 48 s', 'Bonus : Traduction 1 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 47 min', 'Live face + translated voice', 'Studio Video Broadcast: 94 min', 'Studio Avatar Transformation: 18 min 48 s', 'Bonus: 1 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
+    id: 'premium', name: 'Premium', price: { XOF: '84 900', EUR: '129', USD: '141' }, points: 5640, bonusAudioMin: 60, bonusAiTokens: 450, validity: 365,
+    lines: { fr: ['Live : 47 min', 'Live visage + voix traduite', 'Studio Diffusion Vidéo : 94 min', 'Studio Transformation Avatar : 18 min 48 s', 'Bonus : Traduction 1 h', 'Bonus : 450 jetons IA', 'Caméra virtuelle à vie incluse', 'Support prioritaire 7j/7', 'Valable 365 jours'], en: ['Live: 47 min', 'Live face + translated voice', 'Studio Video Broadcast: 94 min', 'Studio Avatar Transformation: 18 min 48 s', 'Bonus: 1 h translation', 'Bonus: 450 AI tokens', 'Lifetime virtual camera included', 'Priority support 7 days a week', 'Valid 365 days'] },
   },
   {
-    id: 'ultimate', name: 'Ultimate', price: { XOF: '150 000', EUR: '229', USD: '250' }, points: 11400, bonusAudioMin: 120, validity: 365,
-    lines: { fr: ['Live : 1 h 35 min', 'Live visage + voix traduite', 'Studio Diffusion Vidéo : 3 h 10 min', 'Studio Transformation Avatar : 38 min', 'Bonus : Traduction 2 h', 'Caméra virtuelle à vie incluse', 'Valable 365 jours'], en: ['Live: 1 h 35 min', 'Live face + translated voice', 'Studio Video Broadcast: 3 h 10 min', 'Studio Avatar Transformation: 38 min', 'Bonus: 2 h translation', 'Lifetime virtual camera included', 'Valid 365 days'] },
+    id: 'ultimate', name: 'Ultimate', price: { XOF: '150 000', EUR: '229', USD: '250' }, points: 11400, bonusAudioMin: 120, bonusAiTokens: 1000, validity: 365,
+    lines: { fr: ['Live : 1 h 35 min', 'Live visage + voix traduite', 'Studio Diffusion Vidéo : 3 h 10 min', 'Studio Transformation Avatar : 38 min', 'Bonus : Traduction 2 h', 'Bonus : 1 000 jetons IA', 'Caméra virtuelle à vie incluse', 'Support très prioritaire 24h/24, 7j/7', 'Valable 365 jours'], en: ['Live: 1 h 35 min', 'Live face + translated voice', 'Studio Video Broadcast: 3 h 10 min', 'Studio Avatar Transformation: 38 min', 'Bonus: 2 h translation', 'Bonus: 1,000 AI tokens', 'Lifetime virtual camera included', 'Top priority support 24/7', 'Valid 365 days'] },
   },
 ];
 
@@ -72,6 +73,12 @@ export const tokenPlans: Plan[] = [
   { id: 'tokens-550', name: 'Studio IA', popular: true, price: { XOF: '5 000', EUR: '7,60', USD: '8,30' }, aiTokens: 550, validity: 365, lines: tk(550) },
   { id: 'tokens-1200', name: 'Pro IA', price: { XOF: '10 000', EUR: '15,25', USD: '16,70' }, aiTokens: 1200, validity: 365, lines: tk(1200) },
 ];
+
+// Support level per Swap Live pack (higher value packs get faster support).
+export const supportTier: Record<string, { fr: string; en: string }> = {
+  decouverte: { fr: 'Standard', en: 'Standard' }, starter: { fr: 'Standard', en: 'Standard' },
+  standard: { fr: 'Prioritaire', en: 'Priority' }, premium: { fr: 'Prioritaire 7j/7', en: 'Priority 7/7' }, ultimate: { fr: 'Très prioritaire 24/7', en: 'Top priority 24/7' },
+};
 
 export const consumption = { live: 2, restyle: 2, photo: 2 }; // pts per second / per photo
 // Studio points per second of video: Case 1 streams a ready video, Case 2 transforms it (costs more).
