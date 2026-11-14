@@ -31,7 +31,7 @@ export function LegalFooter() {
   const { locale } = useDemo(); const c = copy[locale === 'en' ? 'en' : 'fr'];
   return <footer className="legal-footer">
     <div className="legal-warn" role="note"><ShieldAlert size={30} /><div><h2>{c.warnTitle}</h2><p>{c.warn}</p><p><strong>{c.sanction}</strong></p></div></div>
-    <div className="legal-cols">{c.cols.map(([t, items], n) => { const to = (['/conditions-utilisation', '/confidentialite', '/usages-interdits'] as const)[n]; return <section key={t}><h3><Link to={to}>{t}</Link></h3><ul>{items.map(i => <li key={i}>{i}</li>)}</ul><Link to={to} className="legal-more">{c.more} →</Link></section>; })}</div>
+    <div className="legal-cols">{c.cols.map(([t, items], n) => { const to = n === 0 ? '/conditions-utilisation' as const : n === 1 ? '/confidentialite' as const : '/usages-interdits' as const; return <section key={t}><h3><Link to={to}>{t}</Link></h3><ul>{items.map(i => <li key={i}>{i}</li>)}</ul><Link to={to} className="legal-more">{c.more} →</Link></section>; })}</div>
     <div className="legal-bottom"><span>{c.rights}</span></div>
   </footer>;
 }
