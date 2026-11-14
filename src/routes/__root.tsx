@@ -82,7 +82,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
 
 function useErrorLabels() {
   const [locale, setLocale] = useState<'fr' | 'en'>('fr');
-  useEffect(() => { setLocale(localStorage.getItem('weechat-ui-locale') === 'en' ? 'en' : 'fr'); }, []);
+  useEffect(() => { const st = localStorage.getItem('weechat-ui-locale'); setLocale(st === 'en' || st === 'fr' ? st : (navigator.language || '').toLowerCase().startsWith('fr') ? 'fr' : 'en'); }, []);
   return errorLabels[locale];
 }
 
