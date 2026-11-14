@@ -1,3 +1,4 @@
+import { CameraNotaBene, PlanCompare } from './pricing-extras';
 import { useState } from 'react';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { creditsQuery, audioQuery, aiTokensQuery, validityQuery, fmtExpiry } from '@/lib/weechat/credits-query';
@@ -69,6 +70,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
       <ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul>
       {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="w-full text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy the licence' : 'Acheter la licence')}</Button>}
     </article></div>}
+    {kind === 'swap' && <><CameraNotaBene locale={locale} /><PlanCompare locale={locale} cur={cur} /></>}
     <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by PayDunya.' : 'Paiement sécurisé par PayDunya.'}<span>{en ? 'Your balance is credited automatically after confirmation. Card payment coming soon.' : 'Votre solde est crédité automatiquement après confirmation. Paiement par carte bientôt.'}</span></p></div>
 
   </>;

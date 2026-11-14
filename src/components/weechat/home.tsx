@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
 import { landingCopy, landingFaces, swapPlans, audioPlans, tokenPlans, momoCountries, momoOperators, classifyLine, cameraLicense, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
 import { whatsappLink } from '@/lib/weechat/contact';
+import { CameraNotaBene, PlanCompare } from './pricing-extras';
 import { SwapDemo, TranslateDemo, BroadcastDemo, TransformDemo, RestyleDemo } from './live-demos';
 
 import heroPortrait from '@/assets/hero-portrait.jpg';
@@ -160,6 +161,7 @@ export function HomePage() {
         </article>}
       </div>}
       <div className={`lp-prices ${mode === 'audio' ? 'three' : 'four'}`}>{(plans ?? []).filter(p => !p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
+      {mode === 'swap' && <><CameraNotaBene locale={locale} /><PlanCompare locale={locale} cur={cur} /></>}
       <small className="lp-conso">{c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>
     </section>
