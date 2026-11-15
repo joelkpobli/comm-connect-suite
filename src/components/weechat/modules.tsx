@@ -1,3 +1,4 @@
+import { AppearanceStudio } from './appearance-studio';
 import { faces } from '@/lib/weechat/persona-catalog';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight } from 'lucide-react';
@@ -21,8 +22,10 @@ export function SwapLivePage() {
 
 export function AvatarsPage() {
   const { locale } = useDemo(); const fr = locale === 'fr';
-  return <><PageTitle title={fr ? 'Catalogue d’avatars' : 'Avatar catalogue'} subtitle={fr ? 'Visages réels sous licence libre, prêts pour le swap.' : 'Real, freely licensed faces ready to swap.'} action={<Button asChild variant="outline"><Link to="/telecharger" hash="swap">{fr ? 'Guide des photos autorisées' : 'Authorised photo guide'} <ArrowRight /></Link></Button>} />
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">{faces.map(p => <figure key={p.id} className="overflow-hidden rounded-lg border border-input"><img src={p.src} alt="" className="aspect-[4/5] w-full object-cover" loading="lazy" /><figcaption className="p-2 text-[10px] text-muted-foreground">{p.credit}</figcaption></figure>)}</div></>;
+  return <><PageTitle title={fr ? 'Bibliothèque d’apparence' : 'Appearance library'} subtitle={fr ? 'Choisissez un avatar et un décor réels, ajustez le cadrage. Gratuit, enregistré automatiquement.' : 'Pick a real avatar and setting, adjust the framing. Free and saved automatically.'} action={<Button asChild variant="outline"><Link to="/telecharger" hash="swap">{fr ? 'Guide des photos autorisées' : 'Authorised photo guide'} <ArrowRight /></Link></Button>} />
+    <AppearanceStudio />
+    <section className="mt-10 grid gap-3"><h2 className="text-xl font-semibold">{fr ? 'Visages pour le Swap Live' : 'Faces for Swap Live'}</h2>
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">{faces.map(p => <figure key={p.id} className="overflow-hidden rounded-lg border border-input"><img src={p.src} alt="" className="aspect-[4/5] w-full object-cover" loading="lazy" /><figcaption className="p-2 text-xs text-muted-foreground">{p.credit}</figcaption></figure>)}</div></section></>;
 }
 
 export { SwapPhotoPage } from './swap-photo';
