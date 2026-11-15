@@ -1,3 +1,4 @@
+import { registerAppServiceWorker } from "@/lib/pwa-register";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -45,6 +46,7 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const labels = useErrorLabels();
   console.error(error);
   const router = useRouter();
+  useEffect(() => { registerAppServiceWorker(); }, []);
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
