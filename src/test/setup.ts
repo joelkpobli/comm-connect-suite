@@ -18,3 +18,7 @@ Object.defineProperty(window, "matchMedia", {
     dispatchEvent: () => {},
   }),
 });
+
+// UI auto-detects the browser language; tests assert French copy.
+Object.defineProperty(window.navigator, 'language', { value: 'fr-FR', configurable: true });
+Object.defineProperty(window.navigator, 'languages', { value: ['fr-FR', 'fr'], configurable: true });

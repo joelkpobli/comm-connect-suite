@@ -1,5 +1,5 @@
 // Server-fixed AI token prices for asynchronous tasks. The browser never sends an amount.
-export const AI_TASK_PRICES = { imagePerUnit: 5, talkingPhotoPerSecond: 3, faceSwapPerPhoto: 2 } as const;
+export const AI_TASK_PRICES = { imagePerUnit: 5, talkingPhotoPerSecond: 6, faceSwapPerPhoto: 2 } as const;
 export const TALKING_PHOTO_MAX_SECONDS = 15;
 export const IMAGE_MAX_COUNT = 4;
 export type AiTaskKind = 'talking_photo' | 'image_generation' | 'face_swap';

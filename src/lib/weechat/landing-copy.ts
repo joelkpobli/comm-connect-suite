@@ -65,8 +65,8 @@ export const audioPlans: Plan[] = [
   },
 ];
 
-// AI token packs (Studio IA: Swap Photo 2, image 5, talking photo 3/s). Separate wallet, not usable for Live or audio.
-const tk = (n: number) => ({ fr: [`${n / 2} Swap Photos`, `ou ${Math.floor(n / 5)} images IA`, `ou ${Math.floor(n / 3)} s de photo parlante`, 'Valable 365 jours'], en: [`${n / 2} Swap Photos`, `or ${Math.floor(n / 5)} AI images`, `or ${Math.floor(n / 3)} s of talking photo`, 'Valid 365 days'] });
+// AI token packs (Studio IA: Swap Photo 2, image 5, talking photo 6/s). Separate wallet, not usable for Live or audio.
+const tk = (n: number) => ({ fr: [`${n / 2} Swap Photos`, `ou ${Math.floor(n / 5)} images IA`, `ou ${Math.floor(n / 6)} s de photo parlante`, 'Valable 365 jours'], en: [`${n / 2} Swap Photos`, `or ${Math.floor(n / 5)} AI images`, `or ${Math.floor(n / 6)} s of talking photo`, 'Valid 365 days'] });
 export const tokenPlans: Plan[] = [
   { id: 'tokens-100', name: 'Mini IA', price: { XOF: '1 000', EUR: '1,50', USD: '1,70' }, aiTokens: 100, validity: 365, lines: tk(100) },
   { id: 'tokens-260', name: 'Créateur IA', price: { XOF: '2 500', EUR: '3,80', USD: '4,20' }, aiTokens: 260, validity: 365, lines: tk(260) },
