@@ -19,9 +19,9 @@ export default defineConfig({
         registerType: "autoUpdate",
         injectRegister: null,
         manifest: false,
+        outDir: "dist/client",
         devOptions: { enabled: false },
         workbox: {
-          swDest: "sw.js",
           globPatterns: ["**/*.{js,css,woff2,png,ico,svg,webp}", "offline.html", "manifest.webmanifest"],
           globIgnores: ["downloads/**"],
           maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
