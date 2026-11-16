@@ -32,10 +32,10 @@ export function parsePrefs(raw: string | null): AppearancePrefs {
   let o: Record<string, unknown> = {};
   try { const v = raw ? JSON.parse(raw) : {}; if (v && typeof v === 'object') o = v; } catch { /* defaults */ }
   return {
-    avatarId: typeof o.avatarId === 'string' ? o.avatarId : DEFAULT_PREFS.avatarId,
-    backgroundId: typeof o.backgroundId === 'string' ? o.backgroundId : DEFAULT_PREFS.backgroundId,
-    scale: clamp(o.scale, 0.4, 1.6, 1), x: clamp(o.x, -0.5, 0.5, 0), y: clamp(o.y, -0.4, 0.4, 0),
-    blur: clamp(o.blur, 0, 8, 0), shadow: clamp(o.shadow, 0, 10, 5),
+    avatarId: typeof o['avatarId'] === 'string' ? o['avatarId'] : DEFAULT_PREFS.avatarId,
+    backgroundId: typeof o['backgroundId'] === 'string' ? o['backgroundId'] : DEFAULT_PREFS.backgroundId,
+    scale: clamp(o['scale'], 0.4, 1.6, 1), x: clamp(o['x'], -0.5, 0.5, 0), y: clamp(o['y'], -0.4, 0.4, 0),
+    blur: clamp(o['blur'], 0, 8, 0), shadow: clamp(o['shadow'], 0, 10, 5),
   };
 }
 
