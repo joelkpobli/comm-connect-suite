@@ -1,3 +1,4 @@
+import { VirtualNumbersOffer } from './virtual-numbers-offer';
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Film, Repeat, Plus, Coins, CalendarClock, Gift, Sparkles, type LucideIcon } from 'lucide-react';
@@ -153,6 +154,11 @@ export function HomePage() {
           <small className="lp-paynote"><Check size={14} />{c.cardNote}</small>
         </article>
       </div>
+    </section>
+
+    <section id="virtual-numbers" className="lp-section">
+      <span className="lp-eyebrow">{locale === 'en' ? 'Virtual numbers' : 'Numéros virtuels'}</span><h2>{locale === 'en' ? 'A number from another country, without a SIM' : 'Un numéro d’un autre pays, sans carte SIM'}</h2>
+      <VirtualNumbersOffer />
     </section>
 
     <section id="pricing" className="lp-section">

@@ -9,6 +9,7 @@ import { formatCredits } from '@/lib/weechat/demo-data';
 import { PageTitle, TransactionRows } from './shared';
 import { CreditsPage } from './credits';
 import { useDemo } from './provider';
+import { VirtualNumbersOffer } from './virtual-numbers-offer';
 
 const mmss = (s: number) => `${Math.floor(s / 60)} min${s % 60 ? ` ${s % 60} s` : ''}`;
 
@@ -64,6 +65,10 @@ export function DashboardPage() {
       </div>
     </section>
 
+    <section>
+      <h2 className="mb-4 text-2xl font-semibold">{fr ? 'Numéros virtuels' : 'Virtual numbers'}</h2>
+      <VirtualNumbersOffer compact />
+    </section>
     <section id="recharge" className="scroll-mt-24">
       <h2 className="mb-4 text-xl font-semibold">{fr ? 'Recharger' : 'Top up'}</h2>
       <CreditsPage embedded />
