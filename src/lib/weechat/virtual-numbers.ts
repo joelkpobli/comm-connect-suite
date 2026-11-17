@@ -1,2 +1,2 @@
-// Affiliate partner for virtual numbers (Numwix, Mobile Money payments).
+// Affiliate link for virtual numbers (never shown by name in the UI).
 export const virtualNumbersAffiliateUrl = 'https://numwix.com/?share=z72cvrex45925';

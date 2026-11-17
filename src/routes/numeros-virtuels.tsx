@@ -8,9 +8,9 @@ import { whatsappLink } from '@/lib/weechat/contact';
 export const Route = createFileRoute('/numeros-virtuels')({
   head: () => ({ meta: [
     { title: 'Numéros virtuels internationaux · Weechat' },
-    { name: 'description', content: 'Numéros virtuels internationaux pour WhatsApp et Telegram , sans carte SIM, via notre partenaire.' },
+    { name: 'description', content: 'Numéros virtuels internationaux pour WhatsApp et Telegram, sans carte SIM, paiement Mobile Money.' },
     { property: 'og:title', content: 'Numéros virtuels internationaux · Weechat' },
-    { property: 'og:description', content: 'Numéros virtuels internationaux pour WhatsApp et Telegram , sans carte SIM, via notre partenaire.' },
+    { property: 'og:description', content: 'Numéros virtuels internationaux pour WhatsApp et Telegram, sans carte SIM, paiement Mobile Money.' },
     { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' },
   ] }),
   component: VirtualNumbers,
