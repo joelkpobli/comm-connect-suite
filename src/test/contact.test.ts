@@ -3,13 +3,13 @@ import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY, whatsappLink } from '@/lib/weechat/c
 
 describe('Contact d’aide réel (WhatsApp)', () => {
   it('utilise le numéro fourni par le propriétaire', () => {
-    expect(WHATSAPP_NUMBER).toBe('+2290157685935');
-    expect(WHATSAPP_DISPLAY).toBe('+229 01 57 68 59 35');
+    expect(WHATSAPP_NUMBER).toBe('+2250504989523');
+    expect(WHATSAPP_DISPLAY).toBe('+225 05 04 98 95 23');
   });
 
   it('construit un lien wa.me sans séparateur ni signe', () => {
-    expect(whatsappLink('fr').startsWith('https://wa.me/2290157685935?text=')).toBe(true);
-    expect(whatsappLink('en').startsWith('https://wa.me/2290157685935?text=')).toBe(true);
+    expect(whatsappLink('fr').startsWith('https://wa.me/2250504989523?text=')).toBe(true);
+    expect(whatsappLink('en').startsWith('https://wa.me/2250504989523?text=')).toBe(true);
   });
 
   it('prépare un message dans la langue de l’interface', () => {

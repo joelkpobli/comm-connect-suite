@@ -1,7 +1,7 @@
 // Coordonnées d'aide réelles de Weechat (fournies par le propriétaire du projet).
 // Le numéro est unique et sert de point de contact WhatsApp sur tous les écrans.
-export const WHATSAPP_NUMBER = '+2290157685935';
-export const WHATSAPP_DISPLAY = '+229 01 57 68 59 35';
+export const WHATSAPP_NUMBER = '+2250504989523';
+export const WHATSAPP_DISPLAY = '+225 05 04 98 95 23';
 
 const PREFILL: Record<'fr' | 'en', string> = {
   fr: "Bonjour Weechat, j'ai besoin d'aide.",
