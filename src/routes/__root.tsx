@@ -46,7 +46,6 @@ function ErrorComponent({ error, reset }: ErrorComponentProps) {
   const labels = useErrorLabels();
   console.error(error);
   const router = useRouter();
-  useEffect(() => { registerAppServiceWorker(); }, []);
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
@@ -136,6 +135,9 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
+  useEffect(() => {
+    registerAppServiceWorker();
+  }, []);
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
