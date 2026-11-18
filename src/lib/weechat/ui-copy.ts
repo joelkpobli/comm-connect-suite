@@ -41,5 +41,9 @@ const english: Record<string, string> = {
   'L’AMBITION WEECHAT': 'THE WEECHAT VISION', 'Plus proches, même à l’autre bout du monde.': 'Closer, even across the world.', 'Concept en développement': 'Concept in development',
   'Aucun mouvement': 'No movements', 'Bonjour': 'Hello', 'Historique': 'History',
   'Aide': 'Help', 'Aide sur WhatsApp': 'Help on WhatsApp', 'Comment ça marche': 'How it works',
+  'Besoin d’aide ?': 'Need help?',
+  'Notre équipe vous répond sur WhatsApp, en français ou en anglais.': 'Our team replies on WhatsApp, in French or English.',
+  'Numéro WhatsApp': 'WhatsApp number',
+  'Écrire sur WhatsApp': 'Message on WhatsApp',
 };
 export function uiCopy(text: string, locale: Locale) { return locale === 'en' ? english[text] ?? text : text; }
