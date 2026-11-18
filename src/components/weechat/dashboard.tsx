@@ -6,10 +6,11 @@ import { creditsQuery, audioQuery, aiTokensQuery, validityQuery, fmtExpiry } fro
 import { profileQuery } from '@/lib/weechat/profile-query';
 import { getCameraLicense } from '@/lib/weechat/payments.functions';
 import { formatCredits } from '@/lib/weechat/demo-data';
-import { PageTitle, TransactionRows } from './shared';
+import { TransactionRows } from './shared';
 import { CreditsPage } from './credits';
 import { useDemo } from './provider';
 import { VirtualNumbersOffer } from './virtual-numbers-offer';
+import { DashboardWelcome } from './dashboard-welcome';
 
 const mmss = (s: number) => `${Math.floor(s / 60)} min${s % 60 ? ` ${s % 60} s` : ''}`;
 
@@ -35,7 +36,7 @@ export function DashboardPage() {
   ];
 
   return <div className="space-y-10">
-    <PageTitle title={`${fr ? 'Bonjour' : 'Hello'}, ${profile.display_name || profile.email}`} subtitle={fr ? 'Vos soldes, vos outils et vos recharges, au même endroit.' : 'Your balances, tools and top-ups in one place.'} />
+    <DashboardWelcome fr={fr} name={profile.display_name || profile.email} />
 
     <section aria-label={fr ? 'Soldes' : 'Balances'} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {balances.map(b => <article key={b.label} className="flex flex-col gap-2 rounded-lg border border-border bg-card p-5 shadow-sm">
