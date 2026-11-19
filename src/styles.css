@@ -116,7 +116,7 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 .lp-paygrid h4 { margin:20px 0 10px; font-size:14px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted-foreground); }
 .lp-ops { display:flex; flex-wrap:wrap; gap:8px; }
 .lp-op { display:inline-flex; align-items:center; justify-content:center; min-width:92px; height:44px; padding:8px 14px; border:1px solid var(--border); border-radius:10px; }
-.lp-op img { max-height:26px; width:auto; object-fit:contain; }
+.lp-op img, .lp-op .payment-logo { max-height:26px; width:auto; max-width:100%; object-fit:contain; }
 .lp-op.light { background:var(--logo-surface); } .lp-op.dark { background:var(--surface-deep); } .lp-op.mtn { background:var(--mtn-yellow); }
 .lp-flags { display:flex; flex-wrap:wrap; gap:7px; }
 .lp-flags > span { display:inline-flex; gap:7px; align-items:center; padding:6px 11px; border:1px solid var(--border); border-radius:999px; background:var(--surface-deep); font-size:15px; }

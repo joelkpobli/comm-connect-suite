@@ -3,13 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, Check, ChevronDown, CreditCard, Fingerprint, Lock, ShieldCheck, Smartphone, Trash2, EyeOff, MessageCircle, Video, Mic, Wand2, Image as ImageIcon, Languages, Camera, Zap, Headphones, Film, Repeat, Plus, Coins, CalendarClock, Gift, Sparkles, type LucideIcon } from 'lucide-react';
 import 'flag-icons/css/flag-icons.min.css';
-import mtnLogo from '@/assets/pay/mtn.svg.asset.json';
-import orangeLogo from '@/assets/pay/orange.png.asset.json';
-import moovLogo from '@/assets/pay/moov.png.asset.json';
-import airtelLogo from '@/assets/pay/airtel.png.asset.json';
-import waveLogo from '@/assets/pay/wave.png.asset.json';
-import visaLogo from '@/assets/pay/visa.png.asset.json';
-import mcLogo from '@/assets/pay/mastercard.png.asset.json';
+import { PaymentLogo } from './payment-logos';
 import { Button } from '@/components/ui/button';
 import { useDemo } from './provider';
 import { landingCopy, landingFaces, swapPlans, audioPlans, tokenPlans, momoCountries, momoOperators, classifyLine, cameraLicense, type LineKind, type Currency, type Plan } from '@/lib/weechat/landing-copy';
@@ -39,9 +33,9 @@ const featureRoutes = ['/swap-live', '/traduction', '/telecharger', '/telecharge
 const featureIds = ['swap', 'translation', 'studio', 'transform', 'restyle'] as const;
 
 const lineIcon: Record<LineKind, LucideIcon> = { live: Video, restyle: Wand2, photo: ImageIcon, translate: Languages, vcam: Camera, languages: Languages, speed: Zap, support: Headphones, points: Coins, validity: CalendarClock };
-const opLogos: Record<string, { src: string; tone: string }> = {
-  'Wave': { src: waveLogo.url, tone: 'light' }, 'Orange Money': { src: orangeLogo.url, tone: 'light' }, 'MTN MoMo': { src: mtnLogo.url, tone: 'mtn' },
-  'Moov Money': { src: moovLogo.url, tone: 'dark' }, 'Airtel Money': { src: airtelLogo.url, tone: 'light' },
+const opTones: Record<string, string> = {
+  'Wave': 'light', 'Orange Money': 'light', 'MTN MoMo': 'mtn',
+  'Moov Money': 'dark', 'Airtel Money': 'light',
 };
 
 function PlanLines({ plan, locale, c }: { plan: Plan; locale: 'fr' | 'en'; c: ReturnType<typeof landingCopy> }) {
@@ -142,7 +136,7 @@ export function HomePage() {
         <article>
           <Smartphone size={22} /><h3>{c.momoTitle}</h3><p>{c.momoText}</p>
           <h4>{c.momoOperators}</h4>
-          <div className="lp-ops">{(momoOperators ?? []).map(o => <span key={o} className={`lp-op ${opLogos[o]?.tone ?? ''}`} title={o}><img src={opLogos[o]?.src} alt={o} height={26} /></span>)}</div>
+          <div className="lp-ops">{(momoOperators ?? []).map(o => <span key={o} className={`lp-op ${opTones[o] ?? ''}`} title={o}><PaymentLogo name={o} /></span>)}</div>
           <h4>{c.momoCountries}</h4>
           <div className="lp-flags">{(momoCountries ?? []).map(([f, n]) => <span key={n}><span className={`fi fi-${f}`} aria-hidden="true" />{n}</span>)}</div>
           <small className="lp-paynote"><Check size={14} />{c.momoNote}</small>
@@ -150,7 +144,7 @@ export function HomePage() {
         <article>
           <CreditCard size={22} /><h3>{c.cardTitle}</h3><p>{c.cardText}</p>
           <h4>{c.cardNetworks}</h4>
-          <div className="lp-ops"><span className="lp-op light" title="Visa"><img src={visaLogo.url} alt="Visa" height={22} /></span><span className="lp-op light" title="Mastercard"><img src={mcLogo.url} alt="Mastercard" height={26} /></span></div>
+          <div className="lp-ops"><span className="lp-op light" title="Visa"><PaymentLogo name="Visa" height={22} /></span><span className="lp-op light" title="Mastercard"><PaymentLogo name="Mastercard" /></span></div>
           <small className="lp-paynote"><Check size={14} />{c.cardNote}</small>
         </article>
       </div>
