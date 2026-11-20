@@ -18,3 +18,6 @@ export const PROVIDER_BILLING_URLS: Record<string, string> = {
 
 /** RunPod balance thresholds in USD: below 1 is critical, below 3 is a warning. */
 export function runpodLevel(usd: number): 'ok' | 'low' | 'billing' { return usd < 1 ? 'billing' : usd < 3 ? 'low' : 'ok'; }
+
+/** Palabra minutes thresholds: below 15 min is critical, below 60 min is a warning. */
+export function palabraLevel(minutes: number): 'ok' | 'low' | 'billing' { return minutes < 15 ? 'billing' : minutes < 60 ? 'low' : 'ok'; }
