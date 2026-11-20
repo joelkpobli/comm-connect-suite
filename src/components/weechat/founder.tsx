@@ -113,11 +113,12 @@ function ProvidersPanel() {
   const health = useServerFn(founderProviderHealth);
   const { data: h, isFetching, refetch } = useQuery({ queryKey: ['founder-health'], queryFn: () => health(), refetchInterval: 120_000 });
   const { data: o } = useOverview();
-  const label = { ok: 'Connecté', billing: 'Solde épuisé', error: 'Erreur', missing: 'Clé absente', configured: 'Clé présente' } as const;
+  const label = { ok: 'Connecté', low: 'Solde bas', billing: 'Solde épuisé', error: 'Erreur', missing: 'Clé absente', configured: 'Clé présente' } as const;
   return <div className="space-y-3">
     <div className="flex items-center justify-between"><p className="text-sm text-muted-foreground">Vérification automatique toutes les 2 minutes. Après 2 refus pour solde insuffisant, le module passe seul en maintenance et les jetons sont remboursés.</p><Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>Vérifier</Button></div>
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{(h ?? []).map(p => { const u = o?.providers[p.name]; const bad = p.name !== 'paydunya' && (p.status === 'billing' || p.status === 'error' || (u?.billing ?? 0) > 0); return <div key={p.name} className={`${card} ${bad ? 'border-destructive/60' : ''} space-y-2`}>
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{(h ?? []).map(p => { const u = o?.providers[p.name]; const bad = p.name !== 'paydunya' && (p.status === 'billing' || p.status === 'low' || p.status === 'error' || (u?.billing ?? 0) > 0); return <div key={p.name} className={`${card} ${bad ? 'border-destructive/60' : ''} space-y-2`}>
       <div className="flex items-center justify-between"><strong className="capitalize">{p.name}</strong><span className={`text-sm ${bad ? 'text-destructive' : 'text-primary'}`}>● {label[p.status]}{p.ms !== null ? ` · ${p.ms} ms` : ''}</span></div>
+      {p.balanceUsd !== null && <p className={`text-2xl font-semibold ${p.status === 'ok' ? '' : 'text-destructive'}`}>{p.balanceUsd.toFixed(2)} $ restants{p.status === 'low' ? ' — rechargez bientôt' : p.status === 'billing' ? ' — rechargez maintenant' : ''}</p>}
       {u ? <p className="text-sm text-muted-foreground">30 j : {u.calls} appels · {u.ok} réussis · {u.billing} refus solde · {u.failed} erreurs · ≈ {u.costUsd.toFixed(2)} $ estimés</p> : <p className="text-sm text-muted-foreground">Aucun appel enregistré sur 30 jours.</p>}
       {u?.lastError && <p className="truncate text-xs text-destructive" title={u.lastError}>Dernière erreur : {u.lastError}</p>}
       {PROVIDER_BILLING_URLS[p.name] && <Button asChild size="sm" variant={bad ? 'default' : 'outline'}><a href={PROVIDER_BILLING_URLS[p.name]} target="_blank" rel="noreferrer">{p.name === 'paydunya' ? 'Voir les encaissements' : 'Recharger'} <ExternalLink className="size-3" /></a></Button>}

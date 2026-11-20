@@ -13,4 +13,8 @@ export const PROVIDER_BILLING_URLS: Record<string, string> = {
   replicate: 'https://replicate.com/account/billing',
   palabra: 'https://app.palabra.ai',
   paydunya: 'https://app.paydunya.com',
+  runpod: 'https://www.runpod.io/console/user/billing',
 };
+
+/** RunPod balance thresholds in USD: below 1 is critical, below 3 is a warning. */
+export function runpodLevel(usd: number): 'ok' | 'low' | 'billing' { return usd < 1 ? 'billing' : usd < 3 ? 'low' : 'ok'; }

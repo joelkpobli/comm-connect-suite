@@ -1,4 +1,5 @@
 // Founder (admin) server functions. Every handler verifies the admin role through the caller's own session first.
+import { runpodLevel } from './founder-shared';
 import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
@@ -153,16 +154,30 @@ export const founderSetMaintenance = createServerFn({ method: 'POST' }).middlewa
 export const founderProviderHealth = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
   await admin(context);
   const check = async (name: string, configured: boolean, probe?: () => Promise<Response>) => {
-    if (!configured) return { name, configured, status: 'missing' as const, httpStatus: null as number | null, ms: null as number | null };
-    if (!probe) return { name, configured, status: 'configured' as const, httpStatus: null, ms: null };
+    if (!configured) return { name, configured, status: 'missing' as const, httpStatus: null as number | null, ms: null as number | null, balanceUsd: null as number | null };
+    if (!probe) return { name, configured, status: 'configured' as const, httpStatus: null, ms: null, balanceUsd: null };
     const t = Date.now();
-    try { const r = await probe(); return { name, configured, status: r.ok ? 'ok' as const : r.status === 402 ? 'billing' as const : 'error' as const, httpStatus: r.status, ms: Date.now() - t }; }
-    catch { return { name, configured, status: 'error' as const, httpStatus: null, ms: Date.now() - t }; }
+    try { const r = await probe(); return { name, configured, status: r.ok ? 'ok' as const : r.status === 402 ? 'billing' as const : 'error' as const, httpStatus: r.status, ms: Date.now() - t, balanceUsd: null }; }
+    catch { return { name, configured, status: 'error' as const, httpStatus: null, ms: Date.now() - t, balanceUsd: null }; }
   };
   const rep = process.env['REPLICATE_API_TOKEN'];
   return Promise.all([
     check('replicate', Boolean(rep), () => fetch('https://api.replicate.com/v1/account', { headers: { Authorization: `Bearer ${rep}` } })),
     check('palabra', Boolean(process.env['PALABRA_API_KEY'])),
     check('paydunya', Boolean(process.env['PAYDUNYA_MASTER_KEY'])),
+    runpodHealth(process.env['RUNPOD_API_KEY']),
   ]);
 });
+
+async function runpodHealth(key: string | undefined) {
+  const base = { name: 'runpod', configured: Boolean(key), httpStatus: null as number | null, ms: null as number | null, balanceUsd: null as number | null };
+  if (!key) return { ...base, status: 'missing' as const };
+  const t = Date.now();
+  try {
+    const r = await fetch('https://api.runpod.io/graphql', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify({ query: 'query { myself { clientBalance } }' }) });
+    const j = (await r.json().catch(() => null)) as { data?: { myself?: { clientBalance?: number } } } | null;
+    const bal = j?.data?.myself?.clientBalance;
+    if (!r.ok || typeof bal !== 'number') return { ...base, status: 'error' as const, httpStatus: r.status, ms: Date.now() - t };
+    return { ...base, status: runpodLevel(bal), httpStatus: r.status, ms: Date.now() - t, balanceUsd: Math.round(bal * 100) / 100 };
+  } catch { return { ...base, status: 'error' as const, ms: Date.now() - t }; }
+}
