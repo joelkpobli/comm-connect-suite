@@ -1,4 +1,3 @@
-import { ShieldAlert } from 'lucide-react';
 import { useDemo } from './provider';
 import { Link } from '@tanstack/react-router';
 
@@ -29,9 +28,9 @@ const copy = {
 
 export function LegalFooter() {
   const { locale } = useDemo(); const c = copy[locale === 'en' ? 'en' : 'fr'];
+  const links = [['/conditions-utilisation', c.cols[0][0]], ['/confidentialite', c.cols[1][0]], ['/usages-interdits', c.cols[2][0]]] as const;
   return <footer className="legal-footer">
-    <div className="legal-warn" role="note"><ShieldAlert size={30} /><div><h2>{c.warnTitle}</h2><p>{c.warn}</p><p><strong>{c.sanction}</strong></p></div></div>
-    <div className="legal-cols">{c.cols.map(([t, items], n) => { const to = n === 0 ? '/conditions-utilisation' as const : n === 1 ? '/confidentialite' as const : '/usages-interdits' as const; return <section key={t}><h3><Link to={to}>{t}</Link></h3><ul>{items.map(i => <li key={i}>{i}</li>)}</ul><Link to={to} className="legal-more">{c.more} →</Link></section>; })}</div>
+    <nav className="legal-links flex flex-wrap items-center justify-center gap-x-6 gap-y-2" aria-label={c.cols[0][0]}>{links.map(([to, label]) => <Link key={to} to={to} className="underline-offset-4 hover:underline">{label}</Link>)}</nav>
     <div className="legal-bottom"><span>{c.rights}</span></div>
   </footer>;
 }
