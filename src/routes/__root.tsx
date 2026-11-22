@@ -93,10 +93,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#0a1128" },
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Weechat UI Prototype" },
+      { title: "Weechat — persona vidéo et traduction pour vos appels" },
       { name: "description", content: "Weechat — espace personnel et couche de communication multilingue en développement." },
       { name: "author", content: "Weechat" },
-      { property: "og:title", content: "Weechat UI Prototype" },
+      { property: "og:title", content: "Weechat — persona vidéo et traduction pour vos appels" },
       { property: "og:description", content: "Votre voix, un monde de possibilités. Communication multilingue en développement." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -111,6 +111,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;550;600;650;700;750;800&display=swap" },
     ],
+    scripts: [{ children: "(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-NKS4JNBM');" }],
   }),
   shellComponent: RootShell,
   component: RootComponent,
@@ -125,6 +126,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NKS4JNBM" height="0" width="0" style={{ display: 'none', visibility: 'hidden' }} title="gtm" /></noscript>
         {children}
         <Scripts />
       </body>
