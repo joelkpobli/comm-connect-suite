@@ -25,7 +25,7 @@ export function AvatarsPage() {
   return <><PageTitle title={fr ? 'Bibliothèque d’apparence' : 'Appearance library'} subtitle={fr ? 'Choisissez un avatar et un décor réels, ajustez le cadrage. Gratuit, enregistré automatiquement.' : 'Pick a real avatar and setting, adjust the framing. Free and saved automatically.'} action={<Button asChild variant="outline"><Link to="/telecharger" hash="swap">{fr ? 'Guide des photos autorisées' : 'Authorised photo guide'} <ArrowRight /></Link></Button>} />
     <AppearanceStudio />
     <section className="mt-10 grid gap-3"><h2 className="text-xl font-semibold">{fr ? 'Visages pour le Swap Live' : 'Faces for Swap Live'}</h2>
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">{faces.map(p => <figure key={p.id} className="overflow-hidden rounded-lg border border-input"><img src={p.src} alt="" className="aspect-[4/5] w-full object-cover" loading="lazy" /><figcaption className="p-2 text-xs text-muted-foreground">{p.credit}</figcaption></figure>)}</div></section></>;
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">{faces.map(p => <figure key={p.id} className="overflow-hidden rounded-lg border border-input"><img src={p.src} alt="" className="aspect-[4/5] w-full object-cover" loading="lazy" /></figure>)}</div></section></>;
 }
 
 export { SwapPhotoPage } from './swap-photo';

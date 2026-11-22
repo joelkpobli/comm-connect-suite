@@ -7,7 +7,7 @@ import { backgrounds, checkImage, checkVoiceSample, personas, placeFigure, VOICE
 
 const copy = {
   fr: {
-    face: '1. Visage qui me représente', all: 'Tous', f: 'Femmes', m: 'Hommes', age: 'ans env.', catalog: 'Vraies photos sous licence libre (Wikimedia Commons), personne détourée en pied. Pour votre photo : de la tête aux pieds, de face, idéalement en PNG sans fond.',
+    face: '1. Visage qui me représente', all: 'Tous', f: 'Femmes', m: 'Hommes', age: 'ans env.', catalog: 'Bibliothèque Weechat : personnes détourées en pied. Pour votre photo : de la tête aux pieds, de face, idéalement en PNG sans fond.',
     myPhoto: 'Importer ma photo', rights: 'Je certifie détenir les droits sur cette image et l’accord de la personne représentée.',
     bg: '2. Arrière-plan', myBg: 'Importer mon arrière-plan', bgRights: 'Je certifie avoir le droit d’utiliser cette image.', blur: 'Flou d’arrière-plan', none: 'Aucun',
     bgNames: { salon: 'Salon', villa: 'Villa', piscine: 'Piscine', piscine2: 'Piscine vue mer', jardin: 'Jardin' } as Record<string, string>, pose: 'Posture', stand: 'Debout', sit: 'Assis(e)', shadow: 'Ombre au sol',
@@ -18,7 +18,7 @@ const copy = {
     errType: 'Format non accepté (JPG, PNG ou WebP).', errSize: 'Fichier trop lourd (8 Mo max).', errShort: 'Trop court : 10 secondes minimum.', errLong: 'Trop long : 30 secondes maximum.', errAudio: 'Fichier audio non valide.', denied: 'Micro refusé ou indisponible.', ok: 'Extrait prêt', s: 's',
   },
   en: {
-    face: '1. Face representing me', all: 'All', f: 'Women', m: 'Men', age: 'approx.', catalog: 'Real photos under free licences (Wikimedia Commons), full-body cut-outs. For your photo: head to toe, facing camera, ideally a PNG without background.',
+    face: '1. Face representing me', all: 'All', f: 'Women', m: 'Men', age: 'approx.', catalog: 'Weechat library: full-body cut-outs. For your photo: head to toe, facing camera, ideally a PNG without background.',
     myPhoto: 'Upload my photo', rights: 'I confirm I hold the rights to this image and the consent of the person shown.',
     bg: '2. Background', myBg: 'Upload my background', bgRights: 'I confirm I may use this image.', blur: 'Background blur', none: 'None',
     bgNames: { salon: 'Living room', villa: 'Villa', piscine: 'Pool', piscine2: 'Sea-view pool', jardin: 'Garden' } as Record<string, string>, pose: 'Posture', stand: 'Standing', sit: 'Seated', shadow: 'Floor shadow',
@@ -94,7 +94,7 @@ export function PersonaStudio() {
       <h2 id="face-h">{c.face}</h2>
       <div className="flex gap-2">{(['all', 'f', 'm'] as const).map(k => <Button key={k} type="button" size="sm" variant={filter === k ? 'default' : 'outline'} onClick={() => setFilter(k)}>{c[k]}</Button>)}</div>
       <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-        {list.map(p => <button key={p.id} type="button" aria-pressed={face === p.src} aria-label={c[p.g]} title={p.credit} onClick={() => setFace(p.src)} className={`${tile(face === p.src)} bg-secondary`}><img src={p.src} alt="" loading="lazy" className="aspect-[3/4] w-full object-contain" /></button>)}
+        {list.map(p => <button key={p.id} type="button" aria-pressed={face === p.src} aria-label={c[p.g]} onClick={() => setFace(p.src)} className={`${tile(face === p.src)} bg-secondary`}><img src={p.src} alt="" loading="lazy" className="aspect-[3/4] w-full object-contain" /></button>)}
         {myFace && <button type="button" aria-pressed={face === myFace} aria-label={c.myPhoto} onClick={() => setFace(myFace)} className={tile(face === myFace)}><img src={myFace} alt="" className="aspect-[3/4] w-full bg-secondary object-contain" /></button>}
       </div>
       <p className="text-sm text-muted-foreground">{c.catalog}</p>
@@ -104,7 +104,7 @@ export function PersonaStudio() {
       <h2 className="mt-4">{c.bg}</h2>
       <div className="grid grid-cols-3 gap-2">
         <button type="button" aria-pressed={bg === ''} onClick={() => setBg('')} className={`${tile(bg === '')} grid aspect-video place-items-center bg-secondary text-sm`}>{c.none}</button>
-        {backgrounds.map(b => <button key={b.id} type="button" aria-pressed={bg === b.src} aria-label={c.bgNames[b.id]} title={b.credit} onClick={() => setBg(b.src)} className={`${tile(bg === b.src)} relative`}><img src={b.src} alt="" loading="lazy" width={1280} height={720} className="aspect-video w-full object-cover" /><span className="absolute bottom-0 left-0 right-0 bg-background/80 px-1 text-xs">{c.bgNames[b.id]}</span></button>)}
+        {backgrounds.map(b => <button key={b.id} type="button" aria-pressed={bg === b.src} aria-label={c.bgNames[b.id]} onClick={() => setBg(b.src)} className={`${tile(bg === b.src)} relative`}><img src={b.src} alt="" loading="lazy" width={1280} height={720} className="aspect-video w-full object-cover" /><span className="absolute bottom-0 left-0 right-0 bg-background/80 px-1 text-xs">{c.bgNames[b.id]}</span></button>)}
         {myBg && <button type="button" aria-pressed={bg === myBg} aria-label={c.myBg} onClick={() => setBg(myBg)} className={tile(bg === myBg)}><img src={myBg} alt="" className="aspect-video w-full object-cover" /></button>}
       </div>
       <label className="flex items-start gap-2"><Checkbox checked={bgRights} onCheckedChange={v => setBgRights(v === true)} /><span className="text-sm">{c.bgRights}</span></label>

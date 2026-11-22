@@ -94,12 +94,12 @@ export function AppearanceStudio() {
         <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="avatars">{c.avatars} ({allAvatars.length})</TabsTrigger><TabsTrigger value="bgs">{c.bgs} ({allBgs.length})</TabsTrigger></TabsList>
         <TabsContent value="avatars" className="grid gap-3 pt-3">
           <div className="flex flex-wrap gap-2">{(['all', 'f', 'm'] as const).map(k => <Button key={k} size="sm" variant={chip(gender === k)} onClick={() => setGender(k)}>{c[k]}</Button>)}<span className="mx-1 w-px bg-border" />{(['all', 'stand', 'sit', 'half'] as const).map(k => <Button key={k} size="sm" variant={chip(pose === k)} onClick={() => setPose(k)}>{c[k]}</Button>)}</div>
-          <div className="grid max-h-[520px] grid-cols-3 gap-2 overflow-y-auto pr-1 sm:grid-cols-4">{avatarList.map(a => <div key={a.id} role="button" tabIndex={0} aria-pressed={avatar.id === a.id} title={a.credit} onClick={() => set({ avatarId: a.id })} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set({ avatarId: a.id }); } }} className={tile(avatar.id === a.id)}><img src={a.src} alt={a.personal ? a.credit : `${c[a.g]} · ${c[a.pose]}`} loading="lazy" className="aspect-[3/4] w-full object-contain" />{a.personal && <Remove id={a.id} />}</div>)}</div>
+          <div className="grid max-h-[520px] grid-cols-3 gap-2 overflow-y-auto pr-1 sm:grid-cols-4">{avatarList.map(a => <div key={a.id} role="button" tabIndex={0} aria-pressed={avatar.id === a.id} onClick={() => set({ avatarId: a.id })} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set({ avatarId: a.id }); } }} className={tile(avatar.id === a.id)}><img src={a.src} alt={a.personal ? a.credit : `${c[a.g]} · ${c[a.pose]}`} loading="lazy" className="aspect-[3/4] w-full object-contain" />{a.personal && <Remove id={a.id} />}</div>)}</div>
           <Picker kind="avatar" label={c.importAvatar} />
         </TabsContent>
         <TabsContent value="bgs" className="grid gap-3 pt-3">
           <div className="flex flex-wrap gap-2"><Button size="sm" variant={chip(cat === 'all')} onClick={() => setCat('all')}>{c.all}</Button>{BG_CATEGORIES.map(k => <Button key={k} size="sm" variant={chip(cat === k)} onClick={() => setCat(k)}>{c.cats[k]}</Button>)}{myBgs.length > 0 && <Button size="sm" variant={chip(cat === 'mine')} onClick={() => setCat('mine')}>{c.mine}</Button>}</div>
-          <div className="grid max-h-[520px] grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3">{bgList.map(b => <div key={b.id} role="button" tabIndex={0} aria-pressed={bg.id === b.id} title={b.credit} onClick={() => set({ backgroundId: b.id })} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set({ backgroundId: b.id }); } }} className={tile(bg.id === b.id)}><img src={b.src} alt={b.personal ? b.credit : c.cats[b.cat]} loading="lazy" className="aspect-video w-full object-cover" />{b.personal && <Remove id={b.id} />}</div>)}</div>
+          <div className="grid max-h-[520px] grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3">{bgList.map(b => <div key={b.id} role="button" tabIndex={0} aria-pressed={bg.id === b.id} onClick={() => set({ backgroundId: b.id })} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); set({ backgroundId: b.id }); } }} className={tile(bg.id === b.id)}><img src={b.src} alt={b.personal ? b.credit : c.cats[b.cat]} loading="lazy" className="aspect-video w-full object-cover" />{b.personal && <Remove id={b.id} />}</div>)}</div>
           <Picker kind="background" label={c.importBg} />
         </TabsContent>
       </Tabs>
@@ -119,7 +119,6 @@ export function AppearanceStudio() {
         <div className="flex items-end"><Button variant="outline" onClick={() => set({ scale: 1, x: 0, y: 0, blur: 0, shadow: 5 })}><RotateCcw />{c.reset}</Button></div>
       </div>
       <p className="text-sm text-muted-foreground">{c.free} {c.still}</p>
-      <p className="text-xs text-muted-foreground">{c.credit} : {avatar.credit} — {bg.credit}</p>
     </section>
   </div>;
 }

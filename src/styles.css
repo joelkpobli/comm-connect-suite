@@ -358,3 +358,13 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 .assist-number strong { font-size:24px; font-weight:750; letter-spacing:.4px; text-transform:none; color:var(--foreground); }
 .assist-cta { height:46px; padding:0 22px; font-size:15px; }
 @media(max-width:760px) { .assist-card { padding:20px 18px; gap:14px; } .assist-number strong { font-size:21px; } .assist-cta { width:100%; } }
+
+/* Compact pack grid (dashboard + recharge) */
+.lp-prices.compact { gap:12px; margin-top:20px; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); }
+.lp-prices.compact article { padding:16px; gap:4px; border-radius:12px; }
+.lp-prices.compact strong { font-size:22px; }
+.lp-prices.compact h3 { font-size:16px; }
+.lp-prices.compact ul { gap:5px; margin:6px 0 8px; }
+.lp-prices.compact li { font-size:12.5px; line-height:1.35; }
+.lp-prices.compact .lp-pts { font-size:13px; }
+.lp-prices.compact article > button { margin-top:auto; height:40px; font-size:14px; }

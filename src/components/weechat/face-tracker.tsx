@@ -152,7 +152,7 @@ export function FaceTracker() {
         <div className="flex gap-2 overflow-x-auto pb-2">
           <span className="sr-only">{fr ? 'Mes avatars' : 'My avatars'}</span>
           {faces.map(f => (
-            <button key={f.id} type="button" onClick={() => setTarget(f.src)} aria-pressed={target === f.src} aria-label={f.credit}
+            <button key={f.id} type="button" onClick={() => setTarget(f.src)} aria-pressed={target === f.src} aria-label="Avatar Weechat"
               className={`h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 ${target === f.src ? 'border-primary' : 'border-transparent'}`}>
               <img src={f.src} alt="" className="h-full w-full object-cover" loading="lazy" />
             </button>
