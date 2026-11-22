@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { amIFounder, founderAdjustBalance, founderDeleteUser, founderNotifyUser, founderProviderHealth, founderSetMaintenance, founderSetSuspended, getFounderOverview, listFounderUsers } from '@/lib/weechat/founder.functions';
 import { MAINTENANCE_MODULES, MODULE_LABELS, PROVIDER_BILLING_URLS, type MaintenanceModule } from '@/lib/weechat/founder-shared';
+import { listContactMessages } from '@/lib/weechat/contact.functions';
 import { maintenanceQuery } from './system-banners';
 import { PageTitle } from './shared';
 
@@ -27,11 +28,12 @@ export function FounderPage() {
     <PageTitle title="Espace Fondateur" subtitle="Ventes, utilisateurs, maintenance et santé des fournisseurs IA." />
     <ProviderAlerts />
     <Tabs defaultValue="overview">
-      <TabsList className="flex h-auto flex-wrap"><TabsTrigger value="overview"><Activity className="mr-1 size-4" />Vue d'ensemble</TabsTrigger><TabsTrigger value="users"><Users className="mr-1 size-4" />Utilisateurs</TabsTrigger><TabsTrigger value="maintenance"><Wrench className="mr-1 size-4" />Maintenance</TabsTrigger><TabsTrigger value="providers"><ShieldCheck className="mr-1 size-4" />Fournisseurs IA</TabsTrigger></TabsList>
+      <TabsList className="flex h-auto flex-wrap"><TabsTrigger value="overview"><Activity className="mr-1 size-4" />Vue d'ensemble</TabsTrigger><TabsTrigger value="users"><Users className="mr-1 size-4" />Utilisateurs</TabsTrigger><TabsTrigger value="maintenance"><Wrench className="mr-1 size-4" />Maintenance</TabsTrigger><TabsTrigger value="providers"><ShieldCheck className="mr-1 size-4" />Fournisseurs IA</TabsTrigger><TabsTrigger value="messages"><Bell className="mr-1 size-4" />Messages</TabsTrigger></TabsList>
       <TabsContent value="overview"><Overview /></TabsContent>
       <TabsContent value="users"><UsersPanel /></TabsContent>
       <TabsContent value="maintenance"><MaintenancePanel /></TabsContent>
       <TabsContent value="providers"><ProvidersPanel /></TabsContent>
+      <TabsContent value="messages"><MessagesPanel /></TabsContent>
     </Tabs>
   </div>;
 }
@@ -152,4 +154,13 @@ function ProvidersPanel() {
     </div>; })}</div>
     <p className="text-xs text-muted-foreground">Replicate ne fournit pas le solde restant par API : le coût affiché est une estimation par appel. Configurez aussi une alerte de dépense et la recharge automatique par carte dans votre compte Replicate.</p>
   </div>;
+}
+
+function MessagesPanel() {
+  const list = useServerFn(listContactMessages);
+  const { data, isLoading, isError } = useQuery({ queryKey: ['founder-contact'], queryFn: () => list() });
+  if (isLoading) return <p className="text-muted-foreground">Chargement…</p>;
+  if (isError) return <p className="text-destructive">Messages indisponibles : la table contact_messages n'est peut-être pas encore créée.</p>;
+  if (!data?.length) return <p className="text-muted-foreground">Aucun message reçu pour l'instant.</p>;
+  return <div className="space-y-3">{data.map(m => <div key={m.id} className={card}><div className="flex flex-wrap justify-between gap-2 text-sm text-muted-foreground"><span><strong className="text-foreground">{m.name}</strong> · {m.contact} · {m.kind}</span><span>{new Date(m.created_at).toLocaleString('fr-FR')}</span></div><p className="mt-2 whitespace-pre-wrap">{m.message}</p></div>)}</div>;
 }

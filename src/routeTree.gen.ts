@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as ConditionsUtilisationRouteImport } from './routes/conditions-utilisation'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as ConnexionRouteImport } from './routes/connexion'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as InscriptionRouteImport } from './routes/inscription'
 import { Route as NumerosVirtuelsRouteImport } from './routes/numeros-virtuels'
 import { Route as RecuperationRouteImport } from './routes/recuperation'
@@ -57,6 +58,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const ConnexionRoute = ConnexionRouteImport.update({
   id: '/connexion',
   path: '/connexion',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InscriptionRoute = InscriptionRouteImport.update({
@@ -168,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/conditions-utilisation': typeof ConditionsUtilisationRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/connexion': typeof ConnexionRoute
+  '/contact': typeof ContactRoute
   '/inscription': typeof InscriptionRoute
   '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
@@ -194,6 +201,7 @@ export interface FileRoutesByTo {
   '/conditions-utilisation': typeof ConditionsUtilisationRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/connexion': typeof ConnexionRoute
+  '/contact': typeof ContactRoute
   '/inscription': typeof InscriptionRoute
   '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
@@ -222,6 +230,7 @@ export interface FileRoutesById {
   '/conditions-utilisation': typeof ConditionsUtilisationRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/connexion': typeof ConnexionRoute
+  '/contact': typeof ContactRoute
   '/inscription': typeof InscriptionRoute
   '/numeros-virtuels': typeof NumerosVirtuelsRoute
   '/recuperation': typeof RecuperationRoute
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/conditions-utilisation'
     | '/confidentialite'
     | '/connexion'
+    | '/contact'
     | '/inscription'
     | '/numeros-virtuels'
     | '/recuperation'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/conditions-utilisation'
     | '/confidentialite'
     | '/connexion'
+    | '/contact'
     | '/inscription'
     | '/numeros-virtuels'
     | '/recuperation'
@@ -303,6 +314,7 @@ export interface FileRouteTypes {
     | '/conditions-utilisation'
     | '/confidentialite'
     | '/connexion'
+    | '/contact'
     | '/inscription'
     | '/numeros-virtuels'
     | '/recuperation'
@@ -331,6 +343,7 @@ export interface RootRouteChildren {
   ConditionsUtilisationRoute: typeof ConditionsUtilisationRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   ConnexionRoute: typeof ConnexionRoute
+  ContactRoute: typeof ContactRoute
   InscriptionRoute: typeof InscriptionRoute
   NumerosVirtuelsRoute: typeof NumerosVirtuelsRoute
   RecuperationRoute: typeof RecuperationRoute
@@ -376,6 +389,13 @@ declare module '@tanstack/react-router' {
       path: '/connexion'
       fullPath: '/connexion'
       preLoaderRoute: typeof ConnexionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inscription': {
@@ -560,6 +580,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConditionsUtilisationRoute: ConditionsUtilisationRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   ConnexionRoute: ConnexionRoute,
+  ContactRoute: ContactRoute,
   InscriptionRoute: InscriptionRoute,
   NumerosVirtuelsRoute: NumerosVirtuelsRoute,
   RecuperationRoute: RecuperationRoute,

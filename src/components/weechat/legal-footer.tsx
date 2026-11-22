@@ -28,7 +28,7 @@ const copy = {
 
 export function LegalFooter() {
   const { locale } = useDemo(); const c = copy[locale === 'en' ? 'en' : 'fr'];
-  const links = [['/conditions-utilisation', c.cols[0][0]], ['/confidentialite', c.cols[1][0]], ['/usages-interdits', c.cols[2][0]]] as const;
+  const links = [['/conditions-utilisation', c.cols[0][0]], ['/confidentialite', c.cols[1][0]], ['/usages-interdits', c.cols[2][0]], ['/contact', locale === 'en' ? 'Contact & suggestions' : 'Contact et suggestions']] as const;
   return <footer className="legal-footer">
     <nav className="legal-links flex flex-wrap items-center justify-center gap-x-6 gap-y-2" aria-label={c.cols[0][0]}>{links.map(([to, label]) => <Link key={to} to={to} className="underline-offset-4 hover:underline">{label}</Link>)}</nav>
     <div className="legal-bottom"><span>{c.rights}</span></div>
