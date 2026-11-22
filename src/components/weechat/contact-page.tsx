@@ -1,21 +1,19 @@
 import { useState, type FormEvent } from 'react';
-import { useServerFn } from '@tanstack/react-start';
 import { MessageCircle, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useDemo } from './provider';
-import { contactSchema, submitContactMessage } from '@/lib/weechat/contact.functions';
-import { whatsappLink, WHATSAPP_DISPLAY } from '@/lib/weechat/contact';
+import { contactSchema } from '@/lib/weechat/contact.functions';
+import { whatsappLink, WHATSAPP_DISPLAY, WHATSAPP_NUMBER } from '@/lib/weechat/contact';
 
 const copy = {
-  fr: { title: 'Contact et suggestions', sub: 'Une question, un problème ou une idée pour améliorer Weechat ? Écrivez-nous.', kind: 'Sujet', kinds: { question: 'Question', suggestion: 'Suggestion', probleme: 'Problème', partenariat: 'Partenariat' }, name: 'Votre nom', contact: 'E-mail ou numéro WhatsApp', message: 'Votre message', send: 'Envoyer', sending: 'Envoi…', ok: 'Merci, votre message a bien été reçu.', err: 'Vérifiez les champs : message de 5 caractères minimum.', fail: 'Envoi impossible pour le moment. Essayez WhatsApp.', wa: 'Ou écrivez-nous sur WhatsApp' },
-  en: { title: 'Contact and suggestions', sub: 'A question, a problem or an idea to improve Weechat? Write to us.', kind: 'Topic', kinds: { question: 'Question', suggestion: 'Suggestion', probleme: 'Problem', partenariat: 'Partnership' }, name: 'Your name', contact: 'Email or WhatsApp number', message: 'Your message', send: 'Send', sending: 'Sending…', ok: 'Thank you, your message was received.', err: 'Check the fields: message must be at least 5 characters.', fail: 'Sending failed for now. Try WhatsApp.', wa: 'Or message us on WhatsApp' },
+  fr: { title: 'Contact et suggestions', sub: 'Une question, un problème ou une idée pour améliorer Weechat ? Écrivez-nous.', kind: 'Sujet', kinds: { question: 'Question', suggestion: 'Suggestion', probleme: 'Problème', partenariat: 'Partenariat' }, name: 'Votre nom', contact: 'E-mail ou numéro WhatsApp', message: 'Votre message', send: 'Envoyer sur WhatsApp', sending: 'Envoi…', ok: 'WhatsApp s’ouvre avec votre message : appuyez sur Envoyer dans WhatsApp.', err: 'Vérifiez les champs : message de 5 caractères minimum.', fail: 'Envoi impossible pour le moment. Essayez WhatsApp.', wa: 'Ou écrivez-nous sur WhatsApp' },
+  en: { title: 'Contact and suggestions', sub: 'A question, a problem or an idea to improve Weechat? Write to us.', kind: 'Topic', kinds: { question: 'Question', suggestion: 'Suggestion', probleme: 'Problem', partenariat: 'Partnership' }, name: 'Your name', contact: 'Email or WhatsApp number', message: 'Your message', send: 'Send on WhatsApp', sending: 'Sending…', ok: 'WhatsApp is opening with your message: tap Send in WhatsApp.', err: 'Check the fields: message must be at least 5 characters.', fail: 'Sending failed for now. Try WhatsApp.', wa: 'Or message us on WhatsApp' },
 } as const;
 type Kind = keyof typeof copy.fr.kinds;
 
 export function ContactPage() {
   const { locale } = useDemo(); const c = copy[locale === 'en' ? 'en' : 'fr'];
-  const send = useServerFn(submitContactMessage);
   const [form, setForm] = useState({ kind: 'question' as Kind, name: '', contact: '', message: '', website: '' });
   const [state, setState] = useState<'idle' | 'sending' | 'ok' | 'err' | 'fail'>('idle');
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm(f => ({ ...f, [k]: e.target.value }));
@@ -23,8 +21,12 @@ export function ContactPage() {
     e.preventDefault();
     const parsed = contactSchema.safeParse(form);
     if (!parsed.success) return setState('err');
-    setState('sending');
-    try { await send({ data: parsed.data }); setState('ok'); setForm(f => ({ ...f, message: '' })); } catch { setState('fail'); }
+    const d = parsed.data;
+    const text = `*Weechat — ${c.kinds[d.kind as Kind]}*\n${c.name} : ${d.name}\n${c.contact} : ${d.contact}\n\n${d.message}`;
+    const url = `https://wa.me/${WHATSAPP_NUMBER.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`;
+    const win = window.open(url, '_blank', 'noopener');
+    if (!win) window.location.href = url;
+    setState('ok');
   }
   const field = 'w-full rounded-md border border-input bg-background px-3 py-2 text-base';
   return <section className="mx-auto max-w-2xl px-4 py-12">
