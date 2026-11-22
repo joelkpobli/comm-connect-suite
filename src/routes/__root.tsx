@@ -91,6 +91,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { name: "theme-color", content: "#0a1128" },
+      { name: "google-site-verification", content: "ZWB-FeJQ3eFDbQVR-exYzUkB5gd_OUumARPdnp6Uc4g" },
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Weechat — persona vidéo et traduction pour vos appels" },
