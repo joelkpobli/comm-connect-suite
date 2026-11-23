@@ -6,6 +6,7 @@ import { useDemo } from '@/components/weechat/provider';
 import { whatsappLink, WHATSAPP_DISPLAY } from '@/lib/weechat/contact';
 import { pageHead } from '@/lib/weechat/metadata';
 import { featureCards, usagePolicy } from '@/lib/weechat/feature-status';
+import { CameraGuide } from '@/components/weechat/camera-guide';
 
 export const Route = createFileRoute('/telecharger')({
   head: () => { const h = pageHead('Télécharger la caméra virtuelle Windows pour WhatsApp, TikTok Live et Zoom', 'Téléchargez Weechat pour Windows : caméra virtuelle sans OBS pour appels vidéo WhatsApp Desktop, Instagram, Snapchat, Telegram, Zoom, Teams et TikTok Live Studio. Tutoriels pas à pas.'); return { meta: [...h.meta, { property: 'og:url', content: 'https://www.weechat.online/telecharger' }], links: [{ rel: 'canonical', href: 'https://www.weechat.online/telecharger' }] }; },
@@ -64,6 +65,7 @@ function DownloadPage() {
       ['Start the engine', 'Open Weechat, pick a photo and the right webcam, then “Start”.'],
       ['Pick the camera', 'In WhatsApp, Zoom or Teams, select “Weechat Camera”.'],
     ]).map(([t, d], i) => <article key={t} className="dl-card"><span className="dl-num">{i + 1}</span><h3>{t}</h3><p>{d}</p></article>)}</section>
+    <CameraGuide fr={fr} />
     <nav className="flex flex-wrap gap-2" aria-label={fr ? 'Sommaire des guides' : 'Guide contents'}>{cards.map(c => <Button asChild key={c.id} variant="outline"><a href={`#${c.id}`}>{c.title}</a></Button>)}<Button asChild variant="outline"><a href="#points"><Coins />{fr ? 'Points et minutes' : 'Points and minutes'}</a></Button><Button asChild variant="outline"><a href="#depannage">{fr ? 'Dépannage' : 'Troubleshooting'}</a></Button></nav>
     <section aria-label={fr ? 'État des fonctions' : 'Feature status'} className="grid gap-3 sm:grid-cols-2">{cards.map(c => { const Icon = icons[c.id]; return <article key={c.id} className="dl-card"><Icon className="text-primary" size={24} /><h3>{c.title}</h3><p>{c.status}</p><a href={`#${c.id}`} className="mt-3 inline-flex items-center gap-2 text-sm text-primary"><BookOpen size={16} />{fr ? 'Lire le guide' : 'Read guide'}</a></article>; })}</section>
     <section id="swap"><h2>01 · Swap Live</h2><p className="dl-lead">{fr ? 'Remplace un visage dans le flux de la webcam. Votre corps, vos vêtements et votre environnement restent ceux de la webcam : ce moteur ne crée pas une nouvelle personne de la tête aux pieds.' : 'Replaces a webcam face. Your body, clothes and surroundings remain from the webcam: this engine does not create a new full-body person.'}</p>
