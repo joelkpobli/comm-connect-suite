@@ -1,4 +1,4 @@
-import { Check, Download, MousePointerClick, Play, ShieldCheck, Video } from 'lucide-react';
+import { Check, Download, FileDown, MousePointerClick, Play, ShieldCheck, Video } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 type Step = { title: string; text: string; tip: string; screen: ReactNode; bar: string };
@@ -19,6 +19,7 @@ export function CameraGuide({ fr }: { fr: boolean }) {
   return <section id="guide-camera" aria-labelledby="guide-camera-title">
     <h2 id="guide-camera-title">{fr ? 'Guide visuel : installer et utiliser Weechat Camera' : 'Visual guide: install and use Weechat Camera'}</h2>
     <p className="dl-lead">{fr ? 'Quatre étapes, environ 5 minutes. Suivez les images dans l’ordre.' : 'Four steps, about 5 minutes. Follow the pictures in order.'}</p>
+    <a className="cg-pdf" href={`/downloads/guide-weechat-camera-${fr ? 'fr' : 'en'}.pdf`} download={`guide-weechat-camera-${fr ? 'fr' : 'en'}.pdf`}><FileDown size={18} />{fr ? 'Télécharger le guide en PDF' : 'Download the guide as PDF'}</a>
     <ol className="cg-grid">{steps.map((s, i) => <li key={s.title} className="cg-step">
       <div className="dl-mock" aria-hidden="true"><div className="dl-mock-bar"><i /><i /><i /><span>{s.bar}</span></div><div className="dl-mock-body">{s.screen}</div></div>
       <div className="flex items-center gap-3 mt-4"><span className="dl-num">{i + 1}</span><h3 className="font-bold">{s.title}</h3></div>

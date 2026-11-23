@@ -383,3 +383,6 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 .cg-step .dl-mock { min-height:200px; }
 @media(min-width:1000px) { .cg-grid { grid-template-columns:repeat(4,1fr); } }
 @media(min-width:560px) and (max-width:999px) { .cg-grid { grid-template-columns:repeat(2,1fr); } }
+.cg-pdf { display:inline-flex; align-items:center; gap:8px; margin-top:16px; border:1px solid var(--primary); color:var(--primary); border-radius:10px; padding:10px 16px; font-weight:700; font-size:14px; }
+.cg-pdf:hover { background:color-mix(in oklab, var(--primary) 12%, transparent); }
+.cg-pdf:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
