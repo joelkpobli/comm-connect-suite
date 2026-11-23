@@ -1,4 +1,5 @@
 import { template as paymentReceipt } from './payment-receipt'
+import { template as lowBalance } from './low-balance'
 import type { ComponentType } from 'react'
 
 export interface TemplateEntry {
@@ -20,6 +21,7 @@ export interface TemplateEntry {
  */
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'payment-receipt': paymentReceipt,
+  'low-balance': lowBalance,
   // Add templates here as they are created, e.g.:
   // 'welcome': welcomeTemplate,
 }

@@ -33,6 +33,8 @@ export const chargeUsageBlock = createServerFn({ method: 'POST' }).middleware([r
     let balance = 0;
     if (service === 'audio') { const r = await context.supabase.rpc('get_audio_seconds'); balance = Number(r.data ?? 0); }
     else { const r = await context.supabase.rpc('get_credit_totals'); const row = Array.isArray(r.data) ? r.data[0] : r.data; balance = Number(row?.balance ?? 0); }
+    const { maybeSendLowBalance } = await import('./low-balance.server');
+    await maybeSendLowBalance(service, context.userId, balance);
     if (error) {
       console.error('chargeUsageBlock', error.message);
       return { ok: false, error: /insufficient/i.test(error.message) ? 'insufficient' : 'failed', balance };

@@ -39,6 +39,8 @@ export const Route = createFileRoute('/api/public/desktop-charge')({
         });
         const { data: rows } = await supabaseAdmin.from('credit_transactions').select('amount').eq('user_id', user.id);
         const balance = (rows ?? []).reduce((s, r) => s + Number(r.amount), 0);
+        const { maybeSendLowBalance } = await import('@/lib/weechat/low-balance.server');
+        await maybeSendLowBalance('swap_live', user.id, balance, user.email);
         if (error) {
           const insufficient = /insufficient/i.test(error.message);
           if (!insufficient) console.error('desktop-charge', error.message);
