@@ -36,6 +36,7 @@ import { Route as AuthenticatedTraductionRouteImport } from './routes/_authentic
 import { Route as ApiPublicCloudEndpointRouteImport } from './routes/api/public/cloud-endpoint'
 import { Route as ApiPublicDesktopChargeRouteImport } from './routes/api/public/desktop-charge'
 import { Route as ApiPublicPaydunyaIpnRouteImport } from './routes/api/public/paydunya-ipn'
+import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -174,6 +175,11 @@ const ApiPublicPaydunyaIpnRoute = ApiPublicPaydunyaIpnRouteImport.update({
   path: '/api/public/paydunya-ipn',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWhopWebhookRoute = ApiPublicWhopWebhookRouteImport.update({
+  id: '/api/public/whop-webhook',
+  path: '/api/public/whop-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
+  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
+  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
+  '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/api/public/cloud-endpoint'
     | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
+    | '/api/public/whop-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/api/public/cloud-endpoint'
     | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
+    | '/api/public/whop-webhook'
   id:
     | '__root__'
     | '/'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/api/public/cloud-endpoint'
     | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
+    | '/api/public/whop-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -365,6 +377,7 @@ export interface RootRouteChildren {
   ApiPublicCloudEndpointRoute: typeof ApiPublicCloudEndpointRoute
   ApiPublicDesktopChargeRoute: typeof ApiPublicDesktopChargeRoute
   ApiPublicPaydunyaIpnRoute: typeof ApiPublicPaydunyaIpnRoute
+  ApiPublicWhopWebhookRoute: typeof ApiPublicWhopWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -558,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaydunyaIpnRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/whop-webhook': {
+      id: '/api/public/whop-webhook'
+      path: '/api/public/whop-webhook'
+      fullPath: '/api/public/whop-webhook'
+      preLoaderRoute: typeof ApiPublicWhopWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -610,6 +630,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCloudEndpointRoute: ApiPublicCloudEndpointRoute,
   ApiPublicDesktopChargeRoute: ApiPublicDesktopChargeRoute,
   ApiPublicPaydunyaIpnRoute: ApiPublicPaydunyaIpnRoute,
+  ApiPublicWhopWebhookRoute: ApiPublicWhopWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -7,10 +7,13 @@ import { createInvoice, fulfillInvoice } from './paydunya.server';
 
 /** Starts a PayDunya checkout for a catalogue item; the amount is decided server-side. */
 export const startCheckout = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ itemId: z.enum(catalogueIds) }).parse(d))
+  .inputValidator((d) => z.object({ itemId: z.enum(catalogueIds), method: z.enum(['mobile', 'card']).default('mobile') }).parse(d))
   .handler(async ({ data, context }) => {
     const origin = new URL(getRequest().url).origin;
-    try { return { ok: true as const, url: (await createInvoice(data.itemId, context.userId, origin)).url }; }
+    try {
+      if (data.method === 'card') { const { createWhopCheckout } = await import('./whop.server'); return { ok: true as const, url: (await createWhopCheckout(data.itemId, context.userId, origin)).url }; }
+      return { ok: true as const, url: (await createInvoice(data.itemId, context.userId, origin)).url };
+    }
     catch { return { ok: false as const }; }
   });
 

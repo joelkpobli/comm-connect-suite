@@ -1,6 +1,6 @@
 // PayDunya Live API (server only). Fulfillment always re-confirms the invoice with
 // PayDunya, checks owner/item/amount, then writes with a unique reference per invoice.
-import { findItem } from './paydunya-catalog';
+import { findItem, type CatalogueItem } from './paydunya-catalog';
 
 const API = 'https://app.paydunya.com/api/v1';
 
@@ -43,8 +43,14 @@ export async function fulfillInvoice(token: string, expectedUserId?: string): Pr
   if (!item || !userId || Number(json.invoice?.total_amount) !== item.amountXOF) { console.error('PayDunya mismatch', token); return { status: 'failed' }; }
   if (expectedUserId && expectedUserId !== userId) return { status: 'failed' };
 
+  await grantItem(item, userId, `paydunya:${token}`, 'PayDunya');
+  return { status: 'completed', itemId: item.id, userId };
+}
+
+/** Credits a verified purchase; the unique reference makes every write idempotent. */
+export async function grantItem(item: CatalogueItem, userId: string, ref: string, provider: string) {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
-  const ref = `paydunya:${token}`, reason = `Achat ${item.label} (PayDunya)`;
+  const reason = `Achat ${item.label} (${provider})`;
   if (item.points > 0) {
     const { error } = await supabaseAdmin.rpc('post_credit_operation', { p_user_id: userId, p_amount: item.points, p_kind: 'purchase', p_reason: reason, p_reference: ref });
     if (error) { console.error('credit failed', error.message); throw new Error('Fulfillment failed'); }
@@ -72,5 +78,4 @@ export async function fulfillInvoice(token: string, expectedUserId?: string): Pr
       if (r.error) throw new Error('Fulfillment failed');
     }
   }
-  return { status: 'completed', itemId: item.id, userId };
 }

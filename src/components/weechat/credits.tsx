@@ -40,9 +40,10 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
   const [busy, setBusy] = useState<string | null>(null);
   const [payError, setPayError] = useState(false);
+  const [method, setMethod] = useState<'mobile' | 'card'>('mobile');
   const pay = async (itemId: string) => {
     setBusy(itemId); setPayError(false);
-    try { const r = await checkout({ data: { itemId } }); if (r.ok) { window.location.href = r.url; return; } setPayError(true); }
+    try { const r = await checkout({ data: { itemId, method } }); if (r.ok) { window.location.href = r.url; return; } setPayError(true); }
     catch { setPayError(true); }
     setBusy(null);
   };
@@ -52,7 +53,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
 
   return <>
     {!embedded && <>
-    <PageTitle title={en ? 'Top up points' : 'Recharge de points'} subtitle={en ? 'Two separate balances: points for video, minutes for audio translation. Payment by Mobile Money via PayDunya.' : 'Deux soldes séparés : les points pour la vidéo, les minutes pour la traduction audio. Paiement par Mobile Money via PayDunya.'} action={<Button asChild variant="outline"><Link to="/historique"><History />{en ? 'History' : 'Historique'}</Link></Button>} />
+    <PageTitle title={en ? 'Top up points' : 'Recharge de points'} subtitle={en ? 'Two separate balances: points for video, minutes for audio translation. Pay by Mobile Money or bank card.' : 'Deux soldes séparés : les points pour la vidéo, les minutes pour la traduction audio. Paiement par Mobile Money ou carte bancaire.'} action={<Button asChild variant="outline"><Link to="/historique"><History />{en ? 'History' : 'Historique'}</Link></Button>} />
     <div className="dual-balance">
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><Coins size={26} /></span><div><span>{en ? 'Points · Swap Live, Restyle, Photo' : 'Points · Swap Live, Restyle, Photo'}</span><strong>{formatCredits(real.totals.balance)} <small>pts</small></strong><small className="block text-xs text-muted-foreground">{fmtExpiry(v?.credits, en)}</small></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><AudioLines size={26} /></span><div><span>{en ? 'Audio translation minutes' : 'Minutes de traduction audio'}</span><strong>{fmtAudio(audio)}</strong><small className="block text-xs text-muted-foreground">{fmtExpiry(v?.audio, en)}</small></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
@@ -60,6 +61,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
     </div>
     </>}
     <div className="lp-currow"><span>{en ? 'Show prices in' : 'Afficher les prix en'}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <Button variant="ghost" key={k} type="button" className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div></div>
+    <div className="lp-currow"><span>{en ? 'Pay with' : 'Payer par'}</span><div className="lp-toggle" role="group">{(['mobile', 'card'] as const).map(k => <Button variant="ghost" key={k} type="button" className={method === k ? 'active' : ''} aria-pressed={method === k} onClick={() => setMethod(k)}>{k === 'mobile' ? 'Mobile Money' : (en ? 'Card · Apple/Google Pay' : 'Carte · Apple/Google Pay')}</Button>)}</div></div>
     <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio', 'tokens'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); }}>{k === 'swap' ? 'Swap Live' : k === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</Button>)}</div></div>
     <div className="dashboard-section-header" id="audio"><h2>{kind === 'swap' ? 'Swap Live' : kind === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</h2><span className="subtle-label">{kind === 'swap' ? (en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE') : kind === 'audio' ? 'MINUTES' : (en ? 'SWAP PHOTO 2 · IMAGE 5 · TALKING PHOTO 3/S' : 'SWAP PHOTO 2 · IMAGE 5 · PHOTO PARLANTE 3/S')}</span></div>
     <div className="lp-prices four compact">{list.map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} action={buy(p)} />)}</div>
@@ -71,7 +73,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
       {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="w-full text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy the licence' : 'Acheter la licence')}</Button>}
     </article></div>}
     {kind === 'swap' && <><CameraNotaBene locale={locale} /><PlanCompare locale={locale} cur={cur} /></>}
-    <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by PayDunya.' : 'Paiement sécurisé par PayDunya.'}<span>{en ? 'Your balance is credited automatically after confirmation. Card payment coming soon.' : 'Votre solde est crédité automatiquement après confirmation. Paiement par carte bientôt.'}</span></p></div>
+    <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment: PayDunya (Mobile Money) or Whop (card).' : 'Paiement sécurisé : PayDunya (Mobile Money) ou Whop (carte).'}<span>{en ? 'Your balance is credited automatically after confirmation. ' : 'Votre solde est crédité automatiquement après confirmation.'}</span></p></div>
 
   </>;
 }
