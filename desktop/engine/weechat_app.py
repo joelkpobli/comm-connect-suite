@@ -135,6 +135,12 @@ class App:
         self.cam = ttk.Combobox(row, values=["auto", "0", "1", "2", "3"], width=6, state="readonly")
         self.cam.set("auto")
         self.cam.pack(side="left", padx=6)
+        self.cam.bind("<<ComboboxSelected>>", lambda e: self.reset_check())
+        self.check_btn = btn(live, "Vérifier ma webcam (aperçu)", self.check_camera)
+        self.check_btn.pack(fill="x", padx=10, pady=4)
+        self.check_lbl = lbl(live, "Webcam non vérifiée : faites le test avant de démarrer.", fg=WARN,
+                             wraplength=360, justify="left")
+        self.check_lbl.pack(anchor="w", padx=10, pady=(0, 6))
         self.btn = btn(live, "2. Démarrer le Swap Live", self.toggle, bg=OK)
         self.btn.pack(fill="x", padx=10, pady=4)
 
@@ -446,10 +452,77 @@ class App:
             self.badge.config(text="● Weechat Camera inactive", fg=MUTED)
         self.root.after(40, self.refresh)
 
+    CAMERA_HELP = ("Comment débloquer la webcam :\n\n"
+                   "1. Windows : Paramètres > Confidentialité et sécurité > Caméra.\n"
+                   "   Activez « Accès à la caméra » et « Autoriser les applications de bureau ».\n"
+                   "2. Fermez WhatsApp, Zoom, Teams, Meet ou tout logiciel qui utilise déjà la webcam.\n"
+                   "3. Vérifiez le cache de la webcam et la touche caméra du clavier (F8/F10 selon le PC).\n"
+                   "4. Choisissez un autre numéro de webcam ou « auto », puis refaites le test.\n\n"
+                   "Ouvrir les réglages caméra de Windows maintenant ?")
+
+    def reset_check(self):
+        self.cam_ok = None
+        self.check_lbl.config(text="Webcam non vérifiée : faites le test avant de démarrer.", fg=WARN)
+
+    def check_camera(self):
+        if self.busy():
+            messagebox.showinfo("Weechat", "Arrêtez d'abord la diffusion en cours.")
+            return
+        self.check_btn.config(state="disabled")
+        self.check_lbl.config(text="Test de la webcam en cours (3 secondes)...", fg=MUTED)
+        choice = self.cam.get()
+
+        def job():
+            try:
+                cap, index = weechat_swap.open_camera(choice, self.log)
+            except Exception as exc:
+                self.root.after(0, lambda: self._camera_failed(str(exc)))
+                return
+            good, t0, n = 0, time.time(), 0
+            try:
+                while time.time() - t0 < 3:
+                    ok, f = cap.read()
+                    if ok and f is not None:
+                        n += 1
+                        if f.mean() > 12:
+                            good += 1
+                        self.on_frame(cv2.flip(f, 1), n / max(time.time() - t0, 0.01))
+            finally:
+                cap.release()
+            if good < 5:
+                self.root.after(0, lambda: self._camera_failed(
+                    "La webcam répond mais l'image reste noire."))
+            else:
+                self.root.after(0, lambda: self._camera_passed(index))
+
+        threading.Thread(target=job, daemon=True).start()
+
+    def _camera_passed(self, index):
+        self.cam_ok = self.cam.get()
+        self.check_btn.config(state="normal")
+        self.check_lbl.config(text=f"✓ Webcam {index} autorisée et fonctionnelle. Vous pouvez démarrer.", fg=OK)
+        self.log("Webcam vérifiée : aperçu correct.")
+
+    def _camera_failed(self, reason):
+        self.cam_ok = None
+        self.frame = None
+        self.check_btn.config(state="normal")
+        self.check_lbl.config(text="✗ Webcam inaccessible : suivez le guide puis refaites le test.", fg=WARN)
+        self.log(reason)
+        if messagebox.askyesno("Weechat — webcam", reason + "\n\n" + self.CAMERA_HELP):
+            try:
+                os.startfile("ms-settings:privacy-webcam")
+            except (OSError, AttributeError):
+                pass
+
     def toggle(self):
         if self.worker and self.worker.is_alive():
             self.stop.set()
             self.btn.config(text="2. Démarrer le Swap Live")
+            return
+        if getattr(self, "cam_ok", None) != self.cam.get():
+            messagebox.showwarning("Weechat", "Vérifiez d'abord votre webcam avec le bouton "
+                                              "« Vérifier ma webcam (aperçu) ».")
             return
         if not self.face:
             messagebox.showwarning("Weechat", "Choisissez d'abord une photo de visage.")
