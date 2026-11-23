@@ -1,5 +1,8 @@
 import type { Locale } from './i18n';
 const english: Record<string, string> = {
+  "OU": "OR",
+  "Se connecter avec Google": "Sign in with Google",
+  "S’inscrire avec Google": "Sign up with Google",
   "Confirmez d’abord votre e-mail via le lien reçu.": "Confirm your email using the link you received.",
   "E-mail ou mot de passe incorrect.": "Incorrect email or password.",
   "Adresse e-mail refusée. Vérifiez-la.": "Email address rejected. Please check it.",
