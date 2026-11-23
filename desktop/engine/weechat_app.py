@@ -124,9 +124,9 @@ class App:
 
         live = tk.Frame(nb, bg=PANEL)
         nb.add(live, text="Swap Live")
-        lbl(live, "Votre visage remplacé en direct par une photo.", fg=MUTED, wraplength=360,
+        lbl(live, "1. Choisissez votre avatar  2. Votre webcam  3. Démarrez, puis sélectionnez « Weechat Camera » dans WhatsApp, TikTok, Zoom ou Instagram.", fg=MUTED, wraplength=360,
             justify="left").pack(anchor="w", padx=10, pady=(12, 8))
-        btn(live, "1. Choisir la photo du visage", self.pick).pack(fill="x", padx=10, pady=4)
+        btn(live, "1. Choisir la photo de l'avatar", self.pick).pack(fill="x", padx=10, pady=4)
         self.face_lbl = lbl(live, "Aucune photo choisie", fg=MUTED, wraplength=360, justify="left")
         self.face_lbl.pack(anchor="w", padx=10)
         row = tk.Frame(live, bg=PANEL)
@@ -166,19 +166,6 @@ class App:
         btn(tr, "Choisir la vidéo", self.pick_video).pack(fill="x", padx=10, pady=3)
         self.transform_btn = btn(tr, "Lancer la transformation", self.toggle_transform, bg=OK)
         self.transform_btn.pack(fill="x", padx=10, pady=10)
-
-        cl = tk.Frame(nb, bg=PANEL)
-        nb.add(cl, text="Avatar Live")
-        lbl(cl, "1. Choisissez votre webcam  2. Choisissez un avatar  3. Démarrez, puis sélectionnez "
-                "« Weechat Camera » dans WhatsApp, TikTok, Zoom ou Instagram.", fg=MUTED, wraplength=360,
-            justify="left").pack(anchor="w", padx=10, pady=(12, 8))
-        self.cloud_avatar_file = None
-        btn(cl, "Choisir la photo de l'avatar", self.pick_cloud_avatar).pack(fill="x", padx=10, pady=4)
-        self.cloud_avatar_lbl = lbl(cl, "Portrait net, de face (tête et épaules visibles).", fg=MUTED,
-                                    wraplength=360, justify="left")
-        self.cloud_avatar_lbl.pack(anchor="w", padx=10)
-        self.cloud_btn = btn(cl, "Démarrer Weechat Camera", self.toggle_cloud, bg=OK)
-        self.cloud_btn.pack(fill="x", padx=10, pady=10)
 
         root.protocol("WM_DELETE_WINDOW", self.close)
         self.render_account()
@@ -282,12 +269,6 @@ class App:
         if path:
             self.face = path
             self.face_lbl.config(text=path)
-
-    def pick_cloud_avatar(self):
-        path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.jpeg *.png *.webp")])
-        if path:
-            self.cloud_avatar_file = path
-            self.cloud_avatar_lbl.config(text=path)
 
     def pick_video(self):
         path = filedialog.askopenfilename(filetypes=[("Vidéos", "*.mp4 *.mov *.avi *.mkv *.webm")])
@@ -421,20 +402,12 @@ class App:
             return "https://xq7gbs0setvvxg-8888.proxy.runpod.net"
 
     def toggle_cloud(self):
-        if self.busy():
-            self.stop.set()
-            self.cloud_btn.config(text="Démarrer Weechat Camera")
-            return
-        if not self.cloud_avatar_file:
-            self.log("Choisissez d'abord la photo de l'avatar.")
-            return
         url = os.environ.get("WEECHAT_CLOUD_URL") or self.resolve_cloud_url()
-        if not self.allowed():
-            return
         stop = self.new_session()
         self.start_meter("swap_live", stop)
-        self.cloud_btn.config(text="Arrêter le Cloud Live")
-        avatar_file = self.cloud_avatar_file
+        self.log("Connexion au moteur Weechat haute qualité...")
+        self.btn.config(text="Arrêter")
+        avatar_file = self.face
 
         def job():
             try:
@@ -448,7 +421,7 @@ class App:
                 self.log("Service avatar momentanément indisponible, réessayez dans quelques minutes.")
             finally:
                 stop.set()
-                self.root.after(0, lambda: self.cloud_btn.config(text="Démarrer Weechat Camera"))
+                self.root.after(0, lambda: self.btn.config(text="2. Démarrer le Swap Live"))
         self.worker = threading.Thread(target=job, daemon=True)
         self.worker.start()
 
@@ -482,6 +455,9 @@ class App:
             messagebox.showwarning("Weechat", "Choisissez d'abord une photo de visage.")
             return
         if not self.allowed():
+            return
+        if self.session:  # compte connecté : moteur GPU Weechat, invisible pour l'utilisateur
+            self.toggle_cloud()
             return
         stop = self.new_session()
         self.start_meter("swap_live", stop)
