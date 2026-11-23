@@ -172,9 +172,11 @@ class App:
         lbl(cl, "1. Choisissez votre webcam  2. Choisissez un avatar  3. Démarrez, puis sélectionnez "
                 "« Weechat Camera » dans WhatsApp, TikTok, Zoom ou Instagram.", fg=MUTED, wraplength=360,
             justify="left").pack(anchor="w", padx=10, pady=(12, 8))
-        lbl(cl, "Avatar :").pack(anchor="w", padx=10, pady=(6, 0))
-        self.cloud_avatar = tk.Entry(cl, bg=BG, fg=FG, insertbackground=FG, relief="flat")
-        self.cloud_avatar.pack(fill="x", padx=10, pady=4, ipady=4)
+        self.cloud_avatar_file = None
+        btn(cl, "Choisir la photo de l'avatar", self.pick_cloud_avatar).pack(fill="x", padx=10, pady=4)
+        self.cloud_avatar_lbl = lbl(cl, "Portrait net, de face (tête et épaules visibles).", fg=MUTED,
+                                    wraplength=360, justify="left")
+        self.cloud_avatar_lbl.pack(anchor="w", padx=10)
         self.cloud_btn = btn(cl, "Démarrer Weechat Camera", self.toggle_cloud, bg=OK)
         self.cloud_btn.pack(fill="x", padx=10, pady=10)
 
@@ -280,6 +282,12 @@ class App:
         if path:
             self.face = path
             self.face_lbl.config(text=path)
+
+    def pick_cloud_avatar(self):
+        path = filedialog.askopenfilename(filetypes=[("Images", "*.jpg *.jpeg *.png *.webp")])
+        if path:
+            self.cloud_avatar_file = path
+            self.cloud_avatar_lbl.config(text=path)
 
     def pick_video(self):
         path = filedialog.askopenfilename(filetypes=[("Vidéos", "*.mp4 *.mov *.avi *.mkv *.webm")])
@@ -417,20 +425,25 @@ class App:
             self.stop.set()
             self.cloud_btn.config(text="Démarrer Weechat Camera")
             return
+        if not self.cloud_avatar_file:
+            self.log("Choisissez d'abord la photo de l'avatar.")
+            return
         url = os.environ.get("WEECHAT_CLOUD_URL") or self.resolve_cloud_url()
         if not self.allowed():
             return
         stop = self.new_session()
         self.start_meter("swap_live", stop)
         self.cloud_btn.config(text="Arrêter le Cloud Live")
-        avatar = self.cloud_avatar.get().strip() or None
+        avatar_file = self.cloud_avatar_file
 
         def job():
             try:
                 import asyncio
                 import weechat_cloud
                 asyncio.run(weechat_cloud.run(url, self.session["access_token"], camera=self.cam.get(),
-                                              log=self.log, stop=stop, avatar=avatar, on_frame=self.on_frame))
+                                              log=self.log, stop=stop, avatar_file=avatar_file, on_frame=self.on_frame))
+            except RuntimeError as exc:
+                self.log(str(exc))
             except Exception as exc:
                 self.log("Service avatar momentanément indisponible, réessayez dans quelques minutes.")
             finally:

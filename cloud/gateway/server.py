@@ -31,10 +31,16 @@ class Engine:
     def process(self, bgr):
         return bgr if self.mod is None else self.mod.process(bgr)
 
-    def session(self, avatar_id):
-        """Moteur par appel : l'avatar choisi est chargé une fois, puis animé."""
+    def session(self, avatar_id, avatar_image=None):
+        """Moteur par appel : l'avatar (catalogue ou photo envoyée, gardée en mémoire) est chargé une fois."""
         if self.mod is None or not hasattr(self.mod, "Session"):
             return self
+        if avatar_image:
+            import base64
+            raw = base64.b64decode(avatar_image.split(",")[-1])
+            if len(raw) > 6_000_000:
+                raise ValueError("photo trop lourde")
+            return self.mod.Session(raw)
         path = self.mod.avatar_path(avatar_id)
         if not path:
             raise ValueError("avatar inconnu")
@@ -87,7 +93,7 @@ async def offer(request):
         return web.json_response({"error": "busy"}, status=503)
     body = await request.json()
     try:
-        engine = await asyncio.get_running_loop().run_in_executor(None, ENGINE.session, body.get("avatar"))
+        engine = await asyncio.get_running_loop().run_in_executor(None, ENGINE.session, body.get("avatar"), body.get("avatar_image"))
     except ValueError as e:
         return web.json_response({"error": str(e)}, status=400)
     pc = RTCPeerConnection()
@@ -119,7 +125,7 @@ def main():
     global ENGINE
     logging.basicConfig(level=logging.INFO)
     ENGINE = Engine(ENGINE_NAME)
-    app = web.Application()
+    app = web.Application(client_max_size=8 * 1024 * 1024)
     app.router.add_get("/health", health)
     app.router.add_post("/offer", offer)
     app.on_shutdown.append(on_shutdown)

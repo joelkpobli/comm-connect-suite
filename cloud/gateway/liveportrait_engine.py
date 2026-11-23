@@ -39,7 +39,16 @@ class Session:
     def __init__(self, avatar_file):
         from src.utils.camera import get_rotation_matrix
         self._rot = get_rotation_matrix
-        src = cv2.cvtColor(cv2.imread(avatar_file), cv2.COLOR_BGR2RGB)
+        if isinstance(avatar_file, (bytes, bytearray)):
+            img = cv2.imdecode(np.frombuffer(avatar_file, np.uint8), cv2.IMREAD_COLOR)
+        else:
+            img = cv2.imread(avatar_file)
+        if img is None:
+            raise ValueError("photo illisible")
+        h, w = img.shape[:2]
+        if max(h, w) > 1280:
+            k = 1280 / max(h, w); img = cv2.resize(img, (int(w * k), int(h * k)))
+        src = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         info = _crop.crop_source_image(src, _crop.crop_cfg)
         if info is None:
             raise ValueError("Aucun visage détecté sur l'avatar")

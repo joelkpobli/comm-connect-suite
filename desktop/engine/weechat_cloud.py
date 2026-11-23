@@ -25,7 +25,7 @@ class WebcamTrack(VideoStreamTrack):
         return f
 
 
-async def run(server, token, camera="auto", log=print, stop=None, avatar=None, on_frame=None):
+async def run(server, token, camera="auto", log=print, stop=None, avatar=None, on_frame=None, avatar_file=None):
     cap, _ = weechat_swap.open_camera(str(camera), log)
     pc = RTCPeerConnection()
     pc.addTrack(WebcamTrack(cap))
@@ -51,15 +51,27 @@ async def run(server, token, camera="auto", log=print, stop=None, avatar=None, o
                 done.set()
         asyncio.ensure_future(pump())
 
+    avatar_image = None
+    if avatar_file:
+        import base64
+        img = cv2.imread(avatar_file)
+        if img is None:
+            raise RuntimeError("Photo d'avatar illisible.")
+        h, w = img.shape[:2]
+        if max(h, w) > 1024:
+            k = 1024 / max(h, w); img = cv2.resize(img, (int(w * k), int(h * k)))
+        avatar_image = base64.b64encode(cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 90])[1]).decode()
     await pc.setLocalDescription(await pc.createOffer())
     async with aiohttp.ClientSession() as s:
         async with s.post(server.rstrip("/") + "/offer",
-                          json={"sdp": pc.localDescription.sdp, "type": pc.localDescription.type, "avatar": avatar},
+                          json={"sdp": pc.localDescription.sdp, "type": pc.localDescription.type, "avatar": avatar, "avatar_image": avatar_image},
                           headers={"Authorization": f"Bearer {token}"}) as r:
             if r.status == 401:
                 raise RuntimeError("Compte Weechat refusé : reconnectez-vous.")
             if r.status == 503:
                 raise RuntimeError("Serveur Cloud occupé, réessayez dans un instant.")
+            if r.status == 400:
+                raise RuntimeError("Aucun visage détecté sur la photo d'avatar : choisissez un portrait net, de face.")
             r.raise_for_status()
             ans = await r.json()
     await pc.setRemoteDescription(RTCSessionDescription(**ans))
