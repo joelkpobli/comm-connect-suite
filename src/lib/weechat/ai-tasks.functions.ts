@@ -12,6 +12,22 @@ const talkingSchema = z.object({ imageUrl: media, script: z.string().trim().min(
 const swapSchema = z.object({ targetImage: media, faceImage: media });
 const imageSchema = z.object({ prompt: z.string().trim().min(3).max(1000), aspectRatio: z.enum(['1:1', '16:9', '9:16']), style: z.enum(['photo', 'studio', 'avatar']), count: z.number().int().min(1).max(IMAGE_MAX_COUNT) });
 
+// Job tickets bind a provider job id to its owner so one user cannot poll another user's results.
+async function sign(kind: string, userId: string, jobId: string) {
+  const secret = process.env['SUPABASE_SERVICE_ROLE_KEY'];
+  if (!secret) throw new Error('missing_signing_secret');
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const mac = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`ai-job|${kind}|${userId}|${jobId}`));
+  return Array.from(new Uint8Array(mac), (b) => b.toString(16).padStart(2, '0')).join('');
+}
+async function makeJobTicket(kind: string, userId: string, jobId: string) { return `${jobId}.${await sign(kind, userId, jobId)}`; }
+async function readJobTicket(kind: string, userId: string, ticket: string) {
+  const i = ticket.lastIndexOf('.');
+  if (i <= 0) return null;
+  const jobId = ticket.slice(0, i), sig = ticket.slice(i + 1);
+  return sig === await sign(kind, userId, jobId) ? jobId : null;
+}
+
 async function run(kind: AiTaskKind, userId: string, units: number, submit: (a: import('./ai-adapters.server').AsyncAiAdapter) => Promise<{ providerJobId: string }> | undefined): Promise<AiTaskResult> {
   const { getAdapter, AdapterUnavailable } = await import('./ai-adapters.server');
   const usage = await import('./provider-usage.server');
@@ -28,7 +44,7 @@ async function run(kind: AiTaskKind, userId: string, units: number, submit: (a: 
     const job = await submit(adapter);
     if (!job) throw new Error('unsupported');
     await usage.recordProviderEvent(adapter.name, kind, 'ok', 'ai_generation');
-    return { ok: true, taskId, providerJobId: job.providerJobId, cost };
+    return { ok: true, taskId, providerJobId: await makeJobTicket(kind, userId, job.providerJobId), cost };
   } catch (e) {
     const billing = e instanceof Error && e.message === 'provider_billing';
     console.error(`ai task ${kind} submit failed`, e instanceof Error ? e.message : e);
@@ -52,8 +68,10 @@ export const startFaceSwapTask = createServerFn({ method: 'POST' }).middleware([
 
 export const getAiTaskStatus = createServerFn({ method: 'GET' }).middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ kind: z.enum(['talking_photo', 'image_generation', 'face_swap']), providerJobId: z.string().min(1).max(200) }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const jobId = await readJobTicket(data.kind, context.userId, data.providerJobId);
+    if (!jobId) return { state: 'failed' as const, error: 'not_found' };
     const { getAdapter, AdapterUnavailable } = await import('./ai-adapters.server');
-    try { return await getAdapter(data.kind).status(data.providerJobId); }
+    try { return await getAdapter(data.kind).status(jobId); }
     catch (e) { if (e instanceof AdapterUnavailable) return { state: 'failed' as const, error: 'provider_not_configured' }; throw e; }
   });
