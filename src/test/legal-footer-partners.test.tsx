@@ -14,17 +14,22 @@ import { DemoProvider } from '@/components/weechat/provider';
 describe('Liens partenaires du pied de page', () => {
   it('emploie les liens de parrainage fournis par le propriétaire', () => {
     render(<DemoProvider><LegalFooter /></DemoProvider>);
-    expect(screen.getByRole('link', { name: /^Grey/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Grey/ })).toHaveAttribute(
       'href',
       'https://greyapp.page.link/jixhVD5wH6mdykEY7',
     );
-    expect(screen.getByRole('link', { name: /^Wise/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Wise/ })).toHaveAttribute(
       'href',
       'https://wise.com/invite/ahpc/joelk1130',
     );
-    expect(screen.getByRole('link', { name: /^Volet/ })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: /Volet/ })).toHaveAttribute(
       'href',
       'https://volet.onelink.me/jJs2?pid=User_invite&deep_link_value=G3KwBb8R',
     );
+  });
+  it('ne montre plus Payoneer ni Advcash en doublon', () => {
+    render(<DemoProvider><LegalFooter /></DemoProvider>);
+    expect(screen.queryByRole('link', { name: /Payoneer/ })).toBeNull();
+    expect(screen.getAllByRole('link', { name: /Advcash/ })).toHaveLength(1);
   });
 });
