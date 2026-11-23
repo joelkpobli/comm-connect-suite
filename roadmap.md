@@ -2,5 +2,6 @@
 - [x] Google Tag Manager GTM-NKS4JNBM
 - [ ] Search Console / Bing
 - [x] Partenaires pied de page (Grey, Wise, Volet en liens de parrainage)
-- [ ] Modèles e-mails
+- [ ] Modèles e-mails transactionnels (reçu créé, envoi réel à vérifier)
+- [x] Modèles e-mails d’authentification (6 créés et rendus ; activation à la publication)
 - [ ] Finitions packs
