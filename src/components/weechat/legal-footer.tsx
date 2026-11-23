@@ -27,8 +27,9 @@ const copy = {
 } as const;
 
 const partners = [
-  ['Grey', 'https://grey.co', 'Compte USD, EUR, GBP depuis l’Afrique', 'USD, EUR, GBP accounts from Africa'],
-  ['Wise', 'https://wise.com', 'Transferts internationaux à petits frais', 'Low-cost international transfers'],
+  ['Grey', 'https://greyapp.page.link/jixhVD5wH6mdykEY7', 'Compte USD, EUR, GBP depuis l’Afrique', 'USD, EUR, GBP accounts from Africa'],
+  ['Wise', 'https://wise.com/invite/ahpc/joelk1130', 'Transferts internationaux à petits frais', 'Low-cost international transfers'],
+  ['Volet', 'https://volet.onelink.me/jJs2?pid=User_invite&deep_link_value=G3KwBb8R', 'Envoyer de l’argent en Afrique et ailleurs', 'Send money to Africa and beyond'],
   ['Advcash', 'https://advcash.com', 'Portefeuille multidevise et crypto', 'Multi-currency and crypto wallet'],
   ['Payoneer', 'https://www.payoneer.com', 'Recevoir les paiements de clients étrangers', 'Get paid by foreign clients'],
 ] as const;

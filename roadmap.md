@@ -1,6 +1,6 @@
 - [x] SEO/GEO base
 - [x] Google Tag Manager GTM-NKS4JNBM
 - [ ] Search Console / Bing
-- [ ] Partenaires pied de page
+- [x] Partenaires pied de page (Grey, Wise, Volet en liens de parrainage)
 - [ ] Modèles e-mails
 - [ ] Finitions packs
