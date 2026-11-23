@@ -8,7 +8,7 @@ import { pageHead } from '@/lib/weechat/metadata';
 import { featureCards, usagePolicy } from '@/lib/weechat/feature-status';
 
 export const Route = createFileRoute('/telecharger')({
-  head: () => pageHead('Tutoriels et téléchargement', 'Guides Weechat par fonction : Swap Live Windows, traduction vocale, filtres Restyle, Swap Photo et points. Prérequis et limites réelles.'),
+  head: () => { const h = pageHead('Télécharger la caméra virtuelle Windows pour WhatsApp, TikTok Live et Zoom', 'Téléchargez Weechat pour Windows : caméra virtuelle sans OBS pour appels vidéo WhatsApp Desktop, Instagram, Snapchat, Telegram, Zoom, Teams et TikTok Live Studio. Tutoriels pas à pas.'); return { meta: [...h.meta, { property: 'og:url', content: 'https://www.weechat.online/telecharger' }], links: [{ rel: 'canonical', href: 'https://www.weechat.online/telecharger' }] }; },
   component: DownloadPage,
 });
 const K = ({ children }: { children: string }) => <span className="dl-kbd">{children}</span>;

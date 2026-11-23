@@ -7,12 +7,12 @@ import { whatsappLink } from '@/lib/weechat/contact';
 
 export const Route = createFileRoute('/numeros-virtuels')({
   head: () => ({ meta: [
-    { title: 'Numéros virtuels internationaux · Weechat' },
-    { name: 'description', content: 'Numéros virtuels internationaux pour WhatsApp et Telegram, sans carte SIM, paiement Mobile Money.' },
-    { property: 'og:title', content: 'Numéros virtuels internationaux · Weechat' },
-    { property: 'og:description', content: 'Numéros virtuels internationaux pour WhatsApp et Telegram, sans carte SIM, paiement Mobile Money.' },
+    { title: 'Numéro virtuel WhatsApp & SMS OTP payé par Mobile Money · Weechat' },
+    { name: 'description', content: 'Numéros virtuels pour vérification WhatsApp, Telegram, Instagram, TikTok et Snapchat : numéros USA, UK, France sans carte SIM, payés par Mobile Money (MTN MoMo, Orange Money, Wave) depuis le Nigeria, le Ghana, la Côte d’Ivoire, le Bénin et toute l’Afrique.' },
+    { property: 'og:title', content: 'Numéro virtuel WhatsApp & SMS OTP payé par Mobile Money · Weechat' }, { property: 'og:url', content: 'https://www.weechat.online/numeros-virtuels' },
+    { property: 'og:description', content: 'Numéros virtuels pour vérification WhatsApp, Telegram, Instagram, TikTok et Snapchat : numéros USA, UK, France sans carte SIM, payés par Mobile Money (MTN MoMo, Orange Money, Wave) depuis le Nigeria, le Ghana, la Côte d’Ivoire, le Bénin et toute l’Afrique.' },
     { property: 'og:type', content: 'website' }, { name: 'twitter:card', content: 'summary' },
-  ] }),
+  ], links: [{ rel: 'canonical', href: 'https://www.weechat.online/numeros-virtuels' }] }),
   component: VirtualNumbers,
 });
 

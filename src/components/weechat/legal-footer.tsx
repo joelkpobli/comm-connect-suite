@@ -26,11 +26,23 @@ const copy = {
   },
 } as const;
 
+const partners = [
+  ['Grey', 'https://grey.co', 'Compte USD, EUR, GBP depuis l’Afrique', 'USD, EUR, GBP accounts from Africa'],
+  ['Wise', 'https://wise.com', 'Transferts internationaux à petits frais', 'Low-cost international transfers'],
+  ['Advcash', 'https://advcash.com', 'Portefeuille multidevise et crypto', 'Multi-currency and crypto wallet'],
+  ['Payoneer', 'https://www.payoneer.com', 'Recevoir les paiements de clients étrangers', 'Get paid by foreign clients'],
+] as const;
+
 export function LegalFooter() {
   const { locale } = useDemo(); const c = copy[locale === 'en' ? 'en' : 'fr'];
   const links = [['/conditions-utilisation', c.cols[0][0]], ['/confidentialite', c.cols[1][0]], ['/usages-interdits', c.cols[2][0]], ['/contact', locale === 'en' ? 'Contact & suggestions' : 'Contact et suggestions']] as const;
   return <footer className="legal-footer">
     <nav className="legal-links flex flex-wrap items-center justify-center gap-x-6 gap-y-2" aria-label={c.cols[0][0]}>{links.map(([to, label]) => <Link key={to} to={to} className="underline-offset-4 hover:underline">{label}</Link>)}</nav>
+    <section aria-label={locale === 'en' ? 'Useful services' : 'Services utiles'} className="grid gap-3 text-center">
+      <p className="font-semibold">{locale === 'en' ? 'Useful services: receive money from abroad' : 'Services utiles : recevoir de l’argent de l’étranger'}</p>
+      <ul className="flex flex-wrap justify-center gap-x-6 gap-y-2">{partners.map(([n, u, fr, en]) => <li key={n}><a href={u} target="_blank" rel="sponsored noopener noreferrer" className="underline-offset-4 hover:underline"><strong>{n}</strong> <span className="text-muted-foreground">— {locale === 'en' ? en : fr}</span></a></li>)}</ul>
+      <p className="text-xs text-muted-foreground">{locale === 'en' ? 'Independent services, not operated by Weechat. Links may be partner links.' : 'Services indépendants, non opérés par Weechat. Certains liens peuvent être des liens partenaires.'}</p>
+    </section>
     <div className="legal-bottom"><span>{c.rights}</span></div>
   </footer>;
 }
