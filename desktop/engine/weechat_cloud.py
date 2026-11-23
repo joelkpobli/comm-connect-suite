@@ -25,7 +25,7 @@ class WebcamTrack(VideoStreamTrack):
         return f
 
 
-async def run(server, token, camera="auto", log=print, stop=None, avatar=None):
+async def run(server, token, camera="auto", log=print, stop=None, avatar=None, on_frame=None):
     cap, _ = weechat_swap.open_camera(str(camera), log)
     pc = RTCPeerConnection()
     pc.addTrack(WebcamTrack(cap))
@@ -45,6 +45,8 @@ async def run(server, token, camera="auto", log=print, stop=None, avatar=None):
                         log("Cloud Live connecté : flux envoyé à Weechat Camera.")
                     if vcam:
                         vcam.send(img)
+                    if on_frame:
+                        on_frame(cv2.cvtColor(img, cv2.COLOR_RGB2BGR), 25.0)
             finally:
                 done.set()
         asyncio.ensure_future(pump())
@@ -62,7 +64,8 @@ async def run(server, token, camera="auto", log=print, stop=None, avatar=None):
             ans = await r.json()
     await pc.setRemoteDescription(RTCSessionDescription(**ans))
     log("Connexion au serveur Cloud en cours…")
-    await done.wait()
+    while not done.is_set() and not (stop and stop.is_set()):
+        await asyncio.sleep(0.2)
     await pc.close()
     cap.release()
 

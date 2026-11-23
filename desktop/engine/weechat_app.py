@@ -167,6 +167,21 @@ class App:
         self.transform_btn = btn(tr, "Lancer la transformation", self.toggle_transform, bg=OK)
         self.transform_btn.pack(fill="x", padx=10, pady=10)
 
+        cl = tk.Frame(nb, bg=PANEL)
+        nb.add(cl, text="Cloud Live")
+        lbl(cl, "Avatar IA calculé sur le serveur GPU Weechat : votre webcam sert seulement à capter "
+                "vos mouvements. Le serveur doit être allumé.", fg=MUTED, wraplength=360,
+            justify="left").pack(anchor="w", padx=10, pady=(12, 8))
+        lbl(cl, "Adresse du serveur :").pack(anchor="w", padx=10)
+        self.cloud_url = tk.Entry(cl, bg=BG, fg=FG, insertbackground=FG, relief="flat")
+        self.cloud_url.insert(0, os.environ.get("WEECHAT_CLOUD_URL", "https://"))
+        self.cloud_url.pack(fill="x", padx=10, pady=4, ipady=4)
+        lbl(cl, "Avatar (identifiant du catalogue) :").pack(anchor="w", padx=10, pady=(6, 0))
+        self.cloud_avatar = tk.Entry(cl, bg=BG, fg=FG, insertbackground=FG, relief="flat")
+        self.cloud_avatar.pack(fill="x", padx=10, pady=4, ipady=4)
+        self.cloud_btn = btn(cl, "Connecter au Cloud GPU", self.toggle_cloud, bg=OK)
+        self.cloud_btn.pack(fill="x", padx=10, pady=10)
+
         root.protocol("WM_DELETE_WINDOW", self.close)
         self.render_account()
         self.refresh()
@@ -389,6 +404,36 @@ class App:
                 self.root.after(0, lambda: (self.transform_btn.config(text="Lancer la transformation"),
                                             self.studio_btn.config(state="normal"),
                                             self.btn.config(state="normal" if self.models else "disabled")))
+        self.worker = threading.Thread(target=job, daemon=True)
+        self.worker.start()
+
+    def toggle_cloud(self):
+        if self.busy():
+            self.stop.set()
+            self.cloud_btn.config(text="Connecter au Cloud GPU")
+            return
+        url = self.cloud_url.get().strip()
+        if not url.startswith("https://") or len(url) < 12:
+            messagebox.showwarning("Weechat", "Saisissez l'adresse https du serveur Cloud.")
+            return
+        if not self.allowed():
+            return
+        stop = self.new_session()
+        self.start_meter("swap_live", stop)
+        self.cloud_btn.config(text="Arrêter le Cloud Live")
+        avatar = self.cloud_avatar.get().strip() or None
+
+        def job():
+            try:
+                import asyncio
+                import weechat_cloud
+                asyncio.run(weechat_cloud.run(url, self.session["access_token"], camera=self.cam.get(),
+                                              log=self.log, stop=stop, avatar=avatar, on_frame=self.on_frame))
+            except Exception as exc:
+                self.log(f"Cloud Live : {exc}")
+            finally:
+                stop.set()
+                self.root.after(0, lambda: self.cloud_btn.config(text="Connecter au Cloud GPU"))
         self.worker = threading.Thread(target=job, daemon=True)
         self.worker.start()
 
