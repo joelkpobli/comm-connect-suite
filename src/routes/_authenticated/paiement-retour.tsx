@@ -22,8 +22,9 @@ function PaymentReturn() {
   const [state, setState] = useState<{ status: string; itemId: string | null }>({ status: 'checking', itemId: null });
   useEffect(() => {
     if (provider === 'whop') { setState({ status: 'pending', itemId: null }); const t = setTimeout(() => void qc.invalidateQueries(), 4000); return () => clearTimeout(t); }
-    if (!token) { setState({ status: 'failed', itemId: null }); return; }
+    if (!token) { setState({ status: 'failed', itemId: null }); return undefined; }
     confirm({ data: { token } }).then(r => { setState(r); if (r.status === 'completed') void qc.invalidateQueries(); }).catch(() => setState({ status: 'failed', itemId: null }));
+    return undefined;
   }, [token, provider]);
   const item = state.itemId ? findItem(state.itemId) : undefined;
   const ui = {

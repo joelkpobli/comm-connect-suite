@@ -42,7 +42,7 @@ export async function verifyWhopSignature(secret: string, id: string, ts: string
   const raw = secret.startsWith('whsec_') ? secret.slice(6) : secret;
   let keyBytes: Uint8Array; try { keyBytes = Uint8Array.from(atob(raw), c => c.charCodeAt(0)); } catch { keyBytes = new TextEncoder().encode(secret); }
   const tryKey = async (k: Uint8Array) => {
-    const key = await crypto.subtle.importKey('raw', k, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+    const key = await crypto.subtle.importKey("raw", k as BufferSource, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
     const mac = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(`${id}.${ts}.${body}`)));
     return btoa(String.fromCharCode(...mac));
   };
