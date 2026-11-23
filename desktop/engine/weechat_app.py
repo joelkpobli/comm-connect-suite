@@ -48,6 +48,7 @@ import uuid
 
 BG, PANEL, FG, MUTED, ACCENT, OK, WARN = "#0b1530", "#13214a", "#e6ecff", "#9fb3e6", "#2f6bff", "#2ecc71", "#ffd27a"
 FONT = "Segoe UI"
+LOW_POINTS = 120  # 2 points/s : environ 60 s restantes
 
 
 def btn(parent, text, cmd, **kw):
@@ -304,7 +305,7 @@ class App:
         """Débite un bloc de 10 s avant chaque période ; arrête la diffusion si refusé.
         `stop` est l'événement propre à cette session : il est levé dès que le
         moteur s'arrête (clic, erreur ou fin), donc aucun débit sans diffusion."""
-        sid, block = str(uuid.uuid4()), 0
+        sid, block, warned = str(uuid.uuid4()), 0, False
         msgs = {"insufficient": "Solde de points épuisé. Rechargez sur votre compte Weechat.",
                 "license_required": "Licence Weechat Camera requise.",
                 "unauthorized": "Session expirée : reconnectez-vous.",
@@ -324,8 +325,26 @@ class App:
                 self.root.after(0, lambda: messagebox.showwarning("Weechat", msgs.get(exc.code, msgs["failed"])))
                 break
             self.root.after(0, self.load_balances)
+            # Alerte préventive : moins d'environ 60 s d'appel restantes (120 points).
+            low = bal is not None and int(bal) < LOW_POINTS
+            if low and not warned:
+                warned = True
+                self.log("⚠ Moins d'une minute d'appel restante : rechargez pour ne pas être coupé.")
+                self.root.after(0, self.low_balance_alert)
+            elif not low:
+                warned = False
             block += 1
             stop.wait(10)
+
+    def low_balance_alert(self):
+        """Fenêtre non bloquante : l'appel continue pendant la recharge."""
+        d = tk.Toplevel(self.root); d.title("Weechat — solde faible"); d.configure(bg=PANEL)
+        d.attributes("-topmost", True); d.resizable(False, False)
+        lbl(d, "⚠ Il vous reste moins d'une minute d'appel.", fg=WARN, size=11, bold=True).pack(padx=20, pady=(16, 4))
+        lbl(d, "Rechargez maintenant : votre appel continue pendant le paiement.").pack(padx=20, pady=(0, 12))
+        row = tk.Frame(d, bg=PANEL); row.pack(pady=(0, 16))
+        btn(row, "Recharger maintenant", lambda: (webbrowser.open(weechat_account.SITE + "/credits"), d.destroy())).pack(side="left", padx=6)
+        btn(row, "Plus tard", d.destroy, bg="#33406a").pack(side="left", padx=6)
 
     def new_session(self):
         """Nouvel événement d'arrêt par session : un ancien compteur ne peut jamais repartir."""
@@ -408,16 +427,41 @@ class App:
         except Exception:
             return "https://xq7gbs0setvvxg-8888.proxy.runpod.net"
 
+    def wait_cloud(self, url, stop, limit=180):
+        """Attend que le serveur GPU réponde (démarrage à la demande, ~30-90 s)."""
+        import json, urllib.request
+        t0 = time.time()
+        while not stop.is_set() and time.time() - t0 < limit:
+            try:
+                with urllib.request.urlopen(url.rstrip("/") + "/health", timeout=6) as r:
+                    if json.loads(r.read().decode()).get("ok"):
+                        return True
+            except Exception:
+                pass
+            self.log(f"Démarrage du moteur Weechat… ({int(time.time() - t0)} s)")
+            stop.wait(5)
+        return False
+
     def toggle_cloud(self):
-        url = os.environ.get("WEECHAT_CLOUD_URL") or self.resolve_cloud_url()
         stop = self.new_session()
-        self.start_meter("swap_live", stop)
         self.log("Connexion au moteur Weechat haute qualité...")
         self.btn.config(text="Arrêter")
         avatar_file = self.face
 
         def job():
             try:
+                url = os.environ.get("WEECHAT_CLOUD_URL")
+                if not url:
+                    try:
+                        url, _ = weechat_account.wake_cloud(self.session)
+                    except Exception:
+                        url = self.resolve_cloud_url()
+                if not self.wait_cloud(url, stop):
+                    if not stop.is_set():
+                        self.log("Service momentanément indisponible, réessayez dans quelques minutes.")
+                    return
+                # Le débit des points ne commence qu'une fois le moteur prêt.
+                self.start_meter("swap_live", stop)
                 import asyncio
                 import weechat_cloud
                 asyncio.run(weechat_cloud.run(url, self.session["access_token"], camera=self.cam.get(),

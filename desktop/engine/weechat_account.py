@@ -12,7 +12,7 @@ import urllib.request
 URL = "https://psairuwdemxnwdkhpzsw.supabase.co"
 ANON = ("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzYWlydXdkZW14bndka2hwenN3Iiwicm9sZSI6"
         "ImFub24iLCJpYXQiOjE3OTIxMTE3NzQsImV4cCI6MjEwNzY4Nzc3NH0.uHihAQ6uLE_dkQDamLA4VI3ZbTk5XqjAjhVeXeoCMMQ")
-SITE = "https://comm-connect-suite.lovable.app"
+SITE = "https://www.weechat.online"
 _DIR = os.path.join(os.environ.get("APPDATA") or os.path.expanduser("~"), "Weechat")
 _FILE = os.path.join(_DIR, "session.json")
 
@@ -113,3 +113,13 @@ def charge_block(session, service, session_id, block):
         raise ChargeError(j.get("error") or ("unauthorized" if e.code == 401 else "failed"), j.get("balance"))
     except urllib.error.URLError:
         raise ChargeError("offline")
+
+
+def wake_cloud(session):
+    """Demande au site de réveiller le serveur GPU ; renvoie (url, état)."""
+    req = urllib.request.Request(SITE + "/api/public/cloud-endpoint", data=b"{}", method="POST",
+                                 headers={"Content-Type": "application/json",
+                                          "Authorization": f"Bearer {session['access_token']}"})
+    with urllib.request.urlopen(req, timeout=20) as r:
+        j = json.loads(r.read())
+        return j["url"], j.get("status", "ready")
