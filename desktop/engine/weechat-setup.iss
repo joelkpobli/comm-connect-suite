@@ -1,7 +1,12 @@
 ; Weechat-Setup.exe — installateur tout-en-un (Inno Setup 6)
 [Setup]
 AppName=Weechat Swap Live
-AppVersion=0.2.0
+#ifndef AppBuild
+#define AppBuild "0"
+#endif
+AppVersion=0.3.{#AppBuild}
+CloseApplications=yes
+RestartApplications=no
 AppPublisher=Weechat
 DefaultDirName={autopf}\Weechat
 DefaultGroupName=Weechat
@@ -30,7 +35,7 @@ Name: "{autodesktop}\Weechat Swap Live"; Filename: "{app}\Weechat.exe"
 ; Register the virtual camera under the brand name shown in WhatsApp, Facebook, TikTok, Zoom, Meet.
 Filename: "{sys}\regsvr32.exe"; Parameters: "/s ""/i:UnityCaptureName=Weechat Camera"" ""{app}\vcam\UnityCaptureFilter64.dll"""; Flags: runhidden waituntilterminated; Check: IsWin64
 Filename: "{syswow64}\regsvr32.exe"; Parameters: "/s ""/i:UnityCaptureName=Weechat Camera"" ""{app}\vcam\UnityCaptureFilter32.dll"""; Flags: runhidden waituntilterminated
-Filename: "{app}\Weechat.exe"; Description: "Lancer Weechat Swap Live"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Weechat.exe"; Description: "Lancer Weechat Swap Live"; Flags: nowait postinstall
 
 [UninstallRun]
 Filename: "{sys}\regsvr32.exe"; Parameters: "/u /s ""{app}\vcam\UnityCaptureFilter64.dll"""; Flags: runhidden; RunOnceId: "UnregVcam64"

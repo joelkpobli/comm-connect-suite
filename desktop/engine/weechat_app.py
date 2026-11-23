@@ -42,6 +42,7 @@ import weechat_transform
 import weechat_audio
 import weechat_swap
 import weechat_account
+import weechat_updater
 import webbrowser
 import uuid
 
@@ -582,4 +583,23 @@ if __name__ == "__main__":
     r = tk.Tk()
     a = App(r)
     a.prepare_models()
+
+    def _update_ready(path):
+        def ask():
+            if a.worker is not None and a.worker.is_alive():
+                a.log("Mise à jour prête : elle s'installera à la fermeture de Weechat.")
+                a._pending_update = path
+                return
+            if messagebox.askyesno("Mise à jour Weechat",
+                                   "Une nouvelle version de Weechat est prête.\n"
+                                   "Installer maintenant ? Weechat redémarrera tout seul (environ 30 secondes)."):
+                weechat_updater.install_and_quit(path)
+            else:
+                a._pending_update = path
+                a.log("Mise à jour prête : elle s'installera à la fermeture de Weechat.")
+        r.after(0, ask)
+
+    weechat_updater.check_in_background(_update_ready, log=lambda m: r.after(0, lambda: a.log(m)))
     r.mainloop()
+    if getattr(a, "_pending_update", None):
+        weechat_updater.install_and_quit(a._pending_update)

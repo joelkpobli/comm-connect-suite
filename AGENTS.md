@@ -43,3 +43,4 @@
 - Landing/design work follows the UI/UX Pro Max guide stored in docs/design/ui-ux-pro-max; keeps design decisions consistent.
 - Founder space (/fondateur) uses founder.functions where every handler checks has_role admin via the caller's session before loading the admin client; maintenance_modules is publicly readable and gates AI tasks server-side, and provider_usage_events auto-pauses a module after repeated provider billing refusals so users are refunded, never stuck.
 - Appearance library (avatars + backgrounds) lives in src/lib/weechat/appearance-library with real-photo JSON catalogues (CDN pointers + licence metadata); it is free, prefs persist in localStorage and personal imports stay originals in IndexedDB on the device, never uploaded.
+- Windows app auto-updates at startup via weechat_updater: compares the build number baked in at CI with version.txt published next to Weechat-Setup.exe, then runs the installer silently; users never reinstall manually.

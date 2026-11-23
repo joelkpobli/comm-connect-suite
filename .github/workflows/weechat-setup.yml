@@ -27,12 +27,17 @@ jobs:
           New-Item -ItemType Directory -Force build-assets/vcam | Out-Null
           curl.exe -L --retry 5 -o build-assets/vcam/UnityCaptureFilter64.dll https://github.com/schellingb/UnityCapture/raw/master/Install/UnityCaptureFilter64.dll
           curl.exe -L --retry 5 -o build-assets/vcam/UnityCaptureFilter32.dll https://github.com/schellingb/UnityCapture/raw/master/Install/UnityCaptureFilter32.dll
+      - name: Numéro de version
+        run: |
+          "BUILD = ${{ github.run_number }}" | Out-File -Encoding ascii weechat_version.py
+          New-Item -ItemType Directory -Force ..\..\dist-installer | Out-Null
+          "${{ github.run_number }}" | Out-File -Encoding ascii -NoNewline ..\..\dist-installer\version.txt
       - name: Application (PyInstaller)
-        run: pyinstaller --noconfirm --windowed --name Weechat --collect-all insightface --collect-all onnxruntime --collect-all pyvirtualcam --collect-data albumentations --hidden-import weechat_models --hidden-import weechat_studio --hidden-import weechat_audio --hidden-import weechat_transform --hidden-import weechat_account --collect-all imageio_ffmpeg --collect-all sounddevice weechat_app.py
+        run: pyinstaller --hidden-import weechat_version --hidden-import weechat_updater --noconfirm --windowed --name Weechat --collect-all insightface --collect-all onnxruntime --collect-all pyvirtualcam --collect-data albumentations --hidden-import weechat_models --hidden-import weechat_studio --hidden-import weechat_audio --hidden-import weechat_transform --hidden-import weechat_account --collect-all imageio_ffmpeg --collect-all sounddevice weechat_app.py
       - name: Installateur (Inno Setup)
         run: |
           choco install innosetup -y --no-progress
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" weechat-setup.iss
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" /DAppBuild=${{ github.run_number }} weechat-setup.iss
       - uses: actions/upload-artifact@v4
         with:
           name: Weechat-Setup
@@ -44,5 +49,7 @@ jobs:
           name: Weechat pour Windows
           body: Installateur léger Weechat pour Windows 10/11. Les modèles IA (~830 Mo) se téléchargent une seule fois au premier lancement, avec reprise automatique.
           make_latest: true
-          files: dist-installer/Weechat-Setup.exe
+          files: |
+            dist-installer/Weechat-Setup.exe
+            dist-installer/version.txt
           fail_on_unmatched_files: true
