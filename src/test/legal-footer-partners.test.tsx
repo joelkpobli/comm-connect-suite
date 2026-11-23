@@ -9,7 +9,7 @@ vi.mock('@tanstack/react-router', () => ({
 import { LegalFooter } from '@/components/weechat/legal-footer';
 import { DemoProvider } from '@/components/weechat/provider';
 
-// The three affiliate links are business facts supplied by the owner: the footer must
+// The four affiliate links are business facts supplied by the owner: the footer must
 // point at those exact URLs so commissions are actually credited to Weechat.
 describe('Liens partenaires du pied de page', () => {
   it('emploie les liens de parrainage fournis par le propriétaire', () => {
@@ -25,6 +25,10 @@ describe('Liens partenaires du pied de page', () => {
     expect(screen.getByRole('link', { name: /Volet/ })).toHaveAttribute(
       'href',
       'https://volet.onelink.me/jJs2?pid=User_invite&deep_link_value=G3KwBb8R',
+    );
+    expect(screen.getByRole('link', { name: /Doola/ })).toHaveAttribute(
+      'href',
+      'https://app.doola.com/signup/registration?mwr=jol-f806',
     );
   });
   it('ne montre plus Payoneer ni Advcash en doublon', () => {

@@ -27,9 +27,10 @@ const copy = {
 } as const;
 
 const partners = [
-  ['Grey', 'https://greyapp.page.link/jixhVD5wH6mdykEY7', 'Comptes USD, EUR, GBP depuis l’Afrique', 'USD, EUR, GBP accounts from Africa', 'Recommandé', 'Recommended'],
-  ['Wise', 'https://wise.com/invite/ahpc/joelk1130', 'Transferts internationaux au taux réel', 'International transfers at the real rate', 'Taux réel', 'Real rate'],
-  ['Volet (ex-Advcash)', 'https://volet.onelink.me/jJs2?pid=User_invite&deep_link_value=G3KwBb8R', 'Portefeuille multidevise et crypto', 'Multi-currency and crypto wallet', 'Multidevise', 'Multi-currency'],
+  ['Grey', 'https://greyapp.page.link/jixhVD5wH6mdykEY7', 'Comptes USD, EUR, GBP depuis l’Afrique', 'USD, EUR, GBP accounts from Africa', 'Recommandé', 'Recommended', 'Ouvrir un compte →', 'Open an account →'],
+  ['Wise', 'https://wise.com/invite/ahpc/joelk1130', 'Transferts internationaux au taux réel', 'International transfers at the real rate', 'Taux réel', 'Real rate', 'Ouvrir un compte →', 'Open an account →'],
+  ['Volet (ex-Advcash)', 'https://volet.onelink.me/jJs2?pid=User_invite&deep_link_value=G3KwBb8R', 'Portefeuille multidevise et crypto', 'Multi-currency and crypto wallet', 'Multidevise', 'Multi-currency', 'Ouvrir un compte →', 'Open an account →'],
+  ['Doola', 'https://app.doola.com/signup/registration?mwr=jol-f806', 'Créez votre LLC américaine avec EIN et compte bancaire', 'Form your US LLC with EIN and a bank account', 'Société US', 'US Company', 'Créer ma société →', 'Start my company →'],
 ] as const;
 
 export function LegalFooter() {
@@ -38,8 +39,8 @@ export function LegalFooter() {
   return <footer className="legal-footer">
     <nav className="legal-links flex flex-wrap items-center justify-center gap-x-6 gap-y-2" aria-label={c.cols[0][0]}>{links.map(([to, label]) => <Link key={to} to={to} className="underline-offset-4 hover:underline">{label}</Link>)}</nav>
     <section aria-label={locale === 'en' ? 'Useful services' : 'Services utiles'} className="grid gap-3 text-center">
-      <p className="font-semibold">{locale === 'en' ? 'Useful services: receive money from abroad' : 'Services utiles : recevoir de l’argent de l’étranger'}</p>
-      <ul className="mx-auto grid w-full max-w-4xl gap-3 sm:grid-cols-3">{partners.map(([n, u, fr, en, bFr, bEn]) => <li key={n}><a href={u} target="_blank" rel="sponsored noopener noreferrer" className="flex h-full flex-col items-start gap-2 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-ring"><span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">{locale === 'en' ? bEn : bFr}</span><strong className="text-base text-foreground">{n}</strong><span className="text-sm text-muted-foreground">{locale === 'en' ? en : fr}</span><span className="mt-auto text-sm font-medium text-primary">{locale === 'en' ? 'Open an account →' : 'Ouvrir un compte →'}</span></a></li>)}</ul>
+      <p className="font-semibold">{locale === 'en' ? 'Useful services: international payments & US company formation' : 'Services utiles : paiements internationaux et création d’entreprise'}</p>
+      <ul className="mx-auto grid w-full max-w-5xl gap-3 sm:grid-cols-2 lg:grid-cols-4">{partners.map(([n, u, fr, en, bFr, bEn, cFr, cEn]) => <li key={n}><a href={u} target="_blank" rel="sponsored noopener noreferrer" className="flex h-full flex-col items-start gap-2 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-ring"><span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">{locale === 'en' ? bEn : bFr}</span><strong className="text-base text-foreground">{n}</strong><span className="text-sm text-muted-foreground">{locale === 'en' ? en : fr}</span><span className="mt-auto text-sm font-medium text-primary">{locale === 'en' ? cEn : cFr}</span></a></li>)}</ul>
       <p className="text-xs text-muted-foreground">{locale === 'en' ? 'Independent services, not operated by Weechat. Links may be partner links.' : 'Services indépendants, non opérés par Weechat. Certains liens peuvent être des liens partenaires.'}</p>
     </section>
     <div className="legal-bottom"><span>{c.rights}</span></div>
