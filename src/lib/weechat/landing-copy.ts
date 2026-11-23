@@ -53,15 +53,15 @@ export const swapPlans: Plan[] = [
 export const audioPlans: Plan[] = [
   {
     id: 'audio-flash', name: 'Audio Flash', price: { XOF: '4 999', EUR: '7,60', USD: '8,30' }, audioMin: 10, validity: 30,
-    lines: { fr: ['10 min de traduction vocale', '48 langues', 'Sens de traduction au choix', 'Valable 30 jours'], en: ['10 min of voice translation', '48 languages', 'Choose translation direction', 'Valid 30 days'] },
+    lines: { fr: ['10 min de traduction vocale', 'Plus de 50 langues', 'Sens de traduction au choix', 'Valable 30 jours'], en: ['10 min of voice translation', '50+ languages', 'Choose translation direction', 'Valid 30 days'] },
   },
   {
     id: 'audio-pro', name: 'Audio Pro', popular: true, price: { XOF: '22 900', EUR: '35', USD: '38' }, audioMin: 60, validity: 30,
-    lines: { fr: ['1 h de traduction vocale', '48 langues', 'Sens de traduction au choix', 'Voix traduite et sous-titres', 'Valable 30 jours'], en: ['1 h of voice translation', '48 languages', 'Choose translation direction', 'Translated speech and subtitles', 'Valid 30 days'] },
+    lines: { fr: ['1 h de traduction vocale', 'Plus de 50 langues', 'Sens de traduction au choix', 'Voix traduite et sous-titres', 'Valable 30 jours'], en: ['1 h of voice translation', '50+ languages', 'Choose translation direction', 'Translated speech and subtitles', 'Valid 30 days'] },
   },
   {
     id: 'audio-marathon', name: 'Audio Marathon', price: { XOF: '39 900', EUR: '61', USD: '66' }, audioMin: 120, validity: 60,
-    lines: { fr: ['2 h de traduction vocale', '48 langues', 'Sens de traduction au choix', 'Voix traduite et sous-titres', 'Support prioritaire', 'Valable 60 jours'], en: ['2 h of voice translation', '48 languages', 'Choose translation direction', 'Translated speech and subtitles', 'Priority support', 'Valid 60 days'] },
+    lines: { fr: ['2 h de traduction vocale', 'Plus de 50 langues', 'Sens de traduction au choix', 'Voix traduite et sous-titres', 'Support prioritaire', 'Valable 60 jours'], en: ['2 h of voice translation', '50+ languages', 'Choose translation direction', 'Translated speech and subtitles', 'Priority support', 'Valid 60 days'] },
   },
 ];
 
@@ -98,13 +98,13 @@ export const momoOperators = ['Wave', 'Orange Money', 'MTN MoMo', 'Moov Money', 
 
 type L = 'fr' | 'en';
 const fr = {
-  heroTitle: ['Votre avatar et votre voix,', 'dans tous vos appels vidéo.'],
-  heroText: 'Apparaissez sous l’avatar de votre choix et parlez dans 48 langues pendant vos appels WhatsApp, vos lives TikTok, Instagram, Facebook et vos réunions Zoom.',
+  heroTitle: ['Maîtrisez votre présence vidéo', 'et communiquez sans barrière de langue.'],
+  heroText: 'Traduisez vos échanges vocaux en direct dans plus de 50 langues et personnalisez votre apparence lors de vos réunions, appels et diffusions.',
   start: 'Commencer', pricing: 'Voir les tarifs', login: 'Connexion',
   heroNote: 'Paiement sécurisé Mobile Money et carte · points sans abonnement',
   liveTag: 'LIVE', langTag: 'FR → EN',
   bandEyebrow: 'Pensé pour vos appels et lives', bandTitle: 'Transformez. Traduisez. Sur vos plateformes.',
-  specs: ['48 langues', 'Compatible WhatsApp, TikTok, Instagram', 'Pas d’enregistrement Weechat', 'Connexion sécurisée'],
+  specs: ['Plus de 50 langues', 'Compatible WhatsApp, TikTok, Instagram', 'Pas d’enregistrement Weechat', 'Connexion sécurisée'],
   bandNote: '',
   audTitle: 'À qui s’adresse Weechat ?', audience: [['Créateurs et streamers', 'Animez vos lives TikTok, Instagram et Facebook avec un avatar, sans montrer votre visage.'], ['Commerciaux et consultants', 'Échangez avec vos clients étrangers dans leur langue, en appel vidéo.'], ['Télétravail et vie privée', 'Participez à vos réunions sans exposer votre visage ni votre intérieur.'], ['Service client multilingue', 'Répondez à vos clients du monde entier dans leur langue maternelle.']],
   howTitle: 'Comment ça marche', howText: 'Trois étapes pour commencer avec Weechat.',
@@ -113,7 +113,7 @@ const fr = {
   tabs: ['Swap Live', 'Traduction en temps réel', 'Studio Diffusion Vidéo', 'Studio Transformation Avatar', 'Restyle Live'],
   panels: [
     { title: 'Changez de visage en direct, dans votre appel.', text: 'Choisissez une photo autorisée : Weechat remplace votre visage dans la webcam et envoie l’image dans « Weechat Camera ». Vos expressions et mouvements de tête sont suivis en direct.', points: ['Cliquez sur un avatar pour changer de visage', 'Caméra « Weechat Camera » sans OBS', 'Traitement sur votre PC Windows'], status: 'Application Windows' },
-    { title: 'Parlez dans votre langue. Weechat traduit pour votre interlocuteur.', text: 'Pendant un appel WhatsApp, Instagram ou un live TikTok, vous parlez français : votre interlocuteur entend votre message dans sa langue, avec les sous-titres.', points: ['48 langues disponibles', 'Voix traduite et sous-titres en direct', 'Minutes de traduction décomptées à la seconde'], status: 'Dans le navigateur' },
+    { title: 'Parlez dans votre langue. Weechat traduit pour votre interlocuteur.', text: 'Pendant un appel WhatsApp, Instagram ou un live TikTok, vous parlez français : votre interlocuteur entend votre message dans sa langue, avec les sous-titres.', points: ['Plus de 50 langues disponibles', 'Voix traduite et sous-titres en direct', 'Minutes de traduction décomptées à la seconde'], status: 'Dans le navigateur' },
     { title: 'Diffusez une vidéo prête comme si c’était votre webcam.', text: 'Choisissez une vidéo MP4 : Weechat la lit en boucle dans « Weechat Camera », avec son propre son. Idéal pour un live TikTok ou une présentation.', points: ['Lecture en boucle sans coupure', 'Image dans Weechat Camera, son dans le micro virtuel', 'Aucune puissance de calcul nécessaire'], status: 'Application Windows · Studio' },
     { title: 'Créez une vidéo avatar à partir de votre vidéo et d’une photo.', text: 'Importez une vidéo de vous et la photo d’un visage autorisé. Weechat fabrique une nouvelle vidéo MP4 avec ce visage, en gardant vos mouvements et votre son. Vous pouvez ensuite la diffuser avec Studio Diffusion Vidéo.', points: ['Vidéo + photo → nouvelle vidéo MP4', 'Son d’origine conservé', 'Fichier enregistré sur votre Bureau'], status: 'Application Windows · Studio' },
     { title: 'Restyle Live : changez le style de votre image.', text: 'Appliquez des filtres à votre webcam en direct : noir et blanc, couleurs vives, contraste.', points: ['Filtres appliqués en direct', 'Traitement sur votre appareil', 'Sans consommation de points'], status: 'Dans le navigateur' },
@@ -159,13 +159,13 @@ const fr = {
   footerLegal: 'Conditions d’utilisation', footerPrivacy: 'Confidentialité', footerResp: 'Usage responsable · 18+',
 };
 const en: typeof fr = {
-  heroTitle: ['Your avatar and your voice,', 'in every video call.'],
-  heroText: 'Appear as the avatar of your choice and speak in 48 languages during your WhatsApp calls, TikTok, Instagram and Facebook lives and Zoom meetings.',
+  heroTitle: ['Master your video presence', 'and communicate without language barriers.'],
+  heroText: 'Translate your voice conversations live in over 50 languages and personalise your appearance in meetings, calls and broadcasts.',
   start: 'Get started', pricing: 'See pricing', login: 'Sign in',
   heroNote: 'Secure Mobile Money and card payment · points, no subscription',
   liveTag: 'LIVE', langTag: 'FR → EN',
   bandEyebrow: 'Built for calls and lives', bandTitle: 'Transform. Translate. On your platforms.',
-  specs: ['48 languages', 'Works with WhatsApp, TikTok, Instagram', 'No Weechat recording', 'Secure connection'],
+  specs: ['50+ languages', 'Works with WhatsApp, TikTok, Instagram', 'No Weechat recording', 'Secure connection'],
   bandNote: '',
   audTitle: 'Who is Weechat for?', audience: [['Creators and streamers', 'Host TikTok, Instagram and Facebook lives with an avatar, without showing your face.'], ['Sales and consultants', 'Talk to foreign clients in their language on video calls.'], ['Remote work and privacy', 'Join meetings without exposing your face or your home.'], ['Multilingual support', 'Answer customers worldwide in their native language.']],
   howTitle: 'How it works', howText: 'Three steps to get started with Weechat.',
@@ -174,7 +174,7 @@ const en: typeof fr = {
   tabs: ['Swap Live', 'Real-time translation', 'Studio Video Broadcast', 'Studio Avatar Transformation', 'Restyle Live'],
   panels: [
     { title: 'Swap your face live, in your call.', text: 'Pick an authorised photo: Weechat replaces your face in the webcam and sends the image to “Weechat Camera”. Your expressions and head movements are followed live.', points: ['Click an avatar to switch faces', '“Weechat Camera” with no OBS', 'Processed on your Windows PC'], status: 'Windows app' },
-    { title: 'Speak your language. Weechat translates for the other person.', text: 'During a WhatsApp or Instagram call or a TikTok live, you speak your language: the other person hears it in theirs, with subtitles.', points: ['48 languages available', 'Live translated voice and subtitles', 'Translation minutes counted by the second'], status: 'In the browser' },
+    { title: 'Speak your language. Weechat translates for the other person.', text: 'During a WhatsApp or Instagram call or a TikTok live, you speak your language: the other person hears it in theirs, with subtitles.', points: ['50+ languages available', 'Live translated voice and subtitles', 'Translation minutes counted by the second'], status: 'In the browser' },
     { title: 'Broadcast a ready-made video as if it were your webcam.', text: 'Pick an MP4 video: Weechat loops it in “Weechat Camera”, with its own sound. Great for a TikTok live or a presentation.', points: ['Seamless loop playback', 'Image in Weechat Camera, sound in the virtual mic', 'No heavy computing needed'], status: 'Windows app · Studio' },
     { title: 'Create an avatar video from your video and a photo.', text: 'Import a video of yourself and an authorised face photo. Weechat makes a new MP4 with that face, keeping your movements and sound. Then broadcast it with Studio Video Broadcast.', points: ['Video + photo → new MP4 video', 'Original sound kept', 'File saved to your Desktop'], status: 'Windows app · Studio' },
     { title: 'Restyle Live: change your image style.', text: 'Apply live webcam filters: monochrome, vivid colours, contrast.', points: ['Filters applied live', 'Processed on your device', 'No points used'], status: 'In the browser' },
