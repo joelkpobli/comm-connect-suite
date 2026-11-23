@@ -233,18 +233,32 @@ class App:
     def login_dialog(self):
         d = tk.Toplevel(self.root, bg=PANEL)
         d.title("Connexion Weechat")
-        d.geometry("380x300")
+        d.geometry("380x380")
         d.transient(self.root)
         d.grab_set()
         lbl(d, "Connexion à votre compte Weechat", size=12, bold=True).pack(pady=(16, 4))
-        lbl(d, "Même email et mot de passe que sur le site.", fg=MUTED).pack()
+        err = lbl(d, "", fg="#ff7a7a", wraplength=330)
+
+        def google(*_):
+            err.config(text="Terminez la connexion dans votre navigateur…")
+
+            def job():
+                try:
+                    s = weechat_account.sign_in_google(webbrowser.open)
+                    self.session = s
+                    self.root.after(0, d.destroy)
+                    self.load_balances()
+                except weechat_account.AuthError as exc:
+                    self.root.after(0, lambda: err.config(text=str(exc)))
+            threading.Thread(target=job, daemon=True).start()
+        btn(d, "Continuer avec Google", google).pack(fill="x", padx=24, pady=(8, 4))
+        lbl(d, "ou avec l'email et le mot de passe du site :", fg=MUTED).pack(pady=(6, 0))
         lbl(d, "Email").pack(anchor="w", padx=24, pady=(12, 0))
         em = tk.Entry(d, font=(FONT, 11))
         em.pack(fill="x", padx=24)
         lbl(d, "Mot de passe").pack(anchor="w", padx=24, pady=(8, 0))
         pw = tk.Entry(d, show="•", font=(FONT, 11))
         pw.pack(fill="x", padx=24)
-        err = lbl(d, "", fg="#ff7a7a", wraplength=330)
         err.pack(pady=4)
 
         def go(*_):

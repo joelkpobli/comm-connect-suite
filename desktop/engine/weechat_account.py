@@ -56,6 +56,69 @@ def sign_in(email, password):
     return s
 
 
+GOOGLE_PORT = 53682
+GOOGLE_REDIRECT = f"http://127.0.0.1:{GOOGLE_PORT}/callback"
+
+
+def sign_in_google(open_url, timeout=180):
+    """Connexion Google par le navigateur (PKCE) : ouvre une session propre à l'application.
+
+    Le navigateur revient sur 127.0.0.1 (ce PC uniquement) avec un code à usage unique,
+    échangé ici contre une session. Aucun mot de passe n'est demandé.
+    """
+    import base64
+    import hashlib
+    import http.server
+    import secrets
+    import urllib.parse
+
+    verifier = secrets.token_urlsafe(64)
+    challenge = base64.urlsafe_b64encode(hashlib.sha256(verifier.encode()).digest()).rstrip(b"=").decode()
+    result = {}
+
+    class H(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            u = urllib.parse.urlparse(self.path)
+            if u.path != "/callback":
+                self.send_response(404)
+                self.end_headers()
+                return
+            q = urllib.parse.parse_qs(u.query)
+            result["code"] = (q.get("code") or [None])[0]
+            result["error"] = (q.get("error_description") or q.get("error") or [None])[0]
+            ok = bool(result["code"])
+            body = ("<h2>Connexion réussie.</h2><p>Vous pouvez fermer cet onglet et revenir dans Weechat.</p>" if ok
+                    else "<h2>Connexion annulée.</h2><p>Revenez dans Weechat pour réessayer.</p>")
+            self.send_response(200)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(f"<html><body style='font-family:sans-serif;text-align:center;padding:60px'>{body}</body></html>".encode())
+
+        def log_message(self, *a):
+            pass
+
+    try:
+        srv = http.server.HTTPServer(("127.0.0.1", GOOGLE_PORT), H)
+    except OSError:
+        raise AuthError("Le port de connexion est occupé. Fermez l'autre fenêtre Weechat et réessayez.")
+    srv.timeout = 1
+    params = urllib.parse.urlencode({"provider": "google", "redirect_to": GOOGLE_REDIRECT,
+                                     "code_challenge": challenge, "code_challenge_method": "s256"})
+    open_url(f"{URL}/auth/v1/authorize?{params}")
+    import time as _t
+    end = _t.time() + timeout
+    try:
+        while "code" not in result and _t.time() < end:
+            srv.handle_request()
+    finally:
+        srv.server_close()
+    if not result.get("code"):
+        raise AuthError(result.get("error") or "Connexion Google non terminée. Réessayez.")
+    s = _req("/auth/v1/token?grant_type=pkce", {"auth_code": result["code"], "code_verifier": verifier})
+    _save(s)
+    return s
+
+
 def restore():
     """Reprend la session mémorisée ; None si absente ou expirée."""
     try:

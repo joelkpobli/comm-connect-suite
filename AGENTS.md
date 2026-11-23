@@ -45,3 +45,4 @@
 - Appearance library (avatars + backgrounds) lives in src/lib/weechat/appearance-library with real-photo JSON catalogues (CDN pointers + licence metadata); it is free, prefs persist in localStorage and personal imports stay originals in IndexedDB on the device, never uploaded.
 - Windows app auto-updates at startup via weechat_updater: compares the build number baked in at CI with version.txt published next to Weechat-Setup.exe, then runs the installer silently; users never reinstall manually.
 - GPU pod is woken on demand by POST /api/public/cloud-endpoint (signed-in users only) and stopped by idle_guard; billing of a call starts only once the gateway answers /health.
+- Windows Google sign-in uses Supabase PKCE with a loopback redirect on 127.0.0.1:53682 (desktop/engine/weechat_account.py); the app gets its own session instead of reusing the browser's refresh token, which would trigger reuse revocation.
