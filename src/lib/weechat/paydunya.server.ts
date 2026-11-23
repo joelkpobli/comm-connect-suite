@@ -78,4 +78,22 @@ export async function grantItem(item: CatalogueItem, userId: string, ref: string
       if (r.error) throw new Error('Fulfillment failed');
     }
   }
+  await sendReceipt(item, userId, ref, provider);
+}
+
+/** Best-effort receipt: a mail failure never undoes or blocks a verified credit. */
+async function sendReceipt(item: CatalogueItem, userId: string, ref: string, provider: string) {
+  try {
+    const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
+    const { data } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const email = data.user?.email;
+    if (!email) return;
+    const lines: string[] = [];
+    if (item.points > 0) lines.push(`${item.points.toLocaleString('fr-FR')} points`);
+    if (item.audioSeconds > 0) lines.push(`${Math.round(item.audioSeconds / 60)} minutes de traduction`);
+    if (item.aiTokens > 0) lines.push(`${item.aiTokens} jetons IA`);
+    if (item.cameraLicense) lines.push('Licence Weechat Camera à vie');
+    const { sendTemplateEmail } = await import('@/lib/email-templates/send-email');
+    await sendTemplateEmail('payment-receipt', email, { templateData: { packLabel: item.label, provider, lines, reference: ref }, idempotencyKey: `payment-receipt-${ref}` });
+  } catch (e) { console.error('receipt email failed', e instanceof Error ? e.message : e); }
 }
