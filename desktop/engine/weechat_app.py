@@ -403,12 +403,21 @@ class App:
         self.worker = threading.Thread(target=job, daemon=True)
         self.worker.start()
 
+    def resolve_cloud_url(self):
+        """Adresse du serveur GPU fournie par weechat.online (invisible pour l'utilisateur)."""
+        import json, urllib.request
+        try:
+            with urllib.request.urlopen("https://www.weechat.online/api/public/cloud-endpoint", timeout=8) as r:
+                return json.loads(r.read().decode())["url"]
+        except Exception:
+            return "https://xq7gbs0setvvxg-8888.proxy.runpod.net"
+
     def toggle_cloud(self):
         if self.busy():
             self.stop.set()
             self.cloud_btn.config(text="Démarrer Weechat Camera")
             return
-        url = os.environ.get("WEECHAT_CLOUD_URL", "https://cloud.weechat.online")
+        url = os.environ.get("WEECHAT_CLOUD_URL") or self.resolve_cloud_url()
         if not self.allowed():
             return
         stop = self.new_session()
