@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { creditsQuery, audioQuery, aiTokensQuery, validityQuery, fmtExpiry } from '@/lib/weechat/credits-query';
 import { Link } from '@tanstack/react-router';
-import { ArrowRight, AudioLines, Check, Clock, Coins, History, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, AudioLines, Check, Clock, Coins, History, ShieldCheck, CreditCard, Smartphone, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useServerFn } from '@tanstack/react-start';
 import { startCheckout, getCameraLicense } from '@/lib/weechat/payments.functions';
@@ -40,7 +40,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
   const [busy, setBusy] = useState<string | null>(null);
   const [payError, setPayError] = useState(false);
-  const [method, setMethod] = useState<'mobile' | 'card'>('mobile');
+  const [method, setMethod] = useState<'mobile' | 'card'>('card');
   const pay = async (itemId: string) => {
     setBusy(itemId); setPayError(false);
     try { const r = await checkout({ data: { itemId, method } }); if (r.ok) { window.location.href = r.url; return; } setPayError(true); }
@@ -61,7 +61,10 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
     </div>
     </>}
     <div className="lp-currow"><span>{en ? 'Show prices in' : 'Afficher les prix en'}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <Button variant="ghost" key={k} type="button" className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div></div>
-    <div className="lp-currow"><span>{en ? 'Pay with' : 'Payer par'}</span><div className="lp-toggle" role="group">{(['mobile', 'card'] as const).map(k => <Button variant="ghost" key={k} type="button" className={method === k ? 'active' : ''} aria-pressed={method === k} onClick={() => setMethod(k)}>{k === 'mobile' ? 'Mobile Money' : (en ? 'Card · Apple/Google Pay' : 'Carte · Apple/Google Pay')}</Button>)}</div></div>
+    <div className="lp-currow"><span>{en ? 'Pay with' : 'Payer par'}</span><div className="pay-methods" role="group">
+      <Button type="button" className="pay-method pay-method-active" aria-pressed="true" onClick={() => setMethod('card')}><CreditCard />{en ? 'Card · Apple Pay · Google Pay' : 'Carte · Apple Pay · Google Pay'}</Button>
+      <Button type="button" variant="outline" className="pay-method" disabled aria-disabled="true"><Smartphone />Mobile Money<span className="pay-soon">{en ? 'Coming soon' : 'Bientôt disponible'}</span></Button>
+    </div></div>
     <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio', 'tokens'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); }}>{k === 'swap' ? 'Swap Live' : k === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</Button>)}</div></div>
     <div className="dashboard-section-header" id="audio"><h2>{kind === 'swap' ? 'Swap Live' : kind === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</h2><span className="subtle-label">{kind === 'swap' ? (en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE') : kind === 'audio' ? 'MINUTES' : (en ? 'SWAP PHOTO 2 · IMAGE 5 · TALKING PHOTO 3/S' : 'SWAP PHOTO 2 · IMAGE 5 · PHOTO PARLANTE 3/S')}</span></div>
     <div className="lp-prices four compact">{list.map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} action={buy(p)} />)}</div>
@@ -73,7 +76,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
       {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="w-full text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy the licence' : 'Acheter la licence')}</Button>}
     </article></div>}
     {kind === 'swap' && <><CameraNotaBene locale={locale} /><PlanCompare locale={locale} cur={cur} /></>}
-    <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment: PayDunya (Mobile Money) or Whop (card).' : 'Paiement sécurisé : PayDunya (Mobile Money) ou Whop (carte).'}<span>{en ? 'Your balance is credited automatically after confirmation. ' : 'Votre solde est crédité automatiquement après confirmation.'}</span></p></div>
+    <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by card, Apple Pay or Google Pay. Mobile Money coming soon.' : 'Paiement sécurisé par carte bancaire, Apple Pay ou Google Pay. Mobile Money bientôt disponible.'}<span>{en ? 'Your balance is credited automatically after confirmation. ' : 'Votre solde est crédité automatiquement après confirmation.'}</span></p></div>
 
   </>;
 }

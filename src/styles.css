@@ -397,3 +397,11 @@ video.lp-swap-img { object-fit:cover; object-position:center 20%; }
 .cg-help-item ol { list-style:decimal; padding-left:22px; margin-top:10px; color:var(--muted-foreground); font-size:14px; line-height:1.6; display:grid; gap:4px; }
 @media(max-width:640px) { .cg-grid { gap:14px; } .cg-step { padding:14px; } .cg-help { padding:16px; } .cg-pdf { width:100%; justify-content:center; } }
 .dl > * { min-width:0; }
+
+/* Payment method selector: card is the highlighted, available option. */
+.pay-methods { display: flex; flex-wrap: wrap; gap: .6rem; }
+.pay-method { min-height: 3rem; padding: 0 1.1rem; font-weight: 700; border-radius: .8rem; gap: .5rem; }
+.pay-method-active { background: var(--primary); color: var(--primary-foreground); box-shadow: 0 0 0 2px color-mix(in oklab, var(--primary) 35%, transparent), 0 8px 24px -8px var(--primary); }
+.pay-method:disabled { opacity: .55; cursor: not-allowed; }
+.pay-soon { margin-left: .35rem; padding: .1rem .5rem; border-radius: 999px; font-size: .7rem; font-weight: 600; background: var(--muted); color: var(--muted-foreground); }
+@media (max-width: 480px) { .pay-method { width: 100%; justify-content: center; } }

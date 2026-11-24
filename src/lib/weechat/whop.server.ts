@@ -2,6 +2,7 @@
 // re-reads the payment from Whop and checks status, owner, item and amount before crediting.
 import { findItem } from './paydunya-catalog';
 import { grantItem } from './paydunya.server';
+import { whopVariants } from './whop-variants';
 
 const API = 'https://api.whop.com/api/v1';
 function auth() {
@@ -12,9 +13,10 @@ function auth() {
 
 export async function createWhopCheckout(itemId: string, userId: string, origin: string) {
   const item = findItem(itemId); if (!item || !(item.amountUSD > 0)) throw new Error('Unknown item');
-  const { headers, company } = auth();
+  const variant = whopVariants[item.id]; if (!variant) throw new Error('No Whop variant');
+  const { headers } = auth();
   const res = await fetch(`${API}/checkout_configurations`, { method: 'POST', headers, body: JSON.stringify({
-    plan: { company_id: company, currency: 'usd', initial_price: item.amountUSD, plan_type: 'one_time', title: item.label },
+    variant_id: variant,
     metadata: { user_id: userId, item_id: item.id },
     redirect_url: `${origin}/paiement-retour?provider=whop`,
   }) });

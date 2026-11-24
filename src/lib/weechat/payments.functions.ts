@@ -12,6 +12,7 @@ export const startCheckout = createServerFn({ method: 'POST' }).middleware([requ
     const origin = new URL(getRequest().url).origin;
     try {
       if (data.method === 'card') { const { createWhopCheckout } = await import('./whop.server'); return { ok: true as const, url: (await createWhopCheckout(data.itemId, context.userId, origin)).url }; }
+      if (process.env['PAYDUNYA_ENABLED'] !== 'true') return { ok: false as const };
       return { ok: true as const, url: (await createInvoice(data.itemId, context.userId, origin)).url };
     }
     catch { return { ok: false as const }; }
