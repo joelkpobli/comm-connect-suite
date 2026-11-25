@@ -38,7 +38,6 @@ from PIL import Image, ImageTk
 
 import weechat_models
 import weechat_studio
-import weechat_transform
 import weechat_audio
 import weechat_swap
 import weechat_account
@@ -165,15 +164,15 @@ class App:
         self.studio_btn.pack(fill="x", padx=10, pady=4)
 
         tr = tk.Frame(nb, bg=PANEL)
-        nb.add(tr, text="Face Swap Vidéo")
-        lbl(tr, "Échange de visage vidéo : crée une nouvelle vidéo MP4 avec le visage de la photo. "
-                "Le résultat est enregistré sur le Bureau puis prêt à diffuser.", fg=MUTED, wraplength=360,
+        nb.add(tr, text="Transformation IA")
+        lbl(tr, "Transformation totale : le personnage de votre photo remplace entièrement la personne de la vidéo "
+                "(visage, corps, tenue), en gardant ses mouvements et le décor.", fg=MUTED, wraplength=360,
             justify="left").pack(anchor="w", padx=10, pady=(12, 4))
-        lbl(tr, "⚠ Seul le visage est remplacé : cheveux, corps et vêtements restent ceux de la vidéo. "
-                "Choisissez une vidéo dont la personne, la posture et la tenue ressemblent à votre photo.",
+        lbl(tr, "Vidéo MP4 de 15 secondes maximum · 5 points par seconde · remboursé automatiquement en cas d'échec. "
+                "Le résultat est enregistré sur le Bureau, prêt à diffuser.",
             fg=WARN, wraplength=360, justify="left").pack(anchor="w", padx=10, pady=(0, 8))
-        btn(tr, "Choisir la photo", self.pick).pack(fill="x", padx=10, pady=3)
-        btn(tr, "Choisir la vidéo", self.pick_video).pack(fill="x", padx=10, pady=3)
+        btn(tr, "Choisir la photo du personnage", self.pick).pack(fill="x", padx=10, pady=3)
+        btn(tr, "Choisir la vidéo (15 s max)", self.pick_video).pack(fill="x", padx=10, pady=3)
         self.transform_btn = btn(tr, "Lancer la transformation", self.toggle_transform, bg=OK)
         self.transform_btn.pack(fill="x", padx=10, pady=10)
 
@@ -406,30 +405,57 @@ class App:
         if self.busy():
             self.stop.set()
             return
+        if not self.session:
+            messagebox.showwarning("Weechat", "Connectez-vous à votre compte Weechat pour utiliser la transformation.")
+            return
         if not self.video or not self.face:
-            messagebox.showwarning("Weechat", "Choisissez une photo de visage ET une vidéo dont vous avez les droits.")
+            messagebox.showwarning("Weechat", "Choisissez une photo du personnage ET une vidéo (15 s max) dont vous avez les droits.")
             return
-        if not self.models:
-            messagebox.showwarning("Weechat", "Attendez la fin du téléchargement des modèles IA.")
+        if os.path.getsize(self.video) > 25 * 1024 * 1024:
+            messagebox.showwarning("Weechat", "Vidéo trop lourde : 25 Mo et 15 secondes maximum.")
             return
-        self.new_session()
-        self.transform_btn.config(text="Annuler la transformation")
-        self.btn.config(state="disabled")
-        self.studio_btn.config(state="disabled")
+        self.stop.clear()
+        self.transform_btn.config(text="Arrêter le suivi")
+        errors = {"insufficient": "Points insuffisants : rechargez sur weechat.online.",
+                  "video_too_long": "La vidéo dépasse 15 secondes ou 25 Mo.",
+                  "video_unreadable": "Vidéo illisible : utilisez un fichier MP4.",
+                  "maintenance": "Service momentanément en maintenance. Réessayez plus tard.",
+                  "provider_not_configured": "Service de transformation indisponible pour le moment.",
+                  "offline": "Pas de connexion internet.",
+                  "unauthorized": "Session expirée : reconnectez-vous."}
 
         def job():
+            import urllib.request
             try:
-                result = weechat_transform.transform(self.video, self.face, self.stop, log=self.log,
-                                                     on_frame=self.on_frame, root=self.models)
-                if result:
-                    self.video = result
-                    self.root.after(0, lambda: self.video_lbl.config(text=result))
+                self.log("Envoi de la vidéo et de la photo au serveur Weechat…")
+                r = weechat_account.start_character_swap(self.session, self.video, self.face)
+                if not r.get("ok"):
+                    self.log(errors.get(r.get("error"), "La transformation a échoué (points remboursés si débités)."))
+                    return
+                self.log(f"Transformation lancée ({r.get('cost')} points). Génération en cours (1 à 3 minutes)…")
+                ticket = r["providerJobId"]
+                while not self.stop.is_set():
+                    time.sleep(6)
+                    st = weechat_account.character_swap_status(self.session, ticket)
+                    state = st.get("state")
+                    if state == "completed" and st.get("resultUrls"):
+                        dest = os.path.join(os.path.expanduser("~"), "Desktop",
+                                            f"weechat-transformation-{int(time.time())}.mp4")
+                        self.log("Téléchargement du résultat…")
+                        urllib.request.urlretrieve(st["resultUrls"][0], dest)
+                        self.video = dest
+                        self.root.after(0, lambda: self.video_lbl.config(text=dest))
+                        self.log(f"Terminé : {dest} — prêt dans « Studio Diffusion ».")
+                        return
+                    if state == "failed":
+                        self.log("La génération a échoué. Réessayez avec une autre vidéo.")
+                        return
+                    self.log("Génération en cours…")
+                self.log("Suivi arrêté. La génération continue côté serveur.")
             except Exception as exc:
                 self.log(f"Erreur : {exc}")
             finally:
-                self.root.after(0, lambda: (self.transform_btn.config(text="Lancer la transformation"),
-                                            self.studio_btn.config(state="normal"),
-                                            self.btn.config(state="normal" if self.models else "disabled")))
+                self.root.after(0, lambda: self.transform_btn.config(text="Lancer la transformation"))
         self.worker = threading.Thread(target=job, daemon=True)
         self.worker.start()
 

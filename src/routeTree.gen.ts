@@ -34,6 +34,7 @@ import { Route as AuthenticatedSwapPhotoRouteImport } from './routes/_authentica
 import { Route as AuthenticatedTableauDeBordRouteImport } from './routes/_authenticated/tableau-de-bord'
 import { Route as AuthenticatedTraductionRouteImport } from './routes/_authenticated/traduction'
 import { Route as ApiPublicCloudEndpointRouteImport } from './routes/api/public/cloud-endpoint'
+import { Route as ApiPublicDesktopAiRouteImport } from './routes/api/public/desktop-ai'
 import { Route as ApiPublicDesktopChargeRouteImport } from './routes/api/public/desktop-charge'
 import { Route as ApiPublicPaydunyaIpnRouteImport } from './routes/api/public/paydunya-ipn'
 import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
@@ -168,6 +169,11 @@ const ApiPublicCloudEndpointRoute = ApiPublicCloudEndpointRouteImport.update({
   path: '/api/public/cloud-endpoint',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicDesktopAiRoute = ApiPublicDesktopAiRouteImport.update({
+  id: '/api/public/desktop-ai',
+  path: '/api/public/desktop-ai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicDesktopChargeRoute = ApiPublicDesktopChargeRouteImport.update({
   id: '/api/public/desktop-charge',
   path: '/api/public/desktop-charge',
@@ -225,6 +231,7 @@ export interface FileRoutesByFullPath {
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/traduction': typeof AuthenticatedTraductionRoute
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
+  '/api/public/desktop-ai': typeof ApiPublicDesktopAiRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
@@ -257,6 +264,7 @@ export interface FileRoutesByTo {
   '/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/traduction': typeof AuthenticatedTraductionRoute
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
+  '/api/public/desktop-ai': typeof ApiPublicDesktopAiRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
@@ -291,6 +299,7 @@ export interface FileRoutesById {
   '/_authenticated/tableau-de-bord': typeof AuthenticatedTableauDeBordRoute
   '/_authenticated/traduction': typeof AuthenticatedTraductionRoute
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
+  '/api/public/desktop-ai': typeof ApiPublicDesktopAiRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
   '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
@@ -325,6 +334,7 @@ export interface FileRouteTypes {
     | '/tableau-de-bord'
     | '/traduction'
     | '/api/public/cloud-endpoint'
+    | '/api/public/desktop-ai'
     | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
     | '/api/public/whop-webhook'
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
     | '/tableau-de-bord'
     | '/traduction'
     | '/api/public/cloud-endpoint'
+    | '/api/public/desktop-ai'
     | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
     | '/api/public/whop-webhook'
@@ -390,6 +401,7 @@ export interface FileRouteTypes {
     | '/_authenticated/tableau-de-bord'
     | '/_authenticated/traduction'
     | '/api/public/cloud-endpoint'
+    | '/api/public/desktop-ai'
     | '/api/public/desktop-charge'
     | '/api/public/paydunya-ipn'
     | '/api/public/whop-webhook'
@@ -412,6 +424,7 @@ export interface RootRouteChildren {
   TelechargerRoute: typeof TelechargerRoute
   UsagesInterditsRoute: typeof UsagesInterditsRoute
   ApiPublicCloudEndpointRoute: typeof ApiPublicCloudEndpointRoute
+  ApiPublicDesktopAiRoute: typeof ApiPublicDesktopAiRoute
   ApiPublicDesktopChargeRoute: typeof ApiPublicDesktopChargeRoute
   ApiPublicPaydunyaIpnRoute: typeof ApiPublicPaydunyaIpnRoute
   ApiPublicWhopWebhookRoute: typeof ApiPublicWhopWebhookRoute
@@ -597,6 +610,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicCloudEndpointRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/desktop-ai': {
+      id: '/api/public/desktop-ai'
+      path: '/api/public/desktop-ai'
+      fullPath: '/api/public/desktop-ai'
+      preLoaderRoute: typeof ApiPublicDesktopAiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/desktop-charge': {
       id: '/api/public/desktop-charge'
       path: '/api/public/desktop-charge'
@@ -689,6 +709,7 @@ const rootRouteChildren: RootRouteChildren = {
   TelechargerRoute: TelechargerRoute,
   UsagesInterditsRoute: UsagesInterditsRoute,
   ApiPublicCloudEndpointRoute: ApiPublicCloudEndpointRoute,
+  ApiPublicDesktopAiRoute: ApiPublicDesktopAiRoute,
   ApiPublicDesktopChargeRoute: ApiPublicDesktopChargeRoute,
   ApiPublicPaydunyaIpnRoute: ApiPublicPaydunyaIpnRoute,
   ApiPublicWhopWebhookRoute: ApiPublicWhopWebhookRoute,

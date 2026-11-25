@@ -186,3 +186,36 @@ def wake_cloud(session):
     with urllib.request.urlopen(req, timeout=20) as r:
         j = json.loads(r.read())
         return j["url"], j.get("status", "ready")
+
+
+def _ai(session, body, timeout=120):
+    req = urllib.request.Request(SITE + "/api/public/desktop-ai", data=json.dumps(body).encode(), method="POST",
+                                 headers={"Content-Type": "application/json",
+                                          "Authorization": f"Bearer {session['access_token']}"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        try:
+            return json.loads(e.read())
+        except Exception:
+            return {"ok": False, "error": "unauthorized" if e.code == 401 else "failed"}
+    except urllib.error.URLError:
+        return {"ok": False, "error": "offline"}
+
+
+def start_character_swap(session, video_path, photo_path):
+    """Envoie vidéo (15 s max) + photo au serveur Weechat. Prix et durée fixés côté serveur."""
+    import base64, mimetypes
+    with open(video_path, "rb") as f:
+        video = base64.b64encode(f.read()).decode()
+    mime = mimetypes.guess_type(photo_path)[0] or "image/jpeg"
+    if mime not in ("image/png", "image/jpeg", "image/webp"):
+        mime = "image/jpeg"
+    with open(photo_path, "rb") as f:
+        photo = f"data:{mime};base64," + base64.b64encode(f.read()).decode()
+    return _ai(session, {"action": "start", "video": video, "characterImage": photo}, timeout=300)
+
+
+def character_swap_status(session, ticket):
+    return _ai(session, {"action": "status", "ticket": ticket}, timeout=30)
