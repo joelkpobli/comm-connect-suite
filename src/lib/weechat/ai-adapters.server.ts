@@ -4,6 +4,7 @@ import type { AiTaskKind } from './ai-pricing';
 export type TalkingPhotoInput = { imageUrl: string; script: string; voiceId?: string | undefined; seconds: number };
 export type ImageGenInput = { prompt: string; aspectRatio: '1:1' | '16:9' | '9:16'; style: 'photo' | 'studio' | 'avatar'; count: number };
 export type FaceSwapInput = { targetImage: string; faceImage: string };
+export type CharacterSwapInput = { videoUrl: string; characterImage: string };
 export type ProviderJob = { providerJobId: string };
 export type ProviderStatus = { state: 'pending' | 'processing' | 'completed' | 'failed'; resultUrls?: string[] };
 
@@ -12,6 +13,8 @@ export interface AsyncAiAdapter {
   submitTalkingPhoto?(input: TalkingPhotoInput): Promise<ProviderJob>;
   submitImage?(input: ImageGenInput): Promise<ProviderJob>;
   submitFaceSwap?(input: FaceSwapInput): Promise<ProviderJob>;
+  submitCharacterSwap?(input: CharacterSwapInput): Promise<ProviderJob>;
+  uploadVideo?(bytes: Uint8Array): Promise<string>;
   status(providerJobId: string): Promise<ProviderStatus>;
 }
 
@@ -45,6 +48,20 @@ function replicateAdapter(token: string): AsyncAiAdapter {
     async submitFaceSwap(i) {
       const p = await call('/predictions', { version: FACE_SWAP_VERSION, input: { input_image: i.targetImage, swap_image: i.faceImage } });
       return { providerJobId: p.id };
+    },
+    async submitCharacterSwap(i) {
+      const p = await call('/models/wan-video/wan-2.2-animate-replace/predictions', { input: { video: i.videoUrl, character_image: i.characterImage, resolution: '720', merge_audio: true } });
+      return { providerJobId: p.id };
+    },
+    async uploadVideo(bytes) {
+      const form = new FormData();
+      form.append('content', new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'video/mp4' }), 'source.mp4');
+      const res = await fetch(`${API}/files`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: form });
+      if (res.status === 402) throw new ProviderBilling();
+      if (!res.ok) throw new Error(`replicate upload ${res.status}: ${await res.text()}`);
+      const f = (await res.json()) as { urls?: { get?: string } };
+      if (!f.urls?.get) throw new Error('replicate upload: no url');
+      return f.urls.get;
     },
     async submitTalkingPhoto(i) {
       const tts = await call('/models/minimax/speech-02-turbo/predictions', { input: { text: i.script, ...(i.voiceId ? { voice_id: i.voiceId } : {}) } }, true);

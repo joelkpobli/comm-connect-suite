@@ -8,5 +8,7 @@ describe('AI async tasks', () => {
   it('rejects talking photo over 15 s', () => expect(() => aiTaskCost('talking_photo', 16)).toThrow());
   it('refund reference differs from debit', () => expect(aiTaskReference('talking_photo', 'u', 't', true)).not.toBe(aiTaskReference('talking_photo', 'u', 't')));
   it('swap photo costs 2 tokens', () => expect(aiTaskCost('face_swap', 1)).toBe(2));
+  it('full transformation costs 15 tokens per second', () => expect(aiTaskCost('character_swap', 10)).toBe(150));
+  it('rejects full transformation over 15 s', () => expect(() => aiTaskCost('character_swap', 16)).toThrow());
   it('fails closed without provider', () => { const t = process.env['REPLICATE_API_TOKEN']; delete process.env['REPLICATE_API_TOKEN']; expect(() => getAdapter('image_generation')).toThrow(AdapterUnavailable); if (t) process.env['REPLICATE_API_TOKEN'] = t; });
 });
