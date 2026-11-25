@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDemo } from './provider';
 import { providerStatus, realRelay } from '@/lib/weechat/communication.functions';
+import { chargeUsageBlock } from '@/lib/weechat/usage.functions';
+import { useQueryClient } from '@tanstack/react-query';
 
 type L = 'fr' | 'en' | 'es' | 'de';
 const voices: Record<L, { id: string; name: string; g: 'f' | 'm' }[]> = {
@@ -23,6 +25,7 @@ const sel = 'w-full rounded-md border border-input bg-background p-3 text-foregr
 export function CallStudio() {
   const { locale } = useDemo(); const c = copy[locale];
   const status = useServerFn(providerStatus); const relay = useServerFn(realRelay);
+  const charge = useServerFn(chargeUsageBlock); const qc = useQueryClient();
   const [ready, setReady] = useState<boolean | null>(null);
   const [mine, setMine] = useState<L>('fr'); const [theirs, setTheirs] = useState<L>('en');
   const [voice, setVoice] = useState(voices.en[0]!.id);
@@ -52,7 +55,16 @@ export function CallStudio() {
       const source = who === 'me' ? mine : theirs; const target = who === 'me' ? theirs : mine;
       const v = who === 'me' ? voice : voices[mine][0]!.id;
       try {
-        const res = await relay({ data: { audioBase64: btoa(s), mime: blob.type.split(';')[0]!, source, target, voice: v } });
+        const sessionId = crypto.randomUUID();
+        const paid = await charge({ data: { service: 'audio', sessionId, block: 0 } });
+        void qc.invalidateQueries({ queryKey: ['audio-seconds'] });
+        if (!paid.ok) {
+          setMsg(paid.error === 'insufficient'
+            ? (locale === 'fr' ? 'Minutes de traduction insuffisantes. Rechargez votre solde audio.' : 'Not enough translation minutes. Top up your audio balance.')
+            : c.failed);
+          setPhase('idle'); return;
+        }
+        const res = await relay({ data: { audioBase64: btoa(s), mime: blob.type.split(';')[0] ?? 'audio/webm', source, target, voice: v, sessionId, block: 0 } });
         if (!res.ok) setMsg(res.error === 'missing_provider_key' ? c.missing : c.failed);
         else {
           const audio = `data:audio/wav;base64,${res.value.speechBase64}`;
@@ -77,6 +89,7 @@ export function CallStudio() {
           {voices[theirs].map(v => <label key={v.id} className={`flex items-center gap-2 rounded-md border p-2 ${voice === v.id ? 'border-primary' : 'border-input'}`}><input type="radio" name="voice" checked={voice === v.id} onChange={() => setVoice(v.id)} />{v.name} · {c[v.g]}</label>)}
         </fieldset>
         <label className="flex items-start gap-2"><Checkbox checked={agree} onCheckedChange={v => setAgree(v === true)} /><span className="text-sm">{c.consent}</span></label>
+        <p className="text-sm text-muted-foreground">{locale === 'fr' ? 'Chaque phrase utilise une tranche prépayée de 10 secondes de votre solde audio.' : 'Each sentence uses one prepaid 10-second block from your audio balance.'}</p>
         {ready === false && <p role="alert">{c.missing}</p>}
         <label className="field"><span>{locale === 'fr' ? 'Sortie de ma voix traduite' : 'Translated voice output'}</span>
           {sinkOk ? <select className={sel} value={sink} onChange={e => setSink(e.target.value)} onFocus={() => void loadOuts()}>

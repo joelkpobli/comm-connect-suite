@@ -3,10 +3,25 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { PIPELINE_LANGUAGES } from './translation-pipeline';
-import { usageReference } from './usage-meter';
+import { BLOCK_SECONDS, MAX_SESSION_BLOCKS, blockCost, usageReference } from './usage-meter';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from '@/integrations/supabase/types';
 
 const Lang = z.enum(PIPELINE_LANGUAGES);
+const PaidBlock = z.object({ sessionId: z.string().uuid(), block: z.number().int().min(0).max(MAX_SESSION_BLOCKS) });
 type Outcome<T> = { ok: true; value: T; ms: number } | { ok: false; error: string; provider: string };
+
+/** A live fallback request must belong to the caller's current prepaid block. */
+async function hasPaidAudioBlock(context: { supabase: SupabaseClient<Database>; userId: string }, data: z.infer<typeof PaidBlock>) {
+  const now = Date.now();
+  const paid = await context.supabase.from('audio_time_transactions').select('id').eq('user_id', context.userId)
+    .eq('reference', usageReference('audio', context.userId, data.sessionId, data.block))
+    .eq('kind', 'usage').eq('seconds', -blockCost('audio'))
+    .gte('created_at', new Date(now - BLOCK_SECONDS * 1000).toISOString())
+    .lte('created_at', new Date(now).toISOString()).maybeSingle();
+  return !paid.error && Boolean(paid.data);
+}
+const notPaid = { ok: false as const, error: 'not_paid', provider: 'billing' };
 
 async function run<T>(fn: () => Promise<T>): Promise<Outcome<T>> {
   const { ProviderError } = await import('./real-providers.server');
@@ -23,23 +38,26 @@ export const providerStatus = createServerFn({ method: 'GET' }).middleware([requ
 }));
 
 export const realTranscribe = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ audioBase64: z.string().min(1).max(2_800_000), mime: z.string().regex(/^audio\/[\w.+-]+(;.*)?$/), language: Lang }).parse(d))
-  .handler(async ({ data }) => {
+  .inputValidator((d) => PaidBlock.extend({ audioBase64: z.string().min(1).max(2_800_000), mime: z.string().regex(/^audio\/[\w.+-]+(;.*)?$/), language: Lang }).parse(d))
+  .handler(async ({ data, context }) => {
+    if (!await hasPaidAudioBlock(context, data)) return notPaid;
     const { deepgramTranscribe } = await import('./real-providers.server');
     const bytes = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
     return run(() => deepgramTranscribe(bytes, data.mime, data.language, process.env['DEEPGRAM_API_KEY']));
   });
 
 export const realTranslate = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ text: z.string().min(1).max(2000), source: Lang, target: Lang }).parse(d))
-  .handler(async ({ data }) => {
+  .inputValidator((d) => PaidBlock.extend({ text: z.string().min(1).max(2000), source: Lang, target: Lang }).parse(d))
+  .handler(async ({ data, context }) => {
+    if (!await hasPaidAudioBlock(context, data)) return notPaid;
     const { deeplTranslate } = await import('./real-providers.server');
     return run(() => deeplTranslate(data.text, data.source, data.target, process.env['DEEPL_API_KEY']));
   });
 
 export const realSynthesize = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ text: z.string().min(1).max(2000), language: Lang }).parse(d))
-  .handler(async ({ data }) => {
+  .inputValidator((d) => PaidBlock.extend({ text: z.string().min(1).max(2000), language: Lang }).parse(d))
+  .handler(async ({ data, context }) => {
+    if (!await hasPaidAudioBlock(context, data)) return notPaid;
     const { deepgramSynthesize } = await import('./real-providers.server');
     const r = await run(() => deepgramSynthesize(data.text, data.language, process.env['DEEPGRAM_API_KEY']));
     if (!r.ok) return r;
@@ -50,8 +68,9 @@ export const realSynthesize = createServerFn({ method: 'POST' }).middleware([req
 const b64 = (u: Uint8Array) => { let s = ''; for (const b of u) s += String.fromCharCode(b); return btoa(s); };
 /** Full turn fr -> en (or en -> fr return path). Missing key => explicit missing_provider_key error. */
 export const realRelay = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ audioBase64: z.string().min(1).max(2_800_000), mime: z.string().regex(/^audio\/[\w.+-]+(;.*)?$/), source: Lang, target: Lang, voice: z.string().regex(/^aura-2-[a-z]+-[a-z]{2}$/).optional() }).refine((v) => v.source !== v.target).parse(d))
-  .handler(async ({ data }) => {
+  .inputValidator((d) => PaidBlock.extend({ audioBase64: z.string().min(1).max(2_800_000), mime: z.string().regex(/^audio\/[\w.+-]+(;.*)?$/), source: Lang, target: Lang, voice: z.string().regex(/^aura-2-[a-z]+-[a-z]{2}$/).optional() }).refine((v) => v.source !== v.target).parse(d))
+  .handler(async ({ data, context }) => {
+    if (!await hasPaidAudioBlock(context, data)) return notPaid;
     const { relayTurn } = await import('./real-providers.server');
     const bytes = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
     const r = await run(() => relayTurn(bytes, data.mime, data.source, data.target, { deepgram: process.env['DEEPGRAM_API_KEY'], deepl: process.env['DEEPL_API_KEY'] }, fetch, data.voice));

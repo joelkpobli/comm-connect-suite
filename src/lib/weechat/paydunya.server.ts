@@ -42,7 +42,7 @@ export async function fulfillInvoice(token: string, expectedUserId?: string): Pr
   if (json.status === 'cancelled') return { status: 'cancelled', itemId, userId };
   if (json.status !== 'completed') return { status: 'pending', itemId, userId };
   const item = itemId ? findItem(itemId) : undefined;
-  if (!item || !userId || Number(json.invoice?.total_amount) !== item.amountXOF) { console.error('PayDunya mismatch', token); return { status: 'failed' }; }
+  if (!item || !userId || Number(json.invoice?.total_amount) !== item.amountXOF) { console.error('PayDunya mismatch'); return { status: 'failed' }; }
 
   await grantItem(item, userId, `paydunya:${token}`, 'PayDunya');
   return { status: 'completed', itemId: item.id, userId };

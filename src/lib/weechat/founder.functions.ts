@@ -103,6 +103,9 @@ export const listFounderUsers = createServerFn({ method: 'GET' }).middleware([re
 export const founderAdjustBalance = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ userId: z.string().uuid(), wallet: z.enum(['points', 'audio_minutes', 'tokens']), amount: z.number().int().min(-1_000_000).max(1_000_000).refine((v) => v !== 0), reason: z.string().trim().min(3).max(150) }).parse(d))
   .handler(async ({ data, context }) => {
+    if (data.userId === context.userId && data.amount > 0 && (data.wallet === 'audio_minutes' || data.wallet === 'tokens')) {
+      return { ok: false as const, error: 'Vous ne pouvez pas vous attribuer des minutes audio ou des jetons IA.' };
+    }
     const db = await admin(context);
     const ref = `founder:${context.userId}:${crypto.randomUUID()}`;
     const reason = `Ajustement fondateur — ${data.reason}`;

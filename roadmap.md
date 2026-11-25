@@ -7,3 +7,5 @@
 - [ ] Finitions packs
 - [x] Transformation totale : plafond 15 s et 5 points/s, packs inchangés, tests automatisés validés
 - [ ] Essai réel Transformation totale : session connectée non disponible pour les tests, Studio encore désactivé
+- [x] Selected security fixes: prepaid translation enforced, self-granted audio/tokens blocked, payment-token logging removed (57 regression tests passed)
+- [ ] Leaked-password protection: requires enabling the setting in the external Supabase dashboard (Pro plan or above)
