@@ -2,7 +2,7 @@ import { createServerFn } from '@tanstack/react-start';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
 import { mp4DurationSeconds } from './mp4-duration';
-import { aiTaskCost, aiTaskReference, IMAGE_MAX_COUNT, CHARACTER_SWAP_MAX_BYTES, CHARACTER_SWAP_MAX_SECONDS, TALKING_PHOTO_MAX_SECONDS, type AiTaskKind } from './ai-pricing';
+import { aiTaskCost, aiTaskWallet, aiTaskReference, IMAGE_MAX_COUNT, CHARACTER_SWAP_MAX_BYTES, CHARACTER_SWAP_MAX_SECONDS, TALKING_PHOTO_MAX_SECONDS, type AiTaskKind } from './ai-pricing';
 
 export type AiTaskResult =
   | { ok: true; taskId: string; providerJobId: string; cost: number }
@@ -40,7 +40,13 @@ async function run(kind: AiTaskKind, userId: string, units: number, submit: (a: 
   const taskId = crypto.randomUUID();
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const label = kind === 'talking_photo' ? 'Photo parlante' : kind === 'face_swap' ? 'Swap Photo' : kind === 'character_swap' ? 'Transformation totale' : "Génération d'image";
-  const debit = await supabaseAdmin.rpc('post_ai_token_operation', { p_user_id: userId, p_tokens: -cost, p_kind: 'usage', p_reason: label, p_reference: aiTaskReference(kind, userId, taskId) });
+  const postOperation = (amount: number, refund = false) => {
+    const common = { p_user_id: userId, p_kind: refund ? 'refund' : 'usage', p_reason: refund ? `Remboursement — ${label}` : label, p_reference: aiTaskReference(kind, userId, taskId, refund) };
+    return aiTaskWallet(kind) === 'points'
+      ? supabaseAdmin.rpc('post_credit_operation', { ...common, p_amount: amount })
+      : supabaseAdmin.rpc('post_ai_token_operation', { ...common, p_tokens: amount });
+  };
+  const debit = await postOperation(-cost);
   if (debit.error) return { ok: false, error: /insufficient/i.test(debit.error.message) ? 'insufficient' : 'failed' };
   try {
     const job = await submit(adapter);
@@ -51,7 +57,7 @@ async function run(kind: AiTaskKind, userId: string, units: number, submit: (a: 
     const billing = e instanceof Error && e.message === 'provider_billing';
     console.error(`ai task ${kind} submit failed`, e instanceof Error ? e.message : e);
     await usage.recordProviderEvent(adapter.name, kind, billing ? 'billing' : 'failed', 'ai_generation', e instanceof Error ? e.message : String(e));
-    await supabaseAdmin.rpc('post_ai_token_operation', { p_user_id: userId, p_tokens: cost, p_kind: 'refund', p_reason: `Remboursement — ${label}`, p_reference: aiTaskReference(kind, userId, taskId, true) });
+    await postOperation(cost, true);
     return { ok: false, error: billing ? 'provider_billing' : 'provider_failed' };
   }
 }

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
-import { aiTokensQuery, validityQuery, fmtExpiry } from '@/lib/weechat/credits-query';
+import { creditsQuery, aiTokensQuery, validityQuery, fmtExpiry } from '@/lib/weechat/credits-query';
 import { AI_TASK_PRICES, CHARACTER_SWAP_MAX_BYTES, CHARACTER_SWAP_MAX_SECONDS, TALKING_PHOTO_MAX_SECONDS, type AiTaskKind } from '@/lib/weechat/ai-pricing';
 import { startFaceSwapTask, startCharacterSwapTask, startImageGenerationTask, startTalkingPhotoTask, getAiTaskStatus } from '@/lib/weechat/ai-tasks.functions';
 
@@ -35,7 +35,7 @@ const AI_STUDIO_AVAILABLE = false;
 export function SwapPhotoPage() {
   const { locale } = useDemo(); const fr = locale === 'fr';
   const qc = useQueryClient();
-  const tokens = useQuery(aiTokensQuery); const validity = useQuery(validityQuery);
+  const points = useQuery(creditsQuery); const tokens = useQuery(aiTokensQuery); const validity = useQuery(validityQuery);
   const [tab, setTab] = useState<Tab>('body');
   const [target, setTarget] = useState<string | null>(null);
   const [face, setFace] = useState<string | null>(null);
@@ -49,37 +49,38 @@ export function SwapPhotoPage() {
   const [results, setResults] = useState<{ urls: string[]; video: boolean } | null>(null);
   const swap = useServerFn(startFaceSwapTask), gen = useServerFn(startImageGenerationTask), talk = useServerFn(startTalkingPhotoTask), body = useServerFn(startCharacterSwapTask), status = useServerFn(getAiTaskStatus);
 
+  const currency = tab === 'body' ? (fr ? 'points' : 'points') : (fr ? 'jetons' : 'tokens');
   const errors: Record<string, string> = fr
-    ? { insufficient: 'Jetons IA insuffisants. Rechargez un pack.', provider_billing: 'Service IA momentanément indisponible. Vos jetons ont été remboursés.', provider_failed: 'La création a échoué. Vos jetons ont été remboursés.', provider_not_configured: 'Service IA indisponible.', maintenance: 'Maintenance technique en cours sur la génération IA. Aucun jeton n’a été débité.', failed: 'Une erreur est survenue.', timeout: 'Le traitement prend trop de temps. Réessayez plus tard.', video_too_long: `Vidéo trop longue : ${CHARACTER_SWAP_MAX_SECONDS} s et 25 Mo maximum.`, video_unreadable: 'Vidéo illisible. Utilisez un fichier MP4.' }
-    : { insufficient: 'Not enough AI tokens. Top up a pack.', provider_billing: 'AI service temporarily unavailable. Your tokens were refunded.', provider_failed: 'Creation failed. Your tokens were refunded.', provider_not_configured: 'AI service unavailable.', maintenance: 'AI generation is under maintenance. No tokens were charged.', failed: 'Something went wrong.', timeout: 'Processing is taking too long. Try again later.', video_too_long: `Video too long: ${CHARACTER_SWAP_MAX_SECONDS} s and 25 MB max.`, video_unreadable: 'Unreadable video. Use an MP4 file.' };
+    ? { insufficient: tab === 'body' ? 'Points insuffisants. Rechargez un pack.' : 'Jetons IA insuffisants. Rechargez un pack.', provider_billing: `Service IA momentanément indisponible. Vos ${currency} ont été remboursés.`, provider_failed: `La création a échoué. Vos ${currency} ont été remboursés.`, provider_not_configured: 'Service IA indisponible.', maintenance: `Maintenance technique en cours sur la génération IA. Aucun débit de ${currency}.`, failed: 'Une erreur est survenue.', timeout: 'Le traitement prend trop de temps. Réessayez plus tard.', video_too_long: `Vidéo trop longue : ${CHARACTER_SWAP_MAX_SECONDS} s et 25 Mo maximum.`, video_unreadable: 'Vidéo illisible. Utilisez un fichier MP4.' }
+    : { insufficient: tab === 'body' ? 'Not enough points. Top up a pack.' : 'Not enough AI tokens. Top up a pack.', provider_billing: `AI service temporarily unavailable. Your ${currency} were refunded.`, provider_failed: `Creation failed. Your ${currency} were refunded.`, provider_not_configured: 'AI service unavailable.', maintenance: `AI generation is under maintenance. No ${currency} were charged.`, failed: 'Something went wrong.', timeout: 'Processing is taking too long. Try again later.', video_too_long: `Video too long: ${CHARACTER_SWAP_MAX_SECONDS} s and 25 MB max.`, video_unreadable: 'Unreadable video. Use an MP4 file.' };
 
   async function go(kind: AiTaskKind, start: () => Promise<{ ok: true; providerJobId: string } | { ok: false; error: string }>) {
     setBusy(true); setError(null); setResults(null);
     try {
       const r = await start();
-      qc.invalidateQueries({ queryKey: aiTokensQuery.queryKey });
-      if (!r.ok) { setError(errors[r.error] ?? errors['failed']!); return; }
+      qc.invalidateQueries({ queryKey: kind === 'character_swap' ? creditsQuery.queryKey : aiTokensQuery.queryKey });
+      if (!r.ok) { setError(errors[r.error] ?? errors['failed'] ?? 'Erreur / Error'); return; }
       for (let i = 0; i < 240; i++) {
         await new Promise((s) => setTimeout(s, i < 5 ? 2000 : 5000));
         const s = await status({ data: { kind, providerJobId: r.providerJobId } });
         if (s.state === 'completed') { setResults({ urls: ('resultUrls' in s && s.resultUrls) || [], video: kind === 'talking_photo' || kind === 'character_swap' }); return; }
-        if (s.state === 'failed') { setError(errors['provider_failed']!); return; }
+        if (s.state === 'failed') { setError(fr ? 'Le fournisseur n’a pas terminé la création. Contactez le support avant de réessayer.' : 'The provider could not complete the creation. Contact support before retrying.'); return; }
       }
-      setError(errors['timeout']!);
-    } catch { setError(errors['failed']!); } finally { setBusy(false); }
+      setError(errors['timeout'] ?? 'Timeout');
+    } catch { setError(errors['failed'] ?? 'Erreur / Error'); } finally { setBusy(false); }
   }
 
   async function pickVideo(f: File) {
-    if (!/^video\/(mp4|quicktime)$/.test(f.type) || f.size > CHARACTER_SWAP_MAX_BYTES) { setVideo(null); setError(errors['video_too_long']!); return; }
+    if (!/^video\/(mp4|quicktime)$/.test(f.type) || f.size > CHARACTER_SWAP_MAX_BYTES) { setVideo(null); setError(errors['video_too_long'] ?? '15 s max'); return; }
     const preview = URL.createObjectURL(f);
     const seconds = await new Promise<number>((ok) => { const v = document.createElement('video'); v.preload = 'metadata'; v.onloadedmetadata = () => ok(Math.ceil(v.duration || 0)); v.onerror = () => ok(0); v.src = preview; });
-    if (!seconds || seconds > CHARACTER_SWAP_MAX_SECONDS) { URL.revokeObjectURL(preview); setVideo(null); setError(errors['video_too_long']!); return; }
+    if (!seconds || seconds > CHARACTER_SWAP_MAX_SECONDS) { URL.revokeObjectURL(preview); setVideo(null); setError(errors['video_too_long'] ?? '15 s max'); return; }
     const data = await new Promise<string>((ok, ko) => { const r = new FileReader(); r.onload = () => ok(String(r.result)); r.onerror = () => ko(r.error); r.readAsDataURL(f); });
     setError(null); setVideo({ data, preview, seconds });
   }
 
   const tabs: [Tab, string, typeof ImageIcon, string][] = [
-    ['body', fr ? 'Transformation totale' : 'Full transformation', UserRound, `${AI_TASK_PRICES.characterSwapPerSecond} ${fr ? 'jetons / seconde' : 'tokens / second'}`],
+    ['body', fr ? 'Transformation totale' : 'Full transformation', UserRound, `${AI_TASK_PRICES.characterSwapPerSecond} ${fr ? 'points / seconde' : 'points / second'}`],
     ['swap', 'Swap Photo', ImageIcon, `${AI_TASK_PRICES.faceSwapPerPhoto} ${fr ? 'jetons / photo' : 'tokens / photo'}`],
     ['image', fr ? 'Créer une image' : 'Create an image', Sparkles, `${AI_TASK_PRICES.imagePerUnit} ${fr ? 'jetons / image' : 'tokens / image'}`],
     ['talk', fr ? 'Photo parlante' : 'Talking photo', MessageSquareText, `${AI_TASK_PRICES.talkingPhotoPerSecond} ${fr ? 'jetons / seconde' : 'tokens / second'}`],
@@ -87,11 +88,11 @@ export function SwapPhotoPage() {
   const cost = tab === 'body' ? (video?.seconds ?? 0) * AI_TASK_PRICES.characterSwapPerSecond : tab === 'swap' ? AI_TASK_PRICES.faceSwapPerPhoto : tab === 'image' ? count * AI_TASK_PRICES.imagePerUnit : seconds * AI_TASK_PRICES.talkingPhotoPerSecond;
 
   return <><PageTitle title={fr ? 'Studio IA' : 'AI Studio'} subtitle={fr ? 'Changez un visage sur une photo, créez des images ou faites parler une photo.' : 'Swap a face in a photo, create images or make a photo talk.'}
-      action={<span className="rounded-full border border-border px-3 py-1 text-sm">{tokens.data ?? '…'} {fr ? 'jetons IA' : 'AI tokens'} · {fmtExpiry(validity.data?.tokens, !fr)}</span>} />
-    {!AI_STUDIO_AVAILABLE && <div role="status" className="mb-4 rounded-xl border border-primary/40 bg-primary/10 p-4 text-sm"><strong className="mr-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">{fr ? 'Bientôt disponible' : 'Coming soon'}</strong>{fr ? 'Le Studio IA ouvre très bientôt. Vos jetons IA restent valables 365 jours et ne sont jamais débités avant l’ouverture.' : 'The AI Studio opens very soon. Your AI tokens stay valid for 365 days and are never charged before launch.'}</div>}
+      action={<span className="rounded-full border border-border px-3 py-1 text-sm">{tab === 'body' ? points.data?.balance ?? '…' : tokens.data ?? '…'} {tab === 'body' ? 'points' : fr ? 'jetons IA' : 'AI tokens'} · {fmtExpiry(tab === 'body' ? validity.data?.credits : validity.data?.tokens, !fr)}</span>} />
+    {!AI_STUDIO_AVAILABLE && <div role="status" className="mb-4 rounded-xl border border-primary/40 bg-primary/10 p-4 text-sm"><strong className="mr-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">{fr ? 'Bientôt disponible' : 'Coming soon'}</strong>{fr ? 'Le Studio IA ouvre très bientôt. Aucun point ni jeton IA n’est débité avant l’ouverture.' : 'The AI Studio opens very soon. No points or AI tokens are charged before launch.'}</div>}
     <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{tabs.map(([id, label, Icon, price]) =>
-      <button key={id} type="button" onClick={() => { setTab(id); setResults(null); setError(null); }} className={`flex min-h-11 items-center gap-3 rounded-xl border p-3 text-left transition ${tab === id ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
-        <Icon className="text-primary" size={20} /><span><strong className="block text-sm">{label}</strong><small className="text-muted-foreground">{price}</small></span></button>)}</div>
+      <Button key={id} type="button" variant="outline" disabled={busy} aria-pressed={tab === id} onClick={() => { setTab(id); setResults(null); setError(null); }} className={`flex min-h-11 items-center gap-3 rounded-xl border p-3 text-left transition ${tab === id ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}>
+        <Icon className="text-primary" size={20} /><span><strong className="block text-sm">{label}</strong><small className="text-muted-foreground">{price}</small></span></Button>)}</div>
 
     <section className="mt-6 grid gap-5 rounded-2xl border border-border p-5">
       {tab === 'body' && <div className="grid gap-4">
@@ -112,10 +113,13 @@ export function SwapPhotoPage() {
           <label className="grid gap-2 text-sm font-medium">{fr ? `Durée (max ${TALKING_PHOTO_MAX_SECONDS} s)` : `Length (max ${TALKING_PHOTO_MAX_SECONDS} s)`}<Input type="number" min={1} max={TALKING_PHOTO_MAX_SECONDS} value={seconds} onChange={(e) => setSeconds(Math.min(TALKING_PHOTO_MAX_SECONDS, Math.max(1, Number(e.target.value) || 1)))} /></label></div></div>}
       <p className="text-xs text-muted-foreground">{fr ? 'Utilisez uniquement des visages dont vous avez l’accord. Vos photos ne sont pas enregistrées par Weechat ; téléchargez le résultat, il expire au bout d’une heure.' : 'Only use faces you have consent for. Weechat does not store your photos; download the result, it expires after one hour.'}</p>
       <Button disabled={!AI_STUDIO_AVAILABLE || busy || (tab === 'body' && (!video || !face)) || (tab === 'swap' && (!target || !face)) || (tab === 'image' && prompt.trim().length < 3) || (tab === 'talk' && (!target || !script.trim()))}
-        onClick={() => tab === 'body' ? go('character_swap', () => body({ data: { video: video!.data, characterImage: face! } })) : tab === 'swap' ? go('face_swap', () => swap({ data: { targetImage: target!, faceImage: face! } }))
-          : tab === 'image' ? go('image_generation', () => gen({ data: { prompt, aspectRatio: '1:1', style: 'photo', count } }))
-          : go('talking_photo', () => talk({ data: { imageUrl: target!, script, seconds } }))}>
-        {busy ? <><Loader2 className="animate-spin" />{fr ? 'Création en cours…' : 'Creating…'}</> : <>{fr ? 'Créer' : 'Create'} · {cost} {fr ? 'jetons' : 'tokens'}</>}</Button>
+        onClick={() => {
+          if (tab === 'body') { if (!video || !face) return; const input = { video: video.data, characterImage: face }; void go('character_swap', () => body({ data: input })); }
+          else if (tab === 'swap') { if (!target || !face) return; const input = { targetImage: target, faceImage: face }; void go('face_swap', () => swap({ data: input })); }
+          else if (tab === 'image') void go('image_generation', () => gen({ data: { prompt, aspectRatio: '1:1', style: 'photo', count } }));
+          else { if (!target) return; const input = { imageUrl: target, script, seconds }; void go('talking_photo', () => talk({ data: input })); }
+        }}>
+        {busy ? <><Loader2 className="animate-spin" />{fr ? 'Création en cours…' : 'Creating…'}</> : <>{fr ? 'Créer' : 'Create'} · {cost} {currency}</>}</Button>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       {results && <div className="grid gap-3 sm:grid-cols-2">{results.urls.map((u) => <div key={u} className="grid gap-2">
         {results.video ? <video src={u} controls className="w-full rounded-xl" /> : <img src={u} alt="" className="w-full rounded-xl" />}

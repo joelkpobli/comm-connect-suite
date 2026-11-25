@@ -5,3 +5,4 @@
 - [ ] Modèles e-mails transactionnels (reçu créé, envoi réel à vérifier)
 - [x] Modèles e-mails d’authentification (6 créés et rendus ; activation à la publication)
 - [ ] Finitions packs
+- [ ] Transformation totale : plafond 15 s, débit en points et contrôle du formulaire
