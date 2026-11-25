@@ -5,4 +5,5 @@
 - [ ] Modèles e-mails transactionnels (reçu créé, envoi réel à vérifier)
 - [x] Modèles e-mails d’authentification (6 créés et rendus ; activation à la publication)
 - [ ] Finitions packs
-- [ ] Transformation totale : plafond 15 s, débit en points et contrôle du formulaire
+- [x] Transformation totale : plafond 15 s et 5 points/s, packs inchangés, tests automatisés validés
+- [ ] Essai réel Transformation totale : session connectée non disponible pour les tests, Studio encore désactivé
