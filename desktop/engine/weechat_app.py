@@ -165,11 +165,13 @@ class App:
         self.studio_btn.pack(fill="x", padx=10, pady=4)
 
         tr = tk.Frame(nb, bg=PANEL)
-        nb.add(tr, text="Transformation")
-        lbl(tr, "Studio Transformation Avatar : crée une nouvelle vidéo MP4 avec le visage de la photo "
-                "(choisis dans les onglets Swap Live et Studio Diffusion). Le résultat est enregistré "
-                "sur le Bureau puis prêt à diffuser.", fg=MUTED, wraplength=360,
-            justify="left").pack(anchor="w", padx=10, pady=(12, 8))
+        nb.add(tr, text="Face Swap Vidéo")
+        lbl(tr, "Échange de visage vidéo : crée une nouvelle vidéo MP4 avec le visage de la photo. "
+                "Le résultat est enregistré sur le Bureau puis prêt à diffuser.", fg=MUTED, wraplength=360,
+            justify="left").pack(anchor="w", padx=10, pady=(12, 4))
+        lbl(tr, "⚠ Seul le visage est remplacé : cheveux, corps et vêtements restent ceux de la vidéo. "
+                "Choisissez une vidéo dont la personne, la posture et la tenue ressemblent à votre photo.",
+            fg=WARN, wraplength=360, justify="left").pack(anchor="w", padx=10, pady=(0, 8))
         btn(tr, "Choisir la photo", self.pick).pack(fill="x", padx=10, pady=3)
         btn(tr, "Choisir la vidéo", self.pick_video).pack(fill="x", padx=10, pady=3)
         self.transform_btn = btn(tr, "Lancer la transformation", self.toggle_transform, bg=OK)
@@ -197,10 +199,9 @@ class App:
             btn(self.account, "Créer un compte", lambda: webbrowser.open(weechat_account.SITE + "/inscription"),
                 bg=PANEL).pack(side="left")
             return
-        email = (self.session.get("user") or {}).get("email", "")
         bal = "Chargement des soldes…" if points is None else \
             f"{points} points  ·  {seconds // 60} min {seconds % 60:02d} s audio"
-        tk.Label(self.account, text=f"{email}   ", bg=BG, fg=FG, font=(FONT, 10, "bold")).pack(side="left")
+        tk.Label(self.account, text="● Compte connecté   ", bg=BG, fg=OK, font=(FONT, 10, "bold")).pack(side="left")
         tk.Label(self.account, text=bal + "   ", bg=BG, fg=OK, font=(FONT, 10, "bold")).pack(side="left")
         if points is not None:
             tk.Label(self.account, text=("Licence Weechat Camera active ✓   " if self.license else
