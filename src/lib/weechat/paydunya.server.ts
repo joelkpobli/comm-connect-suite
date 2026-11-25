@@ -37,11 +37,12 @@ export async function fulfillInvoice(token: string, expectedUserId?: string): Pr
   const json = await res.json().catch(() => null) as { response_code?: string; status?: string; invoice?: { total_amount?: number | string }; custom_data?: { user_id?: string; item_id?: string } } | null;
   if (!json || json.response_code !== '00') return { status: 'failed' };
   const userId = json.custom_data?.user_id, itemId = json.custom_data?.item_id;
+  // A caller may only learn about their own invoices.
+  if (expectedUserId !== undefined && expectedUserId !== userId) return { status: 'failed' };
   if (json.status === 'cancelled') return { status: 'cancelled', itemId, userId };
   if (json.status !== 'completed') return { status: 'pending', itemId, userId };
   const item = itemId ? findItem(itemId) : undefined;
   if (!item || !userId || Number(json.invoice?.total_amount) !== item.amountXOF) { console.error('PayDunya mismatch', token); return { status: 'failed' }; }
-  if (expectedUserId && expectedUserId !== userId) return { status: 'failed' };
 
   await grantItem(item, userId, `paydunya:${token}`, 'PayDunya');
   return { status: 'completed', itemId: item.id, userId };
