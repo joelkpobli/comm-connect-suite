@@ -56,10 +56,10 @@ export function RestyleLivePage() {
   const issue = snapshot?.issues.camera;
   const issueText = issue === 'denied' ? (fr ? 'Caméra refusée. Autorisez-la dans les réglages du navigateur.' : 'Camera denied. Allow it in browser settings.') : issue === 'missing' ? (fr ? 'Aucune caméra détectée.' : 'No camera detected.') : issue ? (fr ? 'Caméra indisponible. Vérifiez votre appareil et les applications qui l’utilisent.' : 'Camera unavailable. Check your device and apps using it.') : '';
   return <>
-    <PageTitle title="Restyle Live" subtitle={fr ? 'Effets vidéo locaux · Version expérimentale' : 'Local video effects · Experimental version'} />
+    <PageTitle title="Restyle Live" subtitle={fr ? 'Sublimez votre image en direct' : 'Enhance your image live'} />
     <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-y border-border py-4 text-sm">
       <span className="flex items-center gap-2 text-primary"><Sparkles size={18} />{fr ? 'Aperçu local gratuit · Aucun point débité' : 'Free local preview · No points charged'}</span>
-      <span className="text-muted-foreground">{fr ? 'Restylisation IA non connectée' : 'AI restyling not connected'}</span>
+      <span className="text-muted-foreground">{fr ? 'Filtres studio pour votre webcam' : 'Studio filters for your webcam'}</span>
     </div>
     <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
       <section className="grid min-w-0 gap-4">

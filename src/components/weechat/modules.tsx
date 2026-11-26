@@ -9,15 +9,21 @@ import { usagePolicy } from '@/lib/weechat/feature-status';
 
 export function SwapLivePage() {
   const { locale } = useDemo(); const fr = locale === 'fr';
-  return <><PageTitle title="Swap Live" subtitle={fr ? 'Changement de visage : moteur Windows, pas une animation de photo dans le navigateur.' : 'Face replacement: Windows engine, not a browser photo animation.'} />
+  const steps = fr ? [
+    ['Installez Weechat pour Windows', 'Un seul installateur : l’application et la caméra virtuelle « Weechat Camera » sont prêtes en quelques minutes.'],
+    ['Choisissez votre avatar', 'Sélectionnez un visage du catalogue ou votre propre photo autorisée, puis votre webcam, et cliquez « Démarrer ».'],
+    ['Appelez avec votre avatar', 'Dans WhatsApp, Zoom, Teams, Google Meet ou TikTok Live, choisissez « Weechat Camera » comme caméra.'],
+  ] : [
+    ['Install Weechat for Windows', 'One installer: the app and the “Weechat Camera” virtual camera are ready in minutes.'],
+    ['Choose your avatar', 'Pick a catalogue face or your own authorised photo, then your webcam, and click “Start”.'],
+    ['Call with your avatar', 'In WhatsApp, Zoom, Teams, Google Meet or TikTok Live, select “Weechat Camera” as your camera.'],
+  ];
+  return <><PageTitle title="Swap Live" subtitle={fr ? 'Votre avatar en direct dans tous vos appels vidéo.' : 'Your live avatar in all your video calls.'} />
     <section className="grid gap-5 border-y border-border py-6">
-      <h2 className="text-xl font-semibold">{fr ? 'Essai Windows distinct du compte Weechat' : 'Windows trial separate from your Weechat account'}</h2>
-      <p className="text-muted-foreground">{fr ? 'Le moteur local utilise votre webcam et une photo de visage autorisée. Il ne se connecte pas encore à votre compte, ne vérifie pas votre solde et ne retire aucun point.' : 'The local engine uses your webcam and an authorised face photo. It does not yet sign into your account, check your balance or debit points.'}</p>
-      <p className="text-sm">{fr ? `Tarif prévu : ${usagePolicy.swapPointsPerSecond} points/s. Le décompte sécurisé et l’arrêt sur solde insuffisant ne sont pas encore reliés au moteur Windows.` : `Planned rate: ${usagePolicy.swapPointsPerSecond} points/s. Secure billing and stopping on insufficient balance are not yet connected to the Windows engine.`}</p>
-      <p className="text-sm text-muted-foreground">{fr ? 'Qualité, fluidité, caméra virtuelle et droits commerciaux du modèle restent à valider avant lancement commercial. Aucun appel compatible n’est garanti.' : 'Quality, frame rate, virtual camera and commercial model rights must be validated before commercial release. Call compatibility is not guaranteed.'}</p>
-      <div className="flex flex-wrap gap-3"><Button asChild><Link to="/telecharger" hash="swap">{fr ? 'Installation et utilisation Windows' : 'Windows setup and usage'}<ArrowRight /></Link></Button><Button asChild variant="outline"><Link to="/avatars">{fr ? 'Voir les visages du catalogue' : 'View catalogue faces'}</Link></Button></div>
+      <ol className="grid gap-4 md:grid-cols-3">{steps.map(([t, d], i) => <li key={t} className="rounded-lg border border-border bg-card p-5"><span className="text-sm font-semibold text-primary">{fr ? 'Étape' : 'Step'} {i + 1}</span><h2 className="mt-1 text-lg font-semibold">{t}</h2><p className="mt-2 text-sm text-muted-foreground">{d}</p></li>)}</ol>
+      <p className="text-sm">{fr ? `Tarif : ${usagePolicy.swapPointsPerSecond} points par seconde d’appel, décomptés depuis votre solde Weechat. Vous êtes prévenu avant que votre solde soit épuisé.` : `Rate: ${usagePolicy.swapPointsPerSecond} points per second of call, deducted from your Weechat balance. You are alerted before your balance runs out.`}</p>
+      <div className="flex flex-wrap gap-3"><Button asChild><Link to="/telecharger" hash="swap">{fr ? 'Télécharger l’application Windows' : 'Download the Windows app'}<ArrowRight /></Link></Button><Button asChild variant="outline"><Link to="/avatars">{fr ? 'Voir les avatars' : 'View avatars'}</Link></Button></div>
     </section></>;
-
 }
 
 export function AvatarsPage() {
