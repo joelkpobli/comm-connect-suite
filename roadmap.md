@@ -9,3 +9,5 @@
 - [ ] Essai réel Transformation totale : session connectée non disponible pour les tests, Studio encore désactivé
 - [x] Selected security fixes: prepaid translation enforced, self-granted audio/tokens blocked, payment-token logging removed (57 regression tests passed)
 - [ ] Leaked-password protection: requires enabling the setting in the external Supabase dashboard (Pro plan or above)
+- [x] Selected monitoring findings: Whop request corrected to plan_id/mode=payment; historical PayDunya issue stale against current disabled UI and fail-closed server gate; no settled payments or credentials changed.
+- [ ] Live Whop checkout verification: blocked by unavailable signed-in session for the external Supabase project; no purchase or charge authorized.

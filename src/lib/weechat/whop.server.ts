@@ -13,15 +13,23 @@ function auth() {
 
 export async function createWhopCheckout(itemId: string, userId: string, origin: string) {
   const item = findItem(itemId); if (!item || !(item.amountUSD > 0)) throw new Error('Unknown item');
-  const variant = whopVariants[item.id]; if (!variant) throw new Error('No Whop variant');
+  const planId = whopVariants[item.id]; if (!planId) throw new Error('No Whop plan');
   const { headers } = auth();
   const res = await fetch(`${API}/checkout_configurations`, { method: 'POST', headers, body: JSON.stringify({
-    variant_id: variant,
+    plan_id: planId,
+    mode: 'payment',
     metadata: { user_id: userId, item_id: item.id },
     redirect_url: `${origin}/paiement-retour?provider=whop`,
   }) });
-  const json = await res.json().catch(() => null) as { purchase_url?: string } | null;
-  if (!res.ok || !json?.purchase_url) { console.error('Whop checkout failed', res.status); throw new Error('Checkout unavailable'); }
+  const json = await res.json().catch(() => null) as { purchase_url?: string; error?: { type?: unknown } } | null;
+  if (!res.ok || !json?.purchase_url) {
+    // Keep diagnostics useful without logging provider bodies, checkout URLs or customer metadata.
+    const type = json?.error?.type;
+    const category = typeof type === 'string' && ['invalid_request_error', 'authentication_error', 'permission_error', 'not_found_error', 'rate_limit_error'].includes(type)
+      ? type : res.ok ? 'missing_purchase_url' : 'provider_rejected';
+    console.error('Whop checkout failed', res.status, category);
+    throw new Error('Checkout unavailable');
+  }
   return { url: json.purchase_url };
 }
 
