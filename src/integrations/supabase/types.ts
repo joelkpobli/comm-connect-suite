@@ -238,6 +238,57 @@ export type Database = {
         }
         Relationships: []
       }
+      studio_transactions: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          reference: string
+          seconds: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          reference: string
+          seconds: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          reference?: string
+          seconds?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      studio_wallets: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          seconds: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          seconds?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          seconds?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_notices: {
         Row: {
           created_at: string
@@ -318,6 +369,13 @@ export type Database = {
           received: number
         }[]
       }
+      get_studio_account: {
+        Args: never
+        Returns: {
+          expires_at: string
+          seconds: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -355,6 +413,17 @@ export type Database = {
         }
         Returns: string
       }
+      post_studio_operation: {
+        Args: {
+          p_days?: number
+          p_reason: string
+          p_reference: string
+          p_seconds: number
+          p_user_id: string
+        }
+        Returns: number
+      }
+      studio_hours_ready: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user"
