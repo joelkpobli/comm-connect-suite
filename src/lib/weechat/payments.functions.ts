@@ -11,6 +11,12 @@ export const startCheckout = createServerFn({ method: 'POST' }).middleware([requ
   .handler(async ({ data, context }) => {
     const origin = new URL(getRequest().url).origin;
     try {
+      if (data.itemId.startsWith('studio-')) {
+        const { studioReady } = await import('./studio-hours');
+        if (!(await studioReady(context.supabase))) return { ok: false as const };
+        const { data: account } = await context.supabase.auth.getUser();
+        if (!account.user?.app_metadata?.['camera_license']) return { ok: false as const };
+      }
       if (data.method === 'card') { const { createWhopCheckout } = await import('./whop.server'); return { ok: true as const, url: (await createWhopCheckout(data.itemId, context.userId, origin)).url }; }
       if (process.env['PAYDUNYA_ENABLED'] !== 'true') return { ok: false as const };
       return { ok: true as const, url: (await createInvoice(data.itemId, context.userId, origin)).url };

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '@/integrations/supabase/types';
+import type { Plan } from './landing-copy';
 export const CAMERA_STUDIO_BONUS_SECONDS = 72 * 3600;
 export const studioBonusHours: Record<string, number> = { decouverte: 6, starter: 24, standard: 72, premium: 168, ultimate: 720 };
 export const studioPacks = [
@@ -20,3 +21,18 @@ export function studioAccount(data: unknown) {
   const r = row as Record<string, unknown>;
   return { seconds: Math.max(0, Number(r['seconds']) || 0), expiresAt: typeof r['expires_at'] === 'string' ? r['expires_at'] : null };
 }
+export function withStudioBonuses(plans: Plan[], enabled: boolean): Plan[] {
+  if (!enabled) return plans;
+  return plans.map(p => {
+    const hours = studioBonusHours[p.id];
+    if (!hours) return p;
+    return { ...p, lines: {
+      fr: [...p.lines.fr.filter(l => !l.startsWith('Studio Diffusion Vidéo')), `Bonus : ${hours} h de diffusion Studio`],
+      en: [...p.lines.en.filter(l => !l.startsWith('Studio Video Broadcast')), `Bonus: ${hours} h of Studio broadcasting`],
+    } };
+  });
+}
+export const studioPlans: Plan[] = studioPacks.map(p => ({
+  id: p.id, name: `Studio ${p.name.fr}`, price: { XOF: String(p.amountXOF), EUR: (p.amountXOF / 655.957).toFixed(2).replace('.', ','), USD: String(p.amountUSD).replace('.', ',') },
+  validity: p.days, lines: { fr: [`${p.hours.toLocaleString('fr-FR')} heures de diffusion`, 'Vidéos en boucle dans Weechat Camera', 'Licence caméra requise', `Valable ${p.days} jours`, 'Sans renouvellement automatique'], en: [`${p.hours.toLocaleString('en-GB')} broadcasting hours`, 'Looping videos in Weechat Camera', 'Camera licence required', `Valid ${p.days} days`, 'No automatic renewal'] },
+}));

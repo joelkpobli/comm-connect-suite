@@ -2,12 +2,15 @@
 begin;
 create table public.studio_wallets (
  user_id uuid primary key references auth.users(id) on delete cascade,
- seconds bigint not null default 0 check (seconds >= 0), expires_at timestamptz
+ seconds bigint not null default 0 check (seconds >= 0), expires_at timestamptz,
+ created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
 grant select on public.studio_wallets to authenticated;
 grant all on public.studio_wallets to service_role;
 alter table public.studio_wallets enable row level security;
 create policy studio_wallet_owner on public.studio_wallets for select to authenticated using (user_id = auth.uid());
+create function public.studio_wallet_timestamp() returns trigger language plpgsql set search_path = public as $$ begin new.updated_at := now(); return new; end $$;
+create trigger studio_wallet_updated before update on public.studio_wallets for each row execute function public.studio_wallet_timestamp();
 create table public.studio_transactions (
  id uuid primary key default gen_random_uuid(), user_id uuid not null references auth.users(id) on delete cascade,
  seconds bigint not null check (seconds <> 0), reference text not null unique,
@@ -53,7 +56,7 @@ revoke all on function public.post_studio_operation(uuid,bigint,text,text,intege
 grant execute on function public.post_studio_operation(uuid,bigint,text,text,integer) to service_role;
 -- Existing lifetime licence holders also receive their one-time welcome credit.
 insert into public.studio_wallets(user_id,seconds,expires_at)
-select id,259200,now()+interval '365 days' from auth.users where app_metadata->>'camera_license'='true';
+select id,259200,now()+interval '365 days' from auth.users where raw_app_meta_data->>'camera_license'='true';
 insert into public.studio_transactions(user_id,seconds,reference,reason)
-select id,259200,'camera-welcome:'||id::text,'Bonus caméra : 72 heures' from auth.users where app_metadata->>'camera_license'='true';
+select id,259200,'camera-welcome:'||id::text,'Bonus caméra : 72 heures' from auth.users where raw_app_meta_data->>'camera_license'='true';
 commit;

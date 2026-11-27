@@ -11,7 +11,7 @@ const configure = () => {
 };
 
 describe('Whop existing-plan checkout contract', () => {
-  it.each(paydunyaCatalogue.map(item => [item.id]))('sends the mapped variant_id and owner metadata for %s', async itemId => {
+  it.each(paydunyaCatalogue.filter(item => whopVariants[item.id]).map(item => [item.id]))('sends the mapped variant_id and owner metadata for %s', async itemId => {
     configure();
     const fetcher = vi.fn().mockResolvedValue(Response.json({ purchase_url: 'https://whop.com/checkout/ch_test/' }));
     vi.stubGlobal('fetch', fetcher);

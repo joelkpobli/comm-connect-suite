@@ -1,14 +1,15 @@
-import { CameraNotaBene, PlanCompare } from './pricing-extras';
+import { PlanCompare } from './pricing-extras';
+import { OfferSelector } from './offer-selector';
+import { studioPlans, withStudioBonuses } from '@/lib/weechat/studio-hours';
 import { useState } from 'react';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
-import { creditsQuery, audioQuery, aiTokensQuery, validityQuery, fmtExpiry } from '@/lib/weechat/credits-query';
+import { creditsQuery, audioQuery, aiTokensQuery, validityQuery, studioQuery, fmtExpiry } from '@/lib/weechat/credits-query';
 import { Link } from '@tanstack/react-router';
 import { ArrowRight, AudioLines, Check, Clock, Coins, History, ShieldCheck, CreditCard, Smartphone, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useServerFn } from '@tanstack/react-start';
 import { startCheckout, getCameraLicense } from '@/lib/weechat/payments.functions';
 import { cameraLicense, landingCopy } from '@/lib/weechat/landing-copy';
-import { PlanCard } from './home';
 import { PageTitle } from './shared';
 import { useDemo } from './provider';
 import { formatCredits } from '@/lib/weechat/demo-data';
@@ -35,7 +36,8 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const en = locale === 'en';
   const { data: real } = useSuspenseQuery(creditsQuery); const { data: audio } = useQuery(audioQuery); const { data: tokens } = useQuery(aiTokensQuery); const { data: v } = useQuery(validityQuery);
   const [cur, setCur] = useState<Currency>('XOF');
-    const [kind, setKind] = useState<'swap' | 'audio' | 'tokens'>('swap');
+    const [kind, setKind] = useState<'swap' | 'audio' | 'tokens' | 'studio' | 'camera'>('swap');
+  const { data: studio } = useQuery(studioQuery);
   const checkout = useServerFn(startCheckout);
   const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
   const [busy, setBusy] = useState<string | null>(null);
@@ -48,34 +50,35 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
     setBusy(null);
   };
   const c = landingCopy(locale);
-  const buy = (p: Plan) => <Button size="lg" className="w-full text-base font-semibold" variant={p.popular ? 'default' : 'outline'} disabled={busy !== null} onClick={() => pay(p.id)}>{busy === p.id ? '…' : (en ? `Buy ${p.name}` : `Acheter ${p.name}`)}</Button>;
-  const list = kind === 'swap' ? swapPlans : kind === 'audio' ? audioPlans : tokenPlans;
+  const buy = (p: Plan) => <Button size="lg" className="w-full text-base font-semibold" variant={p.popular ? 'default' : 'outline'} disabled={busy !== null} onClick={() => pay(p.id)}>{busy === p.id ? '…' : (en ? 'Continue to payment' : 'Continuer vers le paiement')}</Button>;
+  const list = kind === 'swap' ? withStudioBonuses(swapPlans, studio?.enabled === true) : kind === 'audio' ? audioPlans : kind === 'studio' ? studioPlans : tokenPlans;
 
   return <>
     {!embedded && <>
-    <PageTitle title={en ? 'Top up points' : 'Recharge de points'} subtitle={en ? 'Two separate balances: points for video, minutes for audio translation. Pay by Mobile Money or bank card.' : 'Deux soldes séparés : les points pour la vidéo, les minutes pour la traduction audio. Paiement par Mobile Money ou carte bancaire.'} action={<Button asChild variant="outline"><Link to="/historique"><History />{en ? 'History' : 'Historique'}</Link></Button>} />
+    <PageTitle title={en ? 'Balances and top-ups' : 'Soldes et recharges'} subtitle={en ? 'Choose only what you need. One-time purchases, no automatic renewal.' : 'Choisissez selon vos besoins. Achats ponctuels, sans renouvellement automatique.'} action={<Button asChild variant="outline"><Link to="/historique"><History />{en ? 'History' : 'Historique'}</Link></Button>} />
     <div className="dual-balance">
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><Coins size={26} /></span><div><span>{en ? 'Points · Swap Live, Restyle, Photo' : 'Points · Swap Live, Restyle, Photo'}</span><strong>{formatCredits(real.totals.balance)} <small>pts</small></strong><small className="block text-xs text-muted-foreground">{fmtExpiry(v?.credits, en)}</small></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><AudioLines size={26} /></span><div><span>{en ? 'Audio translation minutes' : 'Minutes de traduction audio'}</span><strong>{fmtAudio(audio)}</strong><small className="block text-xs text-muted-foreground">{fmtExpiry(v?.audio, en)}</small></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
+      {studio?.enabled && <div className="credits-balance"><div><span>{en ? 'Studio broadcasting' : 'Diffusion Studio'}</span><strong>{Math.floor(studio.seconds / 3600)} h {Math.floor(studio.seconds % 3600 / 60)} min</strong><small>{fmtExpiry(studio.expiresAt, en)}</small></div></div>}
       <div className="credits-balance"><div className="flex items-center gap-4"><span className="credits-coin"><Coins size={26} /></span><div><span>{en ? 'AI tokens (Studio AI)' : 'Jetons IA (Studio IA)'}</span><strong>{formatCredits(tokens ?? 0)}</strong><small className="block text-xs text-muted-foreground">{fmtExpiry(v?.tokens, en)}</small></div></div><span className="demo-badge"><span />{en ? 'Real balance' : 'Solde réel'}</span></div>
     </div>
     </>}
-    <div className="lp-currow"><span>{en ? 'Show prices in' : 'Afficher les prix en'}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <Button variant="ghost" key={k} type="button" className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div></div>
-    <div className="lp-currow"><span>{en ? 'Pay with' : 'Payer par'}</span><div className="pay-methods" role="group">
-      <Button type="button" className="pay-method pay-method-active" aria-pressed="true" onClick={() => setMethod('card')}><CreditCard />{en ? 'Card · Apple Pay · Google Pay' : 'Carte · Apple Pay · Google Pay'}</Button>
-      <Button type="button" variant="outline" className="pay-method" disabled aria-disabled="true"><Smartphone />Mobile Money<span className="pay-soon">{en ? 'Coming soon' : 'Bientôt disponible'}</span></Button>
-    </div></div>
-    <div className="lp-currow"><span>{en ? 'Pack type' : 'Type de pack'}</span><div className="lp-toggle" role="group">{(['swap', 'audio', 'tokens'] as const).map(k => <Button variant="ghost" key={k} type="button" className={kind === k ? 'active' : ''} aria-pressed={kind === k} onClick={() => { setKind(k); }}>{k === 'swap' ? 'Swap Live' : k === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</Button>)}</div></div>
-    <div className="dashboard-section-header" id="audio"><h2>{kind === 'swap' ? 'Swap Live' : kind === 'audio' ? (en ? 'Audio translation' : 'Traduction audio') : (en ? 'AI tokens' : 'Jetons IA')}</h2><span className="subtle-label">{kind === 'swap' ? (en ? 'POINTS · 2 PTS PER SECOND' : 'POINTS · 2 PTS PAR SECONDE') : kind === 'audio' ? 'MINUTES' : (en ? 'SWAP PHOTO 2 · IMAGE 5 · TALKING PHOTO 3/S' : 'SWAP PHOTO 2 · IMAGE 5 · PHOTO PARLANTE 3/S')}</span></div>
-    <div className="lp-prices four compact">{list.map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} action={buy(p)} />)}</div>
+    <div className="recharge-toolbar">
+      <div className="offer-categories" role="group" aria-label={en ? 'Service' : 'Service'}>
+        {(['swap', 'audio', 'tokens', ...(studio?.enabled ? ['studio'] as const : []), 'camera'] as const).map(k => <Button variant="ghost" key={k} aria-pressed={kind === k} onClick={() => { setKind(k); setPayError(false); }}>{k === 'swap' ? 'Swap Live' : k === 'audio' ? (en ? 'Translation' : 'Traduction') : k === 'tokens' ? 'Studio IA' : k === 'studio' ? (en ? 'Broadcasting' : 'Diffusion') : 'Weechat Camera'}</Button>)}
+      </div>
+      <div className="offer-currencies" role="group" aria-label={en ? 'Currency' : 'Devise'}>{(['XOF', 'EUR', 'USD'] as const).map(k => <Button size="sm" variant="ghost" key={k} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div>
+    </div>
+    {kind !== 'camera' && <OfferSelector key={kind} plans={list} currency={cur} locale={locale} action={buy} />}
     {payError && <p role="alert" className="mt-3 text-sm text-destructive">{en ? 'Payment could not start. Please try again.' : 'Le paiement n’a pas pu démarrer. Réessayez.'}</p>}
-    {kind === 'swap' && <div className="lp-prices one"><article className="lp-camcard">
+    {kind === 'camera' && <div className="lp-prices one camera-offer"><article className="lp-camcard">
       <header><h3>{c.camTitle}</h3><span className="lp-badge">{c.camSub}</span></header>
       <strong>{cameraLicense.price[cur]}<small>{sym(cur)}</small></strong>
+      {studio?.enabled && <p className="text-sm text-primary">{en ? '72 broadcasting hours included on activation, once per account.' : '72 heures de diffusion offertes à l’activation, une seule fois par compte.'}</p>}
       <ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul>
       {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="w-full text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy the licence' : 'Acheter la licence')}</Button>}
     </article></div>}
-    {kind === 'swap' && <><CameraNotaBene locale={locale} /><PlanCompare locale={locale} cur={cur} /></>}
+    {kind === 'swap' && <PlanCompare locale={locale} cur={cur} />}
     <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by card, Apple Pay or Google Pay. Mobile Money coming soon.' : 'Paiement sécurisé par carte bancaire, Apple Pay ou Google Pay. Mobile Money bientôt disponible.'}<span>{en ? 'Your balance is credited automatically after confirmation. ' : 'Votre solde est crédité automatiquement après confirmation.'}</span></p></div>
 
   </>;

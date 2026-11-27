@@ -1,3 +1,7 @@
+import { OfferSelector } from './offer-selector';
+import { useQuery } from '@tanstack/react-query';
+import { getStudioAvailability } from '@/lib/weechat/studio-hours.functions';
+import { studioPlans, withStudioBonuses } from '@/lib/weechat/studio-hours';
 import { VirtualNumbersOffer } from './virtual-numbers-offer';
 import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
@@ -80,10 +84,11 @@ function HeroFaces({ fallback }: { fallback: string }) {
 export function HomePage() {
   const { locale } = useDemo(); const c = landingCopy(locale);
   const [tab, setTab] = useState(0);
-  const [mode, setMode] = useState<'swap' | 'audio' | 'tokens'>('swap');
+  const [mode, setMode] = useState<'swap' | 'audio' | 'tokens' | 'studio'>('swap');
+  const { data: studioEnabled } = useQuery({ queryKey: ['studio-availability'], queryFn: () => getStudioAvailability(), staleTime: 60000 });
   const [cur, setCur] = useState<Currency>('XOF');
   const [open, setOpen] = useState<number | null>(0);
-  const plans = mode === 'swap' ? swapPlans : mode === 'audio' ? audioPlans : tokenPlans;
+  const plans = mode === 'swap' ? withStudioBonuses(swapPlans, studioEnabled === true) : mode === 'audio' ? audioPlans : mode === 'studio' ? studioPlans : tokenPlans;
   return <div className="lp">
 
     <section className="lp-hero">
@@ -119,7 +124,7 @@ export function HomePage() {
           <span className="lp-status">{panel.status}</span><h3>{panel.title}</h3><p>{panel.text}</p>
           <ul>{(panel.points ?? []).map(p => <li key={p}><Check size={16} />{p}</li>)}</ul>
           <div className="lp-actions">
-            <Button asChild><Link to={featureRoutes[n]!}>{c.ctas[n]} <ArrowRight /></Link></Button>
+            <Button asChild><Link to={featureRoutes[n] ?? '/telecharger'}>{c.ctas[n]} <ArrowRight /></Link></Button>
             <Button asChild variant="ghost"><Link to="/telecharger">{c.guide}</Link></Button>
           </div>
         </div>
@@ -128,26 +133,7 @@ export function HomePage() {
     </section>
 
     <section id="security" className="lp-section"><span className="lp-eyebrow">{c.secEyebrow}</span><h2>{c.secTitle}</h2>
-      <div className="lp-cards">{(c.sec ?? []).map(([t, d], n) => { const I = [Fingerprint, Lock, Trash2, EyeOff][n]!; return <article key={t}><I size={22} /><h3>{t}</h3><p>{d}</p></article>; })}</div>
-    </section>
-
-    <section id="payment" className="lp-section"><h2>{c.payTitle}</h2><p className="lp-lead">{c.payText}</p>
-      <div className="lp-paygrid">
-        <article>
-          <Smartphone size={22} /><h3>{c.momoTitle}</h3><p>{c.momoText}</p>
-          <h4>{c.momoOperators}</h4>
-          <div className="lp-ops">{(momoOperators ?? []).map(o => <span key={o} className={`lp-op ${opTones[o] ?? ''}`} title={o}><PaymentLogo name={o} /></span>)}</div>
-          <h4>{c.momoCountries}</h4>
-          <div className="lp-flags">{(momoCountries ?? []).map(([f, n]) => <span key={n}><span className={`fi fi-${f}`} aria-hidden="true" />{n}</span>)}</div>
-          <small className="lp-paynote"><Check size={14} />{c.momoNote}</small>
-        </article>
-        <article>
-          <CreditCard size={22} /><h3>{c.cardTitle}</h3><p>{c.cardText}</p>
-          <h4>{c.cardNetworks}</h4>
-          <div className="lp-ops"><span className="lp-op light" title="Visa"><PaymentLogo name="Visa" height={22} /></span><span className="lp-op light" title="Mastercard"><PaymentLogo name="Mastercard" /></span></div>
-          <small className="lp-paynote"><Check size={14} />{c.cardNote}</small>
-        </article>
-      </div>
+      <div className="lp-cards">{(c.sec ?? []).map(([t, d], n) => { const I = [Fingerprint, Lock, Trash2, EyeOff][n] ?? Lock; return <article key={t}><I size={22} /><h3>{t}</h3><p>{d}</p></article>; })}</div>
     </section>
 
     <section id="virtual-numbers" className="lp-section">
@@ -157,22 +143,15 @@ export function HomePage() {
 
     <section id="pricing" className="lp-section">
       <span className="lp-eyebrow">{c.priceEyebrow}</span><h2>{c.priceTitle}</h2><p className="lp-lead">{c.priceText}</p>
-      <p className="lp-modehint">{c.priceModeHint}</p>
-      <div className="lp-toggle lp-modecards">{([['swap', c.modeSwap, Video], ['audio', c.modeAudio, Mic], ['tokens', c.modeTokens, Sparkles]] as const).map(([k, label, I]) => <button key={k} className={mode === k ? 'active' : ''} aria-pressed={mode === k} onClick={() => setMode(k)}><I size={15} />{label}</button>)}</div>
-      <div className="lp-currow"><span>{c.showPricesIn}</span><div className="lp-toggle">{(['XOF', 'EUR', 'USD'] as const).map(k => <button key={k} className={cur === k ? 'active' : ''} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</button>)}</div></div>
-      <h3 className="lp-modetitle">{mode === 'swap' ? c.swapTitle : mode === 'audio' ? c.audioTitle : c.tokensTitle}</h3>
-      <p className="lp-lead">{mode === 'swap' ? c.swapSub : mode === 'audio' ? c.audioSub : c.tokensSub}</p>
-      {mode !== 'tokens' && <div className={`lp-prices ${mode === 'swap' ? 'two' : 'one'}`}>
-        {plans.filter(p => p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}
-        {mode === 'swap' && <article className="lp-camcard">
-          <header><h3>{c.camTitle}</h3><span className="lp-badge">{c.camSub}</span></header>
-          <strong>{cameraLicense.price[cur]}<small>{cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$'}</small></strong>
-          <ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul>
-          <Button asChild variant="outline"><Link to="/credits">{c.choose}</Link></Button>
-        </article>}
-      </div>}
-      <div className={`lp-prices ${mode === 'audio' ? 'three' : 'four'}`}>{(plans ?? []).filter(p => !p.badge).map(p => <PlanCard key={p.id} plan={p} cur={cur} locale={locale} c={c} />)}</div>
-      {mode === 'swap' && <><CameraNotaBene locale={locale} /><PlanCompare locale={locale} cur={cur} /></>}
+      <div className="recharge-toolbar">
+        <div className="offer-categories" role="group" aria-label={locale === 'fr' ? 'Service' : 'Service'}>
+          {([['swap', c.modeSwap], ['audio', c.modeAudio], ['tokens', c.modeTokens], ...(studioEnabled ? [['studio', locale === 'fr' ? 'Diffusion Studio' : 'Studio broadcasting']] : [])] as [typeof mode, string][]).map(([k, label]) => <Button variant="ghost" key={k} aria-pressed={mode === k} onClick={() => setMode(k)}>{label}</Button>)}
+        </div>
+        <div className="offer-currencies" role="group" aria-label={locale === 'fr' ? 'Devise' : 'Currency'}>{(['XOF', 'EUR', 'USD'] as const).map(k => <Button size="sm" variant="ghost" key={k} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div>
+      </div>
+      <OfferSelector key={mode} plans={plans} currency={cur} locale={locale} />
+      {mode === 'swap' && <p className="camera-inline"><Camera size={18} /><span>{locale === 'fr' ? 'Weechat Camera : licence à vie, incluse avec Premium et Ultimate.' : 'Weechat Camera: lifetime licence, included in Premium and Ultimate.'}</span><Button asChild variant="ghost"><Link to="/credits">{locale === 'fr' ? 'Voir la licence' : 'View licence'}<ArrowRight size={15} /></Link></Button></p>}
+      {mode === 'swap' && <PlanCompare locale={locale} cur={cur} />}
       <small className="lp-conso">{c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>
     </section>

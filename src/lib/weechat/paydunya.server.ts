@@ -1,6 +1,7 @@
 // PayDunya Live API (server only). Fulfillment always re-confirms the invoice with
 // PayDunya, checks owner/item/amount, then writes with a unique reference per invoice.
 import { findItem, type CatalogueItem } from './paydunya-catalog';
+import { CAMERA_STUDIO_BONUS_SECONDS, studioClient, studioReady } from './studio-hours';
 
 const API = 'https://app.paydunya.com/api/v1';
 
@@ -52,6 +53,12 @@ export async function fulfillInvoice(token: string, expectedUserId?: string): Pr
 export async function grantItem(item: CatalogueItem, userId: string, ref: string, provider: string) {
   const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
   const reason = `Achat ${item.label} (${provider})`;
+  const ready = await studioReady(supabaseAdmin);
+  if (item.id.startsWith('studio-') && !ready) throw new Error('Studio fulfillment unavailable');
+  if (ready && (item.studioSeconds ?? 0) > 0) {
+    const r = await studioClient(supabaseAdmin).rpc('post_studio_operation', { p_user_id: userId, p_seconds: item.studioSeconds, p_reference: `studio:${ref}`, p_reason: reason, p_days: item.validityDays });
+    if (r.error) throw new Error('Studio fulfillment failed');
+  }
   if (item.points > 0) {
     const { error } = await supabaseAdmin.rpc('post_credit_operation', { p_user_id: userId, p_amount: item.points, p_kind: 'purchase', p_reason: reason, p_reference: ref });
     if (error) { console.error('credit failed', error.message); throw new Error('Fulfillment failed'); }
@@ -74,6 +81,10 @@ export async function grantItem(item: CatalogueItem, userId: string, ref: string
   if (item.cameraLicense) {
     const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId);
     if (error || !data.user) throw new Error('Fulfillment failed');
+    if (ready) {
+      const r = await studioClient(supabaseAdmin).rpc('post_studio_operation', { p_user_id: userId, p_seconds: CAMERA_STUDIO_BONUS_SECONDS, p_reference: `camera-welcome:${userId}`, p_reason: 'Bonus caméra : 72 heures', p_days: 365 });
+      if (r.error) throw new Error('Studio welcome fulfillment failed');
+    }
     if (!data.user.app_metadata?.['camera_license']) {
       const r = await supabaseAdmin.auth.admin.updateUserById(userId, { app_metadata: { ...data.user.app_metadata, camera_license: true, camera_license_ref: ref } });
       if (r.error) throw new Error('Fulfillment failed');
