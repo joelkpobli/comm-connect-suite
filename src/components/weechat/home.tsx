@@ -151,8 +151,8 @@ export function HomePage() {
       </div>
       <OfferSelector key={mode} plans={plans} currency={cur} locale={locale} />
       {mode === 'swap' && <p className="camera-inline"><Camera size={18} /><span>{locale === 'fr' ? 'Weechat Camera : licence à vie, incluse avec Premium et Ultimate.' : 'Weechat Camera: lifetime licence, included in Premium and Ultimate.'}</span><Button asChild variant="ghost"><Link to="/credits">{locale === 'fr' ? 'Voir la licence' : 'View licence'}<ArrowRight size={15} /></Link></Button></p>}
-      {mode === 'swap' && <PlanCompare locale={locale} cur={cur} />}
-      <small className="lp-conso">{c.consumptionNote}</small>
+      {mode === 'swap' && <PlanCompare locale={locale} cur={cur} studioEnabled={studioEnabled === true} />}
+      <small className="lp-conso">{studioEnabled ? (locale === 'fr' ? 'Swap Live : 2 points/s · Transformation IA : 5 points/s · Diffusion Studio : solde d’heures indépendant.' : 'Swap Live: 2 points/s · AI transformation: 5 points/s · Studio broadcasting: separate hours balance.') : c.consumptionNote}</small>
       <small className="lp-disclaimer">{c.priceDisclaimer}</small>
     </section>
 

@@ -1,4 +1,5 @@
 import { Camera, Check, ChevronDown, Lock, Minus, Webcam } from 'lucide-react';
+import { studioBonusHours } from '@/lib/weechat/studio-hours';
 import { swapPlans, cameraLicense, supportTier, type Currency } from '@/lib/weechat/landing-copy';
 
 const fmt = (n: number) => new Intl.NumberFormat('fr-FR').format(n);
@@ -18,7 +19,7 @@ export function CameraNotaBene({ locale }: { locale: 'fr' | 'en' }) {
   </aside>;
 }
 
-export function PlanCompare({ locale, cur }: { locale: 'fr' | 'en'; cur: Currency }) {
+export function PlanCompare({ locale, cur, studioEnabled = false }: { locale: 'fr' | 'en'; cur: Currency; studioEnabled?: boolean }) {
   const fr = locale === 'fr'; const sym = cur === 'XOF' ? 'FCFA' : cur === 'EUR' ? '€' : '$';
   const has = (id: string, ...ids: string[]) => ids.includes(id);
   const rows: [string, (p: typeof swapPlans[number]) => React.ReactNode][] = [
@@ -26,7 +27,7 @@ export function PlanCompare({ locale, cur }: { locale: 'fr' | 'en'; cur: Currenc
     [fr ? 'Points inclus' : 'Points included', p => fmt(p.points ?? 0)],
     [fr ? 'Validité' : 'Validity', p => `${p.validity} ${fr ? 'jours' : 'days'}`],
     ['Swap Live Webcam', p => mins(p.points ?? 0, 2)],
-    [fr ? 'Studio Diffusion Vidéo' : 'Studio Video Broadcast', p => has(p.id, 'decouverte') ? null : mins(p.points ?? 0, 1)],
+    [fr ? 'Studio Diffusion Vidéo' : 'Studio Video Broadcast', p => studioEnabled ? `${studioBonusHours[p.id] ?? 0} h` : has(p.id, 'decouverte') ? null : mins(p.points ?? 0, 1)],
     [fr ? 'Studio Transformation Avatar' : 'Studio Avatar Transformation', p => has(p.id, 'decouverte', 'starter') ? null : mins(p.points ?? 0, 5)],
     [fr ? 'Live visage + voix traduite' : 'Live face + translated voice', p => has(p.id, 'premium', 'ultimate') ? true : null],
     [fr ? 'Bonus traduction vocale' : 'Voice translation bonus', p => p.bonusAudioMin ? `${p.bonusAudioMin} min` : null],

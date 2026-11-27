@@ -13,5 +13,8 @@ export const whopVariants: Record<string, string> = {
   "tokens-260": "plan_5rsUlV6cF54zc",
   "tokens-550": "plan_F7rOPKAFbFefP",
   "tokens-1200": "plan_FNExQM8UQXr3H",
-  "camera-license": "plan_u4zoIXAzCbbcl"
+  "camera-license": "plan_u4zoIXAzCbbcl",
+  "studio-week": "plan_AKKEDOkFZp4py",
+  "studio-month": "plan_QPFsVAEAabT7O",
+  "studio-year": "plan_uPKIToSSzWul7"
 };

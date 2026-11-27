@@ -101,6 +101,7 @@ async function sendReceipt(item: CatalogueItem, userId: string, ref: string, pro
     const email = data.user?.email;
     if (!email) return;
     const lines: string[] = [];
+    if ((item.studioSeconds ?? 0) > 0) lines.push(`${(item.studioSeconds ?? 0) / 3600} heures de diffusion Studio`);
     if (item.points > 0) lines.push(`${item.points.toLocaleString('fr-FR')} points`);
     if (item.audioSeconds > 0) lines.push(`${Math.round(item.audioSeconds / 60)} minutes de traduction`);
     if (item.aiTokens > 0) lines.push(`${item.aiTokens} jetons IA`);

@@ -78,7 +78,7 @@ class App:
             pass
         root.configure(bg=BG)
         root.geometry("1180x760")
-        root.minsize(1000, 680)
+        root.minsize(920, 620)
         st = ttk.Style()
         st.theme_use("clam")
         st.configure("TNotebook", background=PANEL, borderwidth=0)
@@ -91,7 +91,7 @@ class App:
         tk.Label(head, text="W", bg=ACCENT, fg="white", font=(FONT, 16, "bold"), width=2).pack(side="left")
         tk.Label(head, text="  Weechat", bg=BG, fg=FG, font=(FONT, 18, "bold")).pack(side="left")
         self.account = tk.Frame(head, bg=BG)
-        self.account.pack(side="right")
+        self.account.pack(side="left", fill="x", expand=True, padx=(20, 0))
 
         body = tk.Frame(root, bg=BG)
         body.pack(fill="both", expand=True, padx=18, pady=6)
@@ -105,7 +105,7 @@ class App:
         self.badge = lbl(top, "● Weechat Camera inactive", fg=MUTED, bold=True)
         self.badge.pack(side="right")
         box = tk.Frame(left, bg="black", width=720, height=540)
-        box.pack(padx=12, pady=6)
+        box.pack(fill="both", expand=True, padx=12, pady=6)
         box.pack_propagate(False)
         self.view = tk.Label(box, bg="black", fg=MUTED, text="L'image envoyée à vos appels s'affichera ici",
                              font=(FONT, 11))
@@ -114,10 +114,10 @@ class App:
                           fg=WARN, bold=True, wraplength=700, justify="left")
         self.status.pack(fill="x", padx=12, pady=(4, 2))
         lbl(left, "Dans WhatsApp / Zoom / Meet / TikTok / Facebook Live, choisissez la caméra « Weechat Camera ».",
-            fg=MUTED).pack(fill="x", padx=12, pady=(0, 10))
+            fg=MUTED, wraplength=520, justify="left").pack(fill="x", padx=12, pady=(0, 10))
 
         # Colonne gauche : commandes (l'écran d'appel est à droite)
-        right = tk.Frame(body, bg=PANEL, width=400)
+        right = tk.Frame(body, bg=PANEL, width=370)
         right.pack(side="left", fill="y", before=left)
         right.pack_propagate(False)
         nb = ttk.Notebook(right)
@@ -162,6 +162,8 @@ class App:
             fg=MUTED, wraplength=360, justify="left").pack(anchor="w", padx=10, pady=6)
         self.studio_btn = btn(diff, "Diffuser en boucle", self.toggle_studio, bg=OK)
         self.studio_btn.pack(fill="x", padx=10, pady=4)
+        self.studio_balance_lbl = lbl(diff, "Heures Studio : chargement…", fg=MUTED, wraplength=340, justify="left")
+        self.studio_balance_lbl.pack(anchor="w", padx=10, pady=8)
 
         tr = tk.Frame(nb, bg=PANEL)
         nb.add(tr, text="Transformation IA")
@@ -199,17 +201,15 @@ class App:
                 bg=PANEL).pack(side="left")
             return
         bal = "Chargement des soldes…" if points is None else \
-            f"{points} points  ·  {seconds // 60} min {seconds % 60:02d} s audio"
-        tk.Label(self.account, text="● Compte connecté   ", bg=BG, fg=OK, font=(FONT, 10, "bold")).pack(side="left")
-        tk.Label(self.account, text=bal + "   ", bg=BG, fg=OK, font=(FONT, 10, "bold")).pack(side="left")
-        if points is not None:
-            tk.Label(self.account, text=("Licence Weechat Camera active ✓   " if self.license else
-                                         "⚠ Licence Weechat Camera requise (10 000 FCFA)   "),
-                     bg=BG, fg=OK if self.license else WARN, font=(FONT, 10, "bold")).pack(side="left")
-        btn(self.account, "Recharger", lambda: webbrowser.open(weechat_account.SITE + "/credits"),
-            bg=PANEL).pack(side="left", padx=4)
-        btn(self.account, "Actualiser", self.load_balances, bg=PANEL).pack(side="left", padx=4)
-        btn(self.account, "Déconnexion", self.logout, bg="#a33").pack(side="left")
+            f"{points} pts  ·  {seconds // 60} min audio  ·  Caméra {'active à vie' if self.license else 'à activer'}"
+        info = tk.Frame(self.account, bg=BG)
+        info.pack(fill="x")
+        tk.Label(info, text=bal, bg=BG, fg=OK, font=(FONT, 10, "bold"), anchor="w").pack(fill="x")
+        actions = tk.Frame(self.account, bg=BG)
+        actions.pack(anchor="w", pady=(4, 0))
+        btn(actions, "Mon compte", lambda: webbrowser.open(weechat_account.SITE + "/credits"), bg=PANEL).pack(side="left", padx=(0, 4))
+        btn(actions, "Actualiser", self.load_balances, bg=PANEL).pack(side="left", padx=4)
+        btn(actions, "Déconnexion", self.logout, bg=PANEL).pack(side="left", padx=4)
 
     def load_balances(self):
         self.root.after(0, self.render_account)
@@ -218,6 +218,10 @@ class App:
             try:
                 p, s = weechat_account.balances(self.session)
                 self.license = weechat_account.has_license(self.session)
+                studio = weechat_account.studio_seconds(self.session)
+                self.studio_enabled = studio is not None
+                text = "Heures Studio : indisponibles" if studio is None else f"Diffusion restante : {studio // 3600} h {(studio % 3600) // 60} min"
+                self.root.after(0, lambda: self.studio_balance_lbl.config(text=text))
                 self.root.after(0, lambda: self.render_account(p, s))
             except weechat_account.AuthError as exc:
                 self.log(f"Soldes indisponibles : {exc}")
@@ -320,7 +324,7 @@ class App:
         `stop` est l'événement propre à cette session : il est levé dès que le
         moteur s'arrête (clic, erreur ou fin), donc aucun débit sans diffusion."""
         sid, block, warned = str(uuid.uuid4()), 0, False
-        msgs = {"insufficient": "Solde de points épuisé. Rechargez sur votre compte Weechat.",
+        msgs = {"insufficient": "Solde de diffusion épuisé. Consultez votre compte Weechat." if service == "studio_diffusion" else "Solde de points épuisé. Consultez votre compte Weechat.",
                 "license_required": "Licence Weechat Camera requise.",
                 "unauthorized": "Session expirée : reconnectez-vous.",
                 "offline": "Connexion Internet perdue : diffusion arrêtée.",
@@ -336,11 +340,13 @@ class App:
                         continue
                 stop.set()
                 self.log(msgs.get(exc.code, msgs["failed"]))
-                self.root.after(0, lambda: messagebox.showwarning("Weechat", msgs.get(exc.code, msgs["failed"])))
+                message = msgs.get(exc.code, msgs["failed"])
+                self.root.after(0, lambda m=message: messagebox.showwarning("Weechat", m))
                 break
             self.root.after(0, self.load_balances)
             # Alerte préventive : moins d'environ 60 s d'appel restantes (120 points).
-            low = bal is not None and int(bal) < LOW_POINTS
+            threshold = 60 if service == "studio_diffusion" and getattr(self, "studio_enabled", False) else LOW_POINTS
+            low = bal is not None and int(bal) < threshold
             if low and not warned:
                 warned = True
                 self.log("⚠ Moins d'une minute d'appel restante : rechargez pour ne pas être coupé.")
@@ -524,7 +530,7 @@ class App:
         if self.frame is not None:
             img, fps = self.frame
             h, w = img.shape[:2]
-            s = min(720 / w, 540 / h)
+            s = min(max(1, self.view.winfo_width() - 8) / w, max(1, self.view.winfo_height() - 8) / h)
             if s != 1.0:
                 img = cv2.resize(img, (int(w * s), int(h * s)),
                                  interpolation=cv2.INTER_AREA if s < 1.0 else cv2.INTER_LANCZOS4)

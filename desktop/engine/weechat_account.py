@@ -147,6 +147,15 @@ def balances(session):
     return int(points or 0), int(seconds or 0)
 
 
+def studio_seconds(session):
+    """Heures Studio indépendantes ; None si le serveur ne propose pas ce portefeuille."""
+    try:
+        result = _req("/rest/v1/rpc/get_studio_account", {}, session["access_token"]) or []
+        return int(result[0].get("seconds") or 0) if result else 0
+    except AuthError:
+        return None
+
+
 def has_license(session):
     """Licence Weechat Camera lue côté serveur (app_metadata, non modifiable par l'utilisateur)."""
     u = _req("/auth/v1/user", None, session["access_token"]) or {}

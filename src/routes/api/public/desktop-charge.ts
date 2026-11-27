@@ -29,7 +29,8 @@ export const Route = createFileRoute('/api/public/desktop-charge')({
         const license = Boolean(user.app_metadata?.['camera_license']);
         if (!license) return json({ ok: false, error: 'license_required', license: false }, 403);
         const service = input.service as DesktopService;
-        if (service === 'studio_diffusion' && await studioReady(supabaseAdmin)) {
+        if (service === 'studio_diffusion') {
+          if (!(await studioReady(supabaseAdmin))) return json({ ok: false, error: 'failed', wallet: 'studio', license }, 503);
           const r = await studioClient(supabaseAdmin).rpc('post_studio_operation', {
             p_user_id: user.id, p_seconds: -BLOCK_SECONDS,
             p_reference: `desktop:studio:${user.id}:${input.sessionId}:${input.block}`,

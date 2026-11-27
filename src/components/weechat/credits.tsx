@@ -42,7 +42,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
   const [busy, setBusy] = useState<string | null>(null);
   const [payError, setPayError] = useState(false);
-  const [method, setMethod] = useState<'mobile' | 'card'>('card');
+  const method = 'card' as const;
   const pay = async (itemId: string) => {
     setBusy(itemId); setPayError(false);
     try { const r = await checkout({ data: { itemId, method } }); if (r.ok) { window.location.href = r.url; return; } setPayError(true); }
@@ -50,7 +50,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
     setBusy(null);
   };
   const c = landingCopy(locale);
-  const buy = (p: Plan) => <Button size="lg" className="w-full text-base font-semibold" variant={p.popular ? 'default' : 'outline'} disabled={busy !== null} onClick={() => pay(p.id)}>{busy === p.id ? '…' : (en ? 'Continue to payment' : 'Continuer vers le paiement')}</Button>;
+  const buy = (p: Plan) => <Button size="lg" className="w-full text-base font-semibold" variant={p.popular ? 'default' : 'outline'} disabled={busy !== null || (kind === 'studio' && !hasLicense)} onClick={() => pay(p.id)}>{busy === p.id ? '…' : (kind === 'studio' && !hasLicense ? (en ? 'Activate your camera licence first' : 'Activez d’abord votre licence caméra') : (en ? 'Continue to payment' : 'Continuer vers le paiement'))}</Button>;
   const list = kind === 'swap' ? withStudioBonuses(swapPlans, studio?.enabled === true) : kind === 'audio' ? audioPlans : kind === 'studio' ? studioPlans : tokenPlans;
 
   return <>
@@ -78,7 +78,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
       <ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul>
       {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="w-full text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy the licence' : 'Acheter la licence')}</Button>}
     </article></div>}
-    {kind === 'swap' && <PlanCompare locale={locale} cur={cur} />}
+    {kind === 'swap' && <PlanCompare locale={locale} cur={cur} studioEnabled={studio?.enabled === true} />}
     <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by card, Apple Pay or Google Pay. Mobile Money coming soon.' : 'Paiement sécurisé par carte bancaire, Apple Pay ou Google Pay. Mobile Money bientôt disponible.'}<span>{en ? 'Your balance is credited automatically after confirmation. ' : 'Votre solde est crédité automatiquement après confirmation.'}</span></p></div>
 
   </>;

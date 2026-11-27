@@ -33,6 +33,6 @@ export function withStudioBonuses(plans: Plan[], enabled: boolean): Plan[] {
   });
 }
 export const studioPlans: Plan[] = studioPacks.map(p => ({
-  id: p.id, name: `Studio ${p.name.fr}`, price: { XOF: String(p.amountXOF), EUR: (p.amountXOF / 655.957).toFixed(2).replace('.', ','), USD: String(p.amountUSD).replace('.', ',') },
+  id: p.id, name: `Studio ${p.name.fr}`, price: { XOF: p.amountXOF.toLocaleString('fr-FR'), EUR: (p.amountXOF / 655.957).toFixed(2).replace('.', ','), USD: String(p.amountUSD).replace('.', ',') },
   validity: p.days, lines: { fr: [`${p.hours.toLocaleString('fr-FR')} heures de diffusion`, 'Vidéos en boucle dans Weechat Camera', 'Licence caméra requise', `Valable ${p.days} jours`, 'Sans renouvellement automatique'], en: [`${p.hours.toLocaleString('en-GB')} broadcasting hours`, 'Looping videos in Weechat Camera', 'Camera licence required', `Valid ${p.days} days`, 'No automatic renewal'] },
 }));
