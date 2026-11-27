@@ -14,5 +14,5 @@
 - [ ] Current Whop rejection: use variant_id, verified against live API; test the signed-in checkout.
 - [ ] PayDunya: investigate current availability without bypassing its explicit enablement gate.
 - [ ] Simplify pricing and dashboard; verify mobile and desktop layouts.
-- [ ] Increase existing Swap Live Studio bonuses: awaiting approved hour volumes.
+- [ ] Increase existing Swap Live Studio bonuses: approved 6 / 24 / 72 / 168 / 720 hours; preserve audio and AI bonuses.
 - [ ] Dedicated Studio packs and 72-hour camera bonus: require separate ledger, fulfillment and Windows consumption before sale.

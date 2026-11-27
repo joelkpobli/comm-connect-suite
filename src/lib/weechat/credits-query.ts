@@ -1,5 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import { getCredits } from './credits.functions';
+import { getStudioAccount } from './studio-hours.functions';
+export const studioQuery = queryOptions({ queryKey: ['studio-hours'], queryFn: () => getStudioAccount(), staleTime: 0 });
 export const creditsQuery = queryOptions({ queryKey: ['credits'], queryFn: () => getCredits(), staleTime: 0 });
 import { getAudioSeconds, getAiTokens } from './usage.functions';
 export const audioQuery = queryOptions({ queryKey: ['audio-seconds'], queryFn: () => getAudioSeconds(), staleTime: 0 });
