@@ -11,7 +11,7 @@ const configure = () => {
 };
 
 describe('Whop existing-plan checkout contract', () => {
-  it.each(paydunyaCatalogue.map(item => [item.id]))('sends the mapped plan_id and owner metadata for %s', async itemId => {
+  it.each(paydunyaCatalogue.map(item => [item.id]))('sends the mapped variant_id and owner metadata for %s', async itemId => {
     configure();
     const fetcher = vi.fn().mockResolvedValue(Response.json({ purchase_url: 'https://whop.com/checkout/ch_test/' }));
     vi.stubGlobal('fetch', fetcher);
@@ -23,9 +23,9 @@ describe('Whop existing-plan checkout contract', () => {
     const init = call?.[1] as RequestInit | undefined;
     expect(init?.method).toBe('POST');
     const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
-    expect(body).toEqual({ plan_id: whopVariants[itemId], mode: 'payment', metadata: { user_id: 'owner-test', item_id: itemId }, redirect_url: 'https://www.weechat.online/paiement-retour?provider=whop' });
-    expect(body['plan_id']).toMatch(/^plan_/);
-    expect(body).not.toHaveProperty('variant_id');
+    expect(body).toEqual({ variant_id: whopVariants[itemId], mode: 'payment', metadata: { user_id: 'owner-test', item_id: itemId }, redirect_url: 'https://www.weechat.online/paiement-retour?provider=whop' });
+    expect(body['variant_id']).toMatch(/^plan_/);
+    expect(body).not.toHaveProperty('plan_id');
   });
 
   it('rejects unknown catalogue items without contacting Whop', async () => {

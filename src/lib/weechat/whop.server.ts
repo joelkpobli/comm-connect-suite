@@ -16,7 +16,7 @@ export async function createWhopCheckout(itemId: string, userId: string, origin:
   const planId = whopVariants[item.id]; if (!planId) throw new Error('No Whop plan');
   const { headers } = auth();
   const res = await fetch(`${API}/checkout_configurations`, { method: 'POST', headers, body: JSON.stringify({
-    plan_id: planId,
+    variant_id: planId,
     mode: 'payment',
     metadata: { user_id: userId, item_id: item.id },
     redirect_url: `${origin}/paiement-retour?provider=whop`,

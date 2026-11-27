@@ -11,3 +11,8 @@
 - [ ] Leaked-password protection: requires enabling the setting in the external Supabase dashboard (Pro plan or above)
 - [x] Selected monitoring findings: Whop request corrected to plan_id/mode=payment; historical PayDunya issue stale against current disabled UI and fail-closed server gate; no settled payments or credentials changed.
 - [ ] Live Whop checkout verification: blocked by unavailable signed-in session for the external Supabase project; no purchase or charge authorized.
+- [ ] Current Whop rejection: use variant_id, verified against live API; test the signed-in checkout.
+- [ ] PayDunya: investigate current availability without bypassing its explicit enablement gate.
+- [ ] Simplify pricing and dashboard; verify mobile and desktop layouts.
+- [ ] Increase existing Swap Live Studio bonuses: awaiting approved hour volumes.
+- [ ] Dedicated Studio packs and 72-hour camera bonus: require separate ledger, fulfillment and Windows consumption before sale.
