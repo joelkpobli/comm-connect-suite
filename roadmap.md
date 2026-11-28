@@ -18,3 +18,4 @@
 - [x] Swap Live Studio bonuses 6 / 24 / 72 / 168 / 720 h deployed.
 - [x] Studio packs (3 000 / 10 000 / 50 000 FCFA) and 72 h camera bonus deployed on a separate ledger.
 - [ ] New Windows build + real PC test of Studio hours.
+- [ ] Direct camera licence purchase button and checkout return navigation: implement and verify.

@@ -1,10 +1,10 @@
 import { PlanCompare } from './pricing-extras';
 import { OfferSelector } from './offer-selector';
 import { studioPlans, withStudioBonuses } from '@/lib/weechat/studio-hours';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { creditsQuery, audioQuery, aiTokensQuery, validityQuery, studioQuery, fmtExpiry } from '@/lib/weechat/credits-query';
-import { Link } from '@tanstack/react-router';
+import { Link, useLocation } from '@tanstack/react-router';
 import { ArrowRight, AudioLines, Check, Clock, Coins, History, ShieldCheck, CreditCard, Smartphone, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useServerFn } from '@tanstack/react-start';
@@ -36,13 +36,20 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const en = locale === 'en';
   const { data: real } = useSuspenseQuery(creditsQuery); const { data: audio } = useQuery(audioQuery); const { data: tokens } = useQuery(aiTokensQuery); const { data: v } = useQuery(validityQuery);
   const [cur, setCur] = useState<Currency>('XOF');
-    const [kind, setKind] = useState<'swap' | 'audio' | 'tokens' | 'studio' | 'camera'>('swap');
+  const [kind, setKind] = useState<'swap' | 'audio' | 'tokens' | 'studio' | 'camera'>('swap');
+  const hash = useLocation({ select: location => location.hash });
+  useEffect(() => { if (hash === 'camera') setKind('camera'); }, [hash]);
   const { data: studio } = useQuery(studioQuery);
   const checkout = useServerFn(startCheckout);
   const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
   const [busy, setBusy] = useState<string | null>(null);
   const [payError, setPayError] = useState(false);
   const [method, setMethod] = useState<'mobile' | 'card'>('mobile');
+  useEffect(() => {
+    const resetCheckout = () => { setBusy(null); setPayError(false); };
+    window.addEventListener('pageshow', resetCheckout);
+    return () => window.removeEventListener('pageshow', resetCheckout);
+  }, []);
   const pay = async (itemId: string) => {
     setBusy(itemId); setPayError(false);
     try { const r = await checkout({ data: { itemId, method } }); if (r.ok) { window.location.href = r.url; return; } setPayError(true); }
@@ -80,7 +87,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
       <strong>{cameraLicense.price[cur]}<small>{sym(cur)}</small></strong>
       {studio?.enabled && <p className="text-sm text-primary">{en ? '72 broadcasting hours included on activation, once per account.' : '72 heures de diffusion offertes à l’activation, une seule fois par compte.'}</p>}
       <ul>{c.camLines.map(l => <li key={l}><Check size={16} />{l}</li>)}</ul>
-      {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="w-full text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy the licence' : 'Acheter la licence')}</Button>}
+      {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="h-auto w-full whitespace-normal text-center text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Activate Weechat Camera' : 'Activer la caméra Weechat')}</Button>}
     </article></div>}
     {kind === 'swap' && <PlanCompare locale={locale} cur={cur} studioEnabled={studio?.enabled === true} />}
     <div className="credits-footnote"><ShieldCheck size={18} /><p>{method === 'mobile' ? (en ? 'Mobile Money in 20+ African countries: Wave, Orange Money, MTN MoMo, Moov Money and more. Charged in FCFA.' : 'Mobile Money dans plus de 20 pays d’Afrique : Wave, Orange Money, MTN MoMo, Moov Money et autres. Montant débité en FCFA.') : (en ? 'Secure payment by Visa, Mastercard, Apple Pay or Google Pay.' : 'Paiement sécurisé par Visa, Mastercard, Apple Pay ou Google Pay.')}<span>{en ? 'Your balance is credited automatically after confirmation. ' : 'Votre solde est crédité automatiquement après confirmation.'}</span></p></div>

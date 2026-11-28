@@ -50,7 +50,7 @@ export function DashboardPage() {
         <div className="flex items-center gap-2 text-sm text-muted-foreground"><Camera size={18} className="text-primary" />Weechat Camera</div>
         {hasLicense
           ? <p className="text-2xl font-bold text-primary">{fr ? 'Active à vie ✓' : 'Lifetime active ✓'}</p>
-          : <><p className="text-2xl font-bold text-foreground">{fr ? 'Non activée' : 'Not active'}</p><Button asChild className="mt-auto"><Link to="/credits">{fr ? 'Voir la licence' : 'View licence'}</Link></Button></>}
+          : <><p className="text-2xl font-bold text-foreground">{fr ? 'Non activée' : 'Not active'}</p><Button asChild className="mt-auto h-auto whitespace-normal text-center"><Link to="/credits" hash="camera">{fr ? 'Activer la caméra Weechat' : 'Activate Weechat Camera'}</Link></Button></>}
       </article>
     </section>
 

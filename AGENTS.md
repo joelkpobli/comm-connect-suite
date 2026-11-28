@@ -52,3 +52,4 @@
 - The Windows app reaches the full character transformation only through /api/public/desktop-ai, which verifies the caller's Supabase token and reuses ai-tasks.server so duration, price and refunds are computed server-side exactly like the web Studio.
 - Studio broadcasting uses a dedicated seconds ledger, with one-time camera and purchase-specific bonus references; gate new offers and bonus copy on the deployed RPC so hours cannot fund GPU work or be sold before fulfillment exists.
 - Keep purchases in the recharge screen and a single offer selector; dashboard links to balances instead of embedding price grids to avoid duplicated commercial UI.
+- Camera activation links use /credits#camera to select the licence offer directly; restore checkout controls on pageshow so browser back navigation cannot leave purchases locked.
