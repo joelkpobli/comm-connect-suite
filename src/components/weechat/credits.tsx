@@ -42,7 +42,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { data: hasLicense } = useQuery({ queryKey: ['camera-license'], queryFn: () => getCameraLicense() });
   const [busy, setBusy] = useState<string | null>(null);
   const [payError, setPayError] = useState(false);
-  const method = 'card' as const;
+  const [method, setMethod] = useState<'mobile' | 'card'>('mobile');
   const pay = async (itemId: string) => {
     setBusy(itemId); setPayError(false);
     try { const r = await checkout({ data: { itemId, method } }); if (r.ok) { window.location.href = r.url; return; } setPayError(true); }
@@ -69,6 +69,10 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
       </div>
       <div className="offer-currencies" role="group" aria-label={en ? 'Currency' : 'Devise'}>{(['XOF', 'EUR', 'USD'] as const).map(k => <Button size="sm" variant="ghost" key={k} aria-pressed={cur === k} onClick={() => setCur(k)}>{k === 'XOF' ? 'FCFA' : k}</Button>)}</div>
     </div>
+    <div className="offer-currencies pay-methods" role="radiogroup" aria-label={en ? 'Payment method' : 'Moyen de paiement'}>
+      <Button size="sm" variant="ghost" role="radio" aria-checked={method === 'mobile'} aria-pressed={method === 'mobile'} onClick={() => { setMethod('mobile'); setCur('XOF'); setPayError(false); }}><Smartphone size={15} />Mobile Money</Button>
+      <Button size="sm" variant="ghost" role="radio" aria-checked={method === 'card'} aria-pressed={method === 'card'} onClick={() => { setMethod('card'); setPayError(false); }}><CreditCard size={15} />{en ? 'Bank card' : 'Carte bancaire'}</Button>
+    </div>
     {kind !== 'camera' && <OfferSelector key={kind} plans={list} currency={cur} locale={locale} action={buy} />}
     {payError && <p role="alert" className="mt-3 text-sm text-destructive">{en ? 'Payment could not start. Please try again.' : 'Le paiement n’a pas pu démarrer. Réessayez.'}</p>}
     {kind === 'camera' && <div className="lp-prices one camera-offer"><article className="lp-camcard">
@@ -79,7 +83,7 @@ export function CreditsPage({ embedded = false }: { embedded?: boolean } = {}) {
       {hasLicense ? <span className="demo-badge"><span />{en ? 'Lifetime licence active' : 'Licence active à vie'}</span> : <Button size="lg" className="w-full text-base font-semibold" disabled={busy !== null} onClick={() => pay('camera-license')}>{busy === 'camera-license' ? '…' : (en ? 'Buy the licence' : 'Acheter la licence')}</Button>}
     </article></div>}
     {kind === 'swap' && <PlanCompare locale={locale} cur={cur} studioEnabled={studio?.enabled === true} />}
-    <div className="credits-footnote"><ShieldCheck size={18} /><p>{en ? 'Secure payment by card, Apple Pay or Google Pay. Mobile Money coming soon.' : 'Paiement sécurisé par carte bancaire, Apple Pay ou Google Pay. Mobile Money bientôt disponible.'}<span>{en ? 'Your balance is credited automatically after confirmation. ' : 'Votre solde est crédité automatiquement après confirmation.'}</span></p></div>
+    <div className="credits-footnote"><ShieldCheck size={18} /><p>{method === 'mobile' ? (en ? 'Mobile Money in 20+ African countries: Wave, Orange Money, MTN MoMo, Moov Money and more. Charged in FCFA.' : 'Mobile Money dans plus de 20 pays d’Afrique : Wave, Orange Money, MTN MoMo, Moov Money et autres. Montant débité en FCFA.') : (en ? 'Secure payment by Visa, Mastercard, Apple Pay or Google Pay.' : 'Paiement sécurisé par Visa, Mastercard, Apple Pay ou Google Pay.')}<span>{en ? 'Your balance is credited automatically after confirmation. ' : 'Votre solde est crédité automatiquement après confirmation.'}</span></p></div>
 
   </>;
 }

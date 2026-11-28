@@ -2,10 +2,9 @@ import { createServerFn } from '@tanstack/react-start';
 import { getRequest } from '@tanstack/react-start/server';
 import { z } from 'zod';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { catalogueIds } from './paydunya-catalog';
-import { createInvoice, fulfillInvoice } from './paydunya.server';
+import { catalogueIds } from './catalog';
 
-/** Starts a PayDunya checkout for a catalogue item; the amount is decided server-side. */
+/** Starts a checkout (Mobile Money via SebPay, card via Whop) for a catalogue item; the amount is decided server-side. */
 export const startCheckout = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ itemId: z.enum(catalogueIds), method: z.enum(['mobile', 'card']).default('mobile') }).parse(d))
   .handler(async ({ data, context }) => {
@@ -18,17 +17,17 @@ export const startCheckout = createServerFn({ method: 'POST' }).middleware([requ
         if (!account.user?.app_metadata?.['camera_license']) return { ok: false as const };
       }
       if (data.method === 'card') { const { createWhopCheckout } = await import('./whop.server'); return { ok: true as const, url: (await createWhopCheckout(data.itemId, context.userId, origin)).url }; }
-      if (process.env['PAYDUNYA_ENABLED'] !== 'true') return { ok: false as const };
-      return { ok: true as const, url: (await createInvoice(data.itemId, context.userId, origin)).url };
+      const { createSebpayCheckout } = await import('./sebpay.server');
+      return { ok: true as const, url: (await createSebpayCheckout(data.itemId, context.userId, origin)).url };
     }
     catch { return { ok: false as const }; }
   });
 
-/** Confirms a returning payment with PayDunya (works even if the IPN arrives late). */
+/** Confirms a returning Mobile Money payment with SebPay (works even if the webhook arrives late). */
 export const confirmCheckout = createServerFn({ method: 'POST' }).middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ token: z.string().min(6).max(100) }).parse(d))
+  .inputValidator((d) => z.object({ sessionId: z.string().min(4).max(120) }).parse(d))
   .handler(async ({ data, context }) => {
-    try { const r = await fulfillInvoice(data.token, context.userId); return { status: r.status, itemId: r.itemId ?? null }; }
+    try { const { fulfillSebpaySession } = await import('./sebpay.server'); const r = await fulfillSebpaySession(data.sessionId, context.userId); return { status: r.status, itemId: r.itemId ?? null }; }
     catch { return { status: 'failed' as const, itemId: null }; }
   });
 

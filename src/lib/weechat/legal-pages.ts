@@ -12,7 +12,7 @@ export const legalPages: Record<'fr' | 'en', Record<LegalSlug, Page>> = {
     confidentialite: { title: 'Politique de confidentialité', intro: 'Cette page explique quelles données Weechat conserve et pourquoi.', sections: [
       ['Ce que nous ne conservons pas', ['Weechat n’enregistre ni vos appels, ni vos vidéos, ni votre voix.', 'Les photos importées pour le Swap restent sur votre appareil.']],
       ['Ce que nous conservons', ['Votre adresse e-mail, votre nom d’affichage et votre langue.', 'L’historique de vos achats et de vos consommations de points, minutes et jetons.']],
-      ['Prestataires', ['Les paiements sont traités par PayDunya ; nous ne voyons pas vos données de carte.', 'La traduction vocale et les fonctions IA passent par des prestataires spécialisés, uniquement le temps du traitement.']],
+      ['Prestataires', ['Les paiements sont traités par SebPay (Mobile Money) et Whop (carte bancaire) ; nous ne voyons ni vos données de carte ni vos codes Mobile Money.', 'La traduction vocale et les fonctions IA passent par des prestataires spécialisés, uniquement le temps du traitement.']],
       ['Vos droits', ['Vous pouvez demander la consultation, la correction ou la suppression de votre compte en nous écrivant sur WhatsApp.']],
     ] },
     interdits: { title: 'Usages interdits', intro: 'Les usages suivants sont strictement interdits et peuvent constituer des infractions pénales.', sections: [
@@ -32,7 +32,7 @@ export const legalPages: Record<'fr' | 'en', Record<LegalSlug, Page>> = {
     confidentialite: { title: 'Privacy policy', intro: 'This page explains what data Weechat keeps and why.', sections: [
       ['What we do not keep', ['Weechat does not record your calls, videos or voice.', 'Photos imported for Swap stay on your device.']],
       ['What we keep', ['Your email, display name and language.', 'Your purchase history and usage of points, minutes and tokens.']],
-      ['Providers', ['Payments are processed by PayDunya; we never see your card data.', 'Voice translation and AI features use specialised providers only during processing.']],
+      ['Providers', ['Payments are processed by SebPay (Mobile Money) and Whop (bank card); we never see your card data or Mobile Money codes.', 'Voice translation and AI features use specialised providers only during processing.']],
       ['Your rights', ['You can ask to view, correct or delete your account by messaging us on WhatsApp.']],
     ] },
     interdits: { title: 'Forbidden uses', intro: 'The following uses are strictly forbidden and may be criminal offences.', sections: [

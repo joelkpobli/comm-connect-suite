@@ -1,53 +1,7 @@
-// PayDunya Live API (server only). Fulfillment always re-confirms the invoice with
-// PayDunya, checks owner/item/amount, then writes with a unique reference per invoice.
-import { findItem, type CatalogueItem } from './paydunya-catalog';
+// Shared purchase fulfillment (server only): every provider verifies the payment first,
+// then credits through here with a unique provider reference so writes stay idempotent.
+import type { CatalogueItem } from './catalog';
 import { CAMERA_STUDIO_BONUS_SECONDS, studioClient, studioReady } from './studio-hours';
-
-const API = 'https://app.paydunya.com/api/v1';
-
-function headers() {
-  const master = process.env['PAYDUNYA_MASTER_KEY'], priv = process.env['PAYDUNYA_PRIVATE_KEY'], token = process.env['PAYDUNYA_TOKEN'];
-  if (!master || !priv || !token) throw new Error('PayDunya not configured');
-  const h: Record<string, string> = { 'Content-Type': 'application/json', 'PAYDUNYA-MASTER-KEY': master, 'PAYDUNYA-PRIVATE-KEY': priv, 'PAYDUNYA-TOKEN': token };
-  const pub = process.env['PAYDUNYA_PUBLIC_KEY']; if (pub) h['PAYDUNYA-PUBLIC-KEY'] = pub;
-  return h;
-}
-
-export async function createInvoice(itemId: string, userId: string, origin: string) {
-  const item = findItem(itemId); if (!item) throw new Error('Unknown item');
-  const body = {
-    invoice: { total_amount: item.amountXOF, description: item.label, items: { item_0: { name: item.label, quantity: 1, unit_price: String(item.amountXOF), total_price: String(item.amountXOF) } } },
-    store: { name: 'Weechat', website_url: origin },
-    actions: { cancel_url: `${origin}/credits`, return_url: `${origin}/paiement-retour`, callback_url: `${origin}/api/public/paydunya-ipn` },
-    custom_data: { user_id: userId, item_id: item.id },
-  };
-  const res = await fetch(`${API}/checkout-invoice/create`, { method: 'POST', headers: headers(), body: JSON.stringify(body) });
-  const json = await res.json().catch(() => null) as { response_code?: string; response_text?: string; token?: string } | null;
-  if (!json || json.response_code !== '00' || !json.response_text || !json.token) {
-    console.error('PayDunya create failed', res.status, json?.response_code, json?.response_text);
-    throw new Error('Checkout unavailable');
-  }
-  return { url: json.response_text, token: json.token };
-}
-
-export type FulfillResult = { status: 'completed' | 'pending' | 'cancelled' | 'failed'; itemId?: string | undefined; userId?: string | undefined };
-
-export async function fulfillInvoice(token: string, expectedUserId?: string): Promise<FulfillResult> {
-  if (!/^[A-Za-z0-9_-]{6,100}$/.test(token)) return { status: 'failed' };
-  const res = await fetch(`${API}/checkout-invoice/confirm/${token}`, { headers: headers() });
-  const json = await res.json().catch(() => null) as { response_code?: string; status?: string; invoice?: { total_amount?: number | string }; custom_data?: { user_id?: string; item_id?: string } } | null;
-  if (!json || json.response_code !== '00') return { status: 'failed' };
-  const userId = json.custom_data?.user_id, itemId = json.custom_data?.item_id;
-  // A caller may only learn about their own invoices.
-  if (expectedUserId !== undefined && expectedUserId !== userId) return { status: 'failed' };
-  if (json.status === 'cancelled') return { status: 'cancelled', itemId, userId };
-  if (json.status !== 'completed') return { status: 'pending', itemId, userId };
-  const item = itemId ? findItem(itemId) : undefined;
-  if (!item || !userId || Number(json.invoice?.total_amount) !== item.amountXOF) { console.error('PayDunya mismatch'); return { status: 'failed' }; }
-
-  await grantItem(item, userId, `paydunya:${token}`, 'PayDunya');
-  return { status: 'completed', itemId: item.id, userId };
-}
 
 /** Credits a verified purchase; the unique reference makes every write idempotent. */
 export async function grantItem(item: CatalogueItem, userId: string, ref: string, provider: string) {

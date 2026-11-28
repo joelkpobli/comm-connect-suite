@@ -114,13 +114,13 @@ function MaintenancePanel() {
 
 function useHealth() { const health = useServerFn(founderProviderHealth); return useQuery({ queryKey: ['founder-health'], queryFn: () => health(), refetchInterval: 120_000 }); }
 
-const NAMES: Record<string, string> = { replicate: 'Replicate (Swap Photo, images, photo parlante)', palabra: 'Palabra (traduction vocale)', runpod: 'RunPod (serveur Swap Live)', paydunya: 'PayDunya' };
+const NAMES: Record<string, string> = { replicate: 'Replicate (Swap Photo, images, photo parlante)', palabra: 'Palabra (traduction vocale)', runpod: 'RunPod (serveur Swap Live)', sebpay: 'SebPay (Mobile Money)' };
 
 /** Founder-wide alert strip: shown above every tab, plus a toast once per new alert. */
 function ProviderAlerts() {
   const { data: h } = useHealth(); const { data: o } = useOverview();
   const [seen, setSeen] = useState('');
-  const alerts = (h ?? []).filter(p => p.name !== 'paydunya').flatMap(p => {
+  const alerts = (h ?? []).filter(p => p.name !== 'sebpay').flatMap(p => {
     const refus = o?.providers[p.name]?.billing ?? 0;
     const amount = p.balanceUsd !== null ? `${p.balanceUsd.toFixed(2)} $ restants` : p.minutesLeft !== null ? `${p.minutesLeft} min restantes` : '';
     if (p.status === 'billing') return [{ n: p.name, crit: true, t: `${NAMES[p.name]} : solde épuisé${amount ? ` (${amount})` : ''} — rechargez maintenant.` }];
@@ -143,14 +143,14 @@ function ProvidersPanel() {
   const label = { ok: 'Connecté', low: 'Solde bas', billing: 'Solde épuisé', error: 'Erreur', missing: 'Clé absente', configured: 'Clé présente' } as const;
   return <div className="space-y-3">
     <div className="flex items-center justify-between"><p className="text-sm text-muted-foreground">Vérification automatique toutes les 2 minutes. Après 2 refus pour solde insuffisant, le module passe seul en maintenance et les jetons sont remboursés.</p><Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>Vérifier</Button></div>
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{(h ?? []).map(p => { const u = o?.providers[p.name]; const bad = p.name !== 'paydunya' && (p.status === 'billing' || p.status === 'low' || p.status === 'error' || (u?.billing ?? 0) > 0); return <div key={p.name} className={`${card} ${bad ? 'border-destructive/60' : ''} space-y-2`}>
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">{(h ?? []).map(p => { const u = o?.providers[p.name]; const bad = p.name !== 'sebpay' && (p.status === 'billing' || p.status === 'low' || p.status === 'error' || (u?.billing ?? 0) > 0); return <div key={p.name} className={`${card} ${bad ? 'border-destructive/60' : ''} space-y-2`}>
       <div className="flex items-center justify-between"><strong>{NAMES[p.name] ?? p.name}</strong><span className={`text-sm ${bad ? 'text-destructive' : 'text-primary'}`}>● {label[p.status]}{p.ms !== null ? ` · ${p.ms} ms` : ''}</span></div>
       {p.balanceUsd !== null && <p className={`text-2xl font-semibold ${p.status === 'ok' ? '' : 'text-destructive'}`}>{p.balanceUsd.toFixed(2)} $ restants{p.status === 'low' ? ' — rechargez bientôt' : p.status === 'billing' ? ' — rechargez maintenant' : ''}</p>}
       {p.minutesLeft !== null && <p className={`text-2xl font-semibold ${p.status === 'ok' ? '' : 'text-destructive'}`}>{p.minutesLeft} min de traduction restantes{p.status === 'low' ? ' — rechargez bientôt' : p.status === 'billing' ? ' — rechargez maintenant' : ''}</p>}
       {p.name === 'replicate' && p.status === 'ok' && <p className="text-sm text-muted-foreground">Clé valide. Le solde exact n'est pas lisible : l'alerte se déclenche dès le premier refus pour solde insuffisant.</p>}
       {u ? <p className="text-sm text-muted-foreground">30 j : {u.calls} appels · {u.ok} réussis · {u.billing} refus solde · {u.failed} erreurs · ≈ {u.costUsd.toFixed(2)} $ estimés</p> : <p className="text-sm text-muted-foreground">Aucun appel enregistré sur 30 jours.</p>}
       {u?.lastError && <p className="truncate text-xs text-destructive" title={u.lastError}>Dernière erreur : {u.lastError}</p>}
-      {PROVIDER_BILLING_URLS[p.name] && <Button asChild size="sm" variant={bad ? 'default' : 'outline'}><a href={PROVIDER_BILLING_URLS[p.name]} target="_blank" rel="noreferrer">{p.name === 'paydunya' ? 'Voir les encaissements' : 'Recharger'} <ExternalLink className="size-3" /></a></Button>}
+      {PROVIDER_BILLING_URLS[p.name] && <Button asChild size="sm" variant={bad ? 'default' : 'outline'}><a href={PROVIDER_BILLING_URLS[p.name]} target="_blank" rel="noreferrer">{p.name === 'sebpay' ? 'Voir les encaissements' : 'Recharger'} <ExternalLink className="size-3" /></a></Button>}
     </div>; })}</div>
     <p className="text-xs text-muted-foreground">Replicate ne fournit pas le solde restant par API : le coût affiché est une estimation par appel. Configurez aussi une alerte de dépense et la recharge automatique par carte dans votre compte Replicate.</p>
   </div>;

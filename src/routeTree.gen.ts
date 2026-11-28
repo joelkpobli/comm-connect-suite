@@ -36,7 +36,7 @@ import { Route as AuthenticatedTraductionRouteImport } from './routes/_authentic
 import { Route as ApiPublicCloudEndpointRouteImport } from './routes/api/public/cloud-endpoint'
 import { Route as ApiPublicDesktopAiRouteImport } from './routes/api/public/desktop-ai'
 import { Route as ApiPublicDesktopChargeRouteImport } from './routes/api/public/desktop-charge'
-import { Route as ApiPublicPaydunyaIpnRouteImport } from './routes/api/public/paydunya-ipn'
+import { Route as ApiPublicSebpayWebhookRouteImport } from './routes/api/public/sebpay-webhook'
 import { Route as ApiPublicWhopWebhookRouteImport } from './routes/api/public/whop-webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -179,9 +179,9 @@ const ApiPublicDesktopChargeRoute = ApiPublicDesktopChargeRouteImport.update({
   path: '/api/public/desktop-charge',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicPaydunyaIpnRoute = ApiPublicPaydunyaIpnRouteImport.update({
-  id: '/api/public/paydunya-ipn',
-  path: '/api/public/paydunya-ipn',
+const ApiPublicSebpayWebhookRoute = ApiPublicSebpayWebhookRouteImport.update({
+  id: '/api/public/sebpay-webhook',
+  path: '/api/public/sebpay-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicWhopWebhookRoute = ApiPublicWhopWebhookRouteImport.update({
@@ -233,7 +233,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
   '/api/public/desktop-ai': typeof ApiPublicDesktopAiRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
-  '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
+  '/api/public/sebpay-webhook': typeof ApiPublicSebpayWebhookRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -266,7 +266,7 @@ export interface FileRoutesByTo {
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
   '/api/public/desktop-ai': typeof ApiPublicDesktopAiRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
-  '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
+  '/api/public/sebpay-webhook': typeof ApiPublicSebpayWebhookRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -301,7 +301,7 @@ export interface FileRoutesById {
   '/api/public/cloud-endpoint': typeof ApiPublicCloudEndpointRoute
   '/api/public/desktop-ai': typeof ApiPublicDesktopAiRoute
   '/api/public/desktop-charge': typeof ApiPublicDesktopChargeRoute
-  '/api/public/paydunya-ipn': typeof ApiPublicPaydunyaIpnRoute
+  '/api/public/sebpay-webhook': typeof ApiPublicSebpayWebhookRoute
   '/api/public/whop-webhook': typeof ApiPublicWhopWebhookRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -336,7 +336,7 @@ export interface FileRouteTypes {
     | '/api/public/cloud-endpoint'
     | '/api/public/desktop-ai'
     | '/api/public/desktop-charge'
-    | '/api/public/paydunya-ipn'
+    | '/api/public/sebpay-webhook'
     | '/api/public/whop-webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -369,7 +369,7 @@ export interface FileRouteTypes {
     | '/api/public/cloud-endpoint'
     | '/api/public/desktop-ai'
     | '/api/public/desktop-charge'
-    | '/api/public/paydunya-ipn'
+    | '/api/public/sebpay-webhook'
     | '/api/public/whop-webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -403,7 +403,7 @@ export interface FileRouteTypes {
     | '/api/public/cloud-endpoint'
     | '/api/public/desktop-ai'
     | '/api/public/desktop-charge'
-    | '/api/public/paydunya-ipn'
+    | '/api/public/sebpay-webhook'
     | '/api/public/whop-webhook'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -426,7 +426,7 @@ export interface RootRouteChildren {
   ApiPublicCloudEndpointRoute: typeof ApiPublicCloudEndpointRoute
   ApiPublicDesktopAiRoute: typeof ApiPublicDesktopAiRoute
   ApiPublicDesktopChargeRoute: typeof ApiPublicDesktopChargeRoute
-  ApiPublicPaydunyaIpnRoute: typeof ApiPublicPaydunyaIpnRoute
+  ApiPublicSebpayWebhookRoute: typeof ApiPublicSebpayWebhookRoute
   ApiPublicWhopWebhookRoute: typeof ApiPublicWhopWebhookRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -624,11 +624,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicDesktopChargeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/paydunya-ipn': {
-      id: '/api/public/paydunya-ipn'
-      path: '/api/public/paydunya-ipn'
-      fullPath: '/api/public/paydunya-ipn'
-      preLoaderRoute: typeof ApiPublicPaydunyaIpnRouteImport
+    '/api/public/sebpay-webhook': {
+      id: '/api/public/sebpay-webhook'
+      path: '/api/public/sebpay-webhook'
+      fullPath: '/api/public/sebpay-webhook'
+      preLoaderRoute: typeof ApiPublicSebpayWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/whop-webhook': {
@@ -711,7 +711,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCloudEndpointRoute: ApiPublicCloudEndpointRoute,
   ApiPublicDesktopAiRoute: ApiPublicDesktopAiRoute,
   ApiPublicDesktopChargeRoute: ApiPublicDesktopChargeRoute,
-  ApiPublicPaydunyaIpnRoute: ApiPublicPaydunyaIpnRoute,
+  ApiPublicSebpayWebhookRoute: ApiPublicSebpayWebhookRoute,
   ApiPublicWhopWebhookRoute: ApiPublicWhopWebhookRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

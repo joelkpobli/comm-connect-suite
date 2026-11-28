@@ -3,7 +3,7 @@ import { startCheckout } from '@/lib/weechat/payments.functions';
 
 const { card, mobile } = vi.hoisted(() => ({ card: vi.fn(), mobile: vi.fn() }));
 vi.mock('@/lib/weechat/whop.server', () => ({ createWhopCheckout: card }));
-vi.mock('@/lib/weechat/paydunya.server', () => ({ createInvoice: mobile, fulfillInvoice: vi.fn() }));
+vi.mock('@/lib/weechat/sebpay.server', () => ({ createSebpayCheckout: mobile, fulfillSebpaySession: vi.fn() }));
 vi.mock('@/integrations/supabase/auth-middleware', () => ({ requireSupabaseAuth: {} }));
 vi.mock('@tanstack/react-start/server', () => ({ getRequest: () => new Request('https://www.weechat.online/credits') }));
 vi.mock('@tanstack/react-start', () => ({
@@ -32,10 +32,10 @@ describe('Shared purchase entrypoint', () => {
     expect(mobile).not.toHaveBeenCalled();
   });
 
-  it.each(['', 'false'])('does not contact PayDunya when its flag is %s', async flag => {
-    vi.stubEnv('PAYDUNYA_ENABLED', flag);
-    expect(await checkout({ data: { itemId: 'starter', method: 'mobile' }, context: { userId: 'owner-test' } })).toEqual({ ok: false });
-    expect(mobile).not.toHaveBeenCalled();
+  it('routes Mobile Money purchases through SebPay using the authenticated owner', async () => {
+    mobile.mockResolvedValue({ url: 'https://pay.sebpay.bj/s/cs_test', sessionId: 'cs_test' });
+    expect(await checkout({ data: { itemId: 'starter', method: 'mobile' }, context: { userId: 'owner-test' } })).toEqual({ ok: true, url: 'https://pay.sebpay.bj/s/cs_test' });
+    expect(mobile).toHaveBeenCalledWith('starter', 'owner-test', 'https://www.weechat.online');
     expect(card).not.toHaveBeenCalled();
   });
 

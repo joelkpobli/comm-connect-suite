@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { findItem } from '@/lib/weechat/paydunya-catalog';
+import { findItem } from '@/lib/weechat/catalog';
 describe('AI token bonus', () => {
   it('Starter gives 100', () => expect(findItem('starter')?.aiTokens).toBe(100));
   it('Standard gives 200', () => expect(findItem('standard')?.aiTokens).toBe(200));

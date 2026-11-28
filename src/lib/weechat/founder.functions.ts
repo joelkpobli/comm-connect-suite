@@ -42,10 +42,10 @@ export const getFounderOverview = createServerFn({ method: 'GET' }).middleware([
     db.auth.admin.listUsers({ perPage: 1000 }),
     db.from('provider_usage_events').select('provider, kind, status, cost_usd, error, created_at').gte('created_at', since).order('created_at', { ascending: false }).limit(1000),
   ]);
-  // Packs bought = distinct PayDunya invoices, labelled by the ledger reason.
+  // Packs bought = distinct verified provider payments, labelled by the ledger reason.
   const packs = new Map<string, { label: string; at: string }>();
-  for (const r of credits) if (r.reference.startsWith('paydunya:')) packs.set(r.reference.split(':').slice(0, 2).join(':'), { label: r.reason.replace(/^Achat\s+/i, '').replace(/\s*\(PayDunya\)$/, ''), at: r.created_at });
-  for (const r of [...audio, ...tokens]) { const k = r.reference.split(':').slice(0, 2).join(':'); if (r.reference.startsWith('paydunya:') && !packs.has(k)) packs.set(k, { label: 'Pack audio / jetons', at: r.created_at }); }
+  for (const r of credits) if (/^(paydunya|whop|sebpay):/.test(r.reference)) packs.set(r.reference.split(':').slice(0, 2).join(':'), { label: r.reason.replace(/^Achat\s+/i, '').replace(/\s*\((PayDunya|Whop|SebPay)\)$/, ''), at: r.created_at });
+  for (const r of [...audio, ...tokens]) { const k = r.reference.split(':').slice(0, 2).join(':'); if (/^(paydunya|whop|sebpay):/.test(r.reference) && !packs.has(k)) packs.set(k, { label: 'Pack audio / jetons', at: r.created_at }); }
   const packCounts: Record<string, number> = {};
   for (const p of packs.values()) packCounts[p.label] = (packCounts[p.label] ?? 0) + 1;
 
@@ -167,7 +167,7 @@ export const founderProviderHealth = createServerFn({ method: 'GET' }).middlewar
   return Promise.all([
     check('replicate', Boolean(rep), () => fetch('https://api.replicate.com/v1/account', { headers: { Authorization: `Bearer ${rep}` } })),
     palabraHealth(process.env['PALABRA_API_KEY']),
-    check('paydunya', Boolean(process.env['PAYDUNYA_MASTER_KEY'])),
+    check('sebpay', Boolean(process.env['SEBPAY_SECRET_KEY'])),
     runpodHealth(process.env['RUNPOD_API_KEY']),
   ]);
 });

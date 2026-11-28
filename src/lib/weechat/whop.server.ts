@@ -1,7 +1,7 @@
 // Whop card checkout (server only). Amount comes from the server catalogue; fulfillment
 // re-reads the payment from Whop and checks status, owner, item and amount before crediting.
-import { findItem } from './paydunya-catalog';
-import { grantItem } from './paydunya.server';
+import { findItem } from './catalog';
+import { grantItem } from './fulfillment.server';
 import { whopVariants } from './whop-variants';
 
 const API = 'https://api.whop.com/api/v1';

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { grantItem } from '@/lib/weechat/paydunya.server';
-import { findItem } from '@/lib/weechat/paydunya-catalog';
+import { grantItem } from '@/lib/weechat/fulfillment.server';
+import { findItem } from '@/lib/weechat/catalog';
 const { rpc, getUser } = vi.hoisted(() => ({ rpc: vi.fn(), getUser: vi.fn() }));
 vi.mock('@/integrations/supabase/client.server', () => ({ supabaseAdmin: { rpc, auth: { admin: { getUserById: getUser } } } }));
 beforeEach(() => {

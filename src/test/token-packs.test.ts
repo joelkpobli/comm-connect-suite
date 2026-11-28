@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { findItem } from '@/lib/weechat/paydunya-catalog';
+import { findItem } from '@/lib/weechat/catalog';
 
 describe('AI token packs', () => {
   it.each([['tokens-100', 1000, 100], ['tokens-260', 2500, 260], ['tokens-550', 5000, 550], ['tokens-1200', 10000, 1200]])('%s costs %i FCFA for %i tokens', (id, xof, tokens) => {

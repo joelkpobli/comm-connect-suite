@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { realRelay, realTranscribe, realTranslate, realSynthesize } from '@/lib/weechat/communication.functions';
 import { founderAdjustBalance } from '@/lib/weechat/founder.functions';
-import { fulfillInvoice } from '@/lib/weechat/paydunya.server';
+import { fulfillSebpaySession } from '@/lib/weechat/sebpay.server';
 import { usageReference } from '@/lib/weechat/usage-meter';
 
 const { provider, write } = vi.hoisted(() => ({ provider: vi.fn(), write: vi.fn() }));
@@ -103,13 +103,13 @@ describe('founder self-credit restrictions', () => {
 
 describe('payment mismatch diagnostics', () => {
   it('rejects mismatched invoices without exposing their token in logs', async () => {
-    vi.stubEnv('PAYDUNYA_MASTER_KEY', 'test'); vi.stubEnv('PAYDUNYA_PRIVATE_KEY', 'test'); vi.stubEnv('PAYDUNYA_TOKEN', 'test');
+    vi.stubEnv('SEBPAY_PUBLIC_KEY', 'pk_test_x'); vi.stubEnv('SEBPAY_SECRET_KEY', 'sk_test_x');
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify({
-      response_code: '00', status: 'completed', invoice: { total_amount: 1 }, custom_data: { user_id: owner, item_id: 'standard' },
+      id: 'test-private-session-id', status: 'completed', transaction_status: 'approved', amount: 1, currency: 'XOF', metadata: { user_id: owner, item_id: 'standard' },
     }))));
     const logs = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const token = 'test-private-invoice-token';
-    expect(await fulfillInvoice(token, owner)).toEqual({ status: 'failed' });
+    const token = 'test-private-session-id';
+    expect(await fulfillSebpaySession(token, owner)).toEqual({ status: 'failed' });
     expect(logs).toHaveBeenCalledOnce();
     expect(JSON.stringify(logs.mock.calls)).not.toContain(token);
     expect(write).not.toHaveBeenCalled();

@@ -12,7 +12,7 @@ export const AUTO_PAUSE_AFTER = 2;
 export const PROVIDER_BILLING_URLS: Record<string, string> = {
   replicate: 'https://replicate.com/account/billing',
   palabra: 'https://app.palabra.ai',
-  paydunya: 'https://app.paydunya.com',
+  sebpay: 'https://new.sebpay.bj',
   runpod: 'https://www.runpod.io/console/user/billing',
 };
 

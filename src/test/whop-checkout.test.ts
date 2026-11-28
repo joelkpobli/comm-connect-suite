@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createWhopCheckout } from '@/lib/weechat/whop.server';
 import { whopVariants } from '@/lib/weechat/whop-variants';
-import { paydunyaCatalogue } from '@/lib/weechat/paydunya-catalog';
+import { catalogue } from '@/lib/weechat/catalog';
 
 afterEach(() => { vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.restoreAllMocks(); });
 
@@ -11,7 +11,7 @@ const configure = () => {
 };
 
 describe('Whop existing-plan checkout contract', () => {
-  it.each(paydunyaCatalogue.filter(item => whopVariants[item.id]).map(item => [item.id]))('sends the mapped variant_id and owner metadata for %s', async itemId => {
+  it.each(catalogue.filter(item => whopVariants[item.id]).map(item => [item.id]))('sends the mapped variant_id and owner metadata for %s', async itemId => {
     configure();
     const fetcher = vi.fn().mockResolvedValue(Response.json({ purchase_url: 'https://whop.com/checkout/ch_test/' }));
     vi.stubGlobal('fetch', fetcher);

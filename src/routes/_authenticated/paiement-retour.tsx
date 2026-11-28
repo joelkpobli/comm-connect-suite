@@ -6,26 +6,26 @@ import { CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageTitle } from '@/components/weechat/shared';
 import { confirmCheckout } from '@/lib/weechat/payments.functions';
-import { findItem } from '@/lib/weechat/paydunya-catalog';
+import { findItem } from '@/lib/weechat/catalog';
 import { pageHead } from '@/lib/weechat/metadata';
 
 export const Route = createFileRoute('/_authenticated/paiement-retour')({
-  validateSearch: (s: Record<string, unknown>) => ({ token: typeof s['token'] === 'string' ? s['token'] : '', provider: s['provider'] === 'whop' ? 'whop' : '' }),
-  head: () => pageHead('Confirmation de paiement', 'Vérification de votre paiement PayDunya Weechat.'),
+  validateSearch: (s: Record<string, unknown>) => ({ checkout_session_id: typeof s['checkout_session_id'] === 'string' ? s['checkout_session_id'] : '', provider: s['provider'] === 'whop' ? 'whop' : s['provider'] === 'sebpay' ? 'sebpay' : '' }),
+  head: () => pageHead('Confirmation de paiement', 'Vérification de votre paiement Weechat.'),
   component: PaymentReturn,
 });
 
 function PaymentReturn() {
-  const { token, provider } = Route.useSearch();
+  const { checkout_session_id: sessionId, provider } = Route.useSearch();
   const confirm = useServerFn(confirmCheckout);
   const qc = useQueryClient();
   const [state, setState] = useState<{ status: string; itemId: string | null }>({ status: 'checking', itemId: null });
   useEffect(() => {
     if (provider === 'whop') { setState({ status: 'pending', itemId: null }); const t = setTimeout(() => void qc.invalidateQueries(), 4000); return () => clearTimeout(t); }
-    if (!token) { setState({ status: 'failed', itemId: null }); return undefined; }
-    confirm({ data: { token } }).then(r => { setState(r); if (r.status === 'completed') void qc.invalidateQueries(); }).catch(() => setState({ status: 'failed', itemId: null }));
+    if (!sessionId) { setState({ status: 'failed', itemId: null }); return undefined; }
+    confirm({ data: { sessionId } }).then(r => { setState(r); if (r.status === 'completed') void qc.invalidateQueries(); }).catch(() => setState({ status: 'failed', itemId: null }));
     return undefined;
-  }, [token, provider]);
+  }, [sessionId, provider]);
   const item = state.itemId ? findItem(state.itemId) : undefined;
   const ui = {
     checking: [Clock, 'Vérification du paiement…', 'Merci de patienter quelques secondes.'],

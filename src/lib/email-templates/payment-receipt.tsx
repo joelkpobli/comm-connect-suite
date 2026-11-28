@@ -29,7 +29,7 @@ export const template = {
   component: Email,
   subject: (d: Record<string, any>) => `Paiement confirmé — ${d['packLabel'] ?? 'Weechat'}`,
   displayName: 'Reçu de paiement',
-  previewData: { packLabel: 'Pack Découverte', provider: 'PayDunya', lines: ['1 000 points', '10 minutes de traduction'], reference: 'paydunya:test123' },
+  previewData: { packLabel: 'Pack Découverte', provider: 'SebPay', lines: ['1 000 points', '10 minutes de traduction'], reference: 'sebpay:test123' },
 } satisfies TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, Helvetica, sans-serif' }
